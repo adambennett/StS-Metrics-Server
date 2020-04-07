@@ -10,9 +10,9 @@ public class SpireCard {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long card_id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonIgnoreProperties("card_choices")
     private Bundle bundle;
 
@@ -24,12 +24,12 @@ public class SpireCard {
 
     public SpireCard() {}
 
-    public Long getId() {
-        return id;
+    public Long getCard_id() {
+        return card_id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setCard_id(Long id) {
+        this.card_id = id;
     }
 
     public Bundle getBundle() {

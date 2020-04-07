@@ -21,13 +21,13 @@ public class BundleController {
 
     public static BundleService getService() { return bundles; }
 
-    @GetMapping("/bundles")
+    @GetMapping("/Bundles")
     @CrossOrigin(origins = {"http://sts-duelist-metrics.herokuapp.com", "http://localhost:4200"})
     public static Collection<Bundle> getBundles(){
         return bundles.findAll();
     }
 
-    @GetMapping("/bundles/{id}")
+    @GetMapping("/Bundles/{id}")
     @CrossOrigin(origins = {"http://sts-duelist-metrics.herokuapp.com", "http://localhost:4200"})
     public static ResponseEntity<?> getPost(@PathVariable Long id) {
         Optional<Bundle> p = bundles.findById(id);
@@ -35,21 +35,21 @@ public class BundleController {
     }
 
     @Valid
-    @PostMapping("/bundles")
+    @PostMapping("/Bundles")
     @CrossOrigin(origins = {"http://sts-duelist-metrics.herokuapp.com", "http://localhost:4200"})
     public ResponseEntity<?> save(@RequestBody Bundle run) {
         run = bundles.create(run);
         URI newPostUri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
-                .buildAndExpand(run.getId())
+                .buildAndExpand(run.getTop_id())
                 .toUri();
 
         return new ResponseEntity<>(newPostUri, HttpStatus.CREATED);
     }
 
 
-    @PutMapping("/bundles/{id}")
+    @PutMapping("/Bundles/{id}")
     @CrossOrigin(origins = {"http://sts-duelist-metrics.herokuapp.com", "http://localhost:4200"})
     public ResponseEntity<?> editPost(@RequestBody Bundle run, @PathVariable Long id)
     {
@@ -57,7 +57,7 @@ public class BundleController {
         return new ResponseEntity<>(run, HttpStatus.OK);
     }
 
-    @DeleteMapping("/bundles/{id}")
+    @DeleteMapping("/Bundles/{id}")
     @CrossOrigin(origins = {"http://sts-duelist-metrics.herokuapp.com", "http://localhost:4200"})
     public ResponseEntity<?> delete(@PathVariable Long id)
     {

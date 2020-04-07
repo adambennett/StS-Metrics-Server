@@ -3,16 +3,15 @@ package DuelistMetrics.Server.models;
 import com.fasterxml.jackson.annotation.*;
 
 import javax.persistence.*;
-import java.util.*;
 
 @Entity
 public class DamageInfo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long damage_id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonIgnoreProperties("damage_taken")
     private Bundle bundle;
 
@@ -23,12 +22,12 @@ public class DamageInfo {
 
     public DamageInfo() {}
 
-    public Long getId() {
-        return id;
+    public Long getDamage_id() {
+        return damage_id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setDamage_id(Long id) {
+        this.damage_id = id;
     }
 
     public Bundle getBundle() {

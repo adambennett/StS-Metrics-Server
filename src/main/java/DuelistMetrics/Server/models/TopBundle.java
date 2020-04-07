@@ -14,7 +14,7 @@ public class TopBundle {
 
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL, targetEntity = Bundle.class)
     @JsonIgnoreProperties("top")
-    private Bundle run;
+    private Bundle event;
 
     private String host;
     private BigInteger time;
@@ -29,12 +29,12 @@ public class TopBundle {
         this.id = id;
     }
 
-    public Bundle getRun() {
-        return run;
+    public Bundle getEvent() {
+        return event;
     }
 
-    public void setRun(Bundle run) {
-        this.run = run;
+    public void setEvent(Bundle event) {
+      this.event = event;
     }
 
     public String getHost() {

@@ -9,9 +9,9 @@ public class Event {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long event_id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonIgnoreProperties("event_choices")
     private Bundle bundle;
 
@@ -27,12 +27,12 @@ public class Event {
 
     public Event() {}
 
-    public Long getId() {
-        return id;
+    public Long getEvent_id() {
+        return event_id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setEvent_id(Long id) {
+        this.event_id = id;
     }
 
     public Bundle getBundle() {

@@ -9,23 +9,25 @@ public class Relic {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long relic_id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonIgnoreProperties("relics_obtained")
     private Bundle bundle;
 
     private Integer floor;
+
+    @Column(name = "relic_key")
     private String key;
 
     public Relic() {}
 
-    public Long getId() {
-        return id;
+    public Long getRelic_id() {
+        return relic_id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setRelic_id(Long id) {
+        this.relic_id = id;
     }
 
     public Bundle getBundle() {

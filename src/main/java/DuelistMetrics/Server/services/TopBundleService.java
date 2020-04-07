@@ -11,38 +11,31 @@ import java.util.*;
 @Service
 public class TopBundleService {
 
-    private TopBundleRepo repo;
+  private TopBundleRepo repo;
 
-    @Autowired
-    public TopBundleService(TopBundleRepo repo) { this.repo = repo; }
+  @Autowired
+  public TopBundleService(TopBundleRepo repo) { this.repo = repo; }
 
-    public TopBundle create(TopBundle bundle) {
-        boolean found = false;
-        if (bundle.getRun() != null) {
-            for (Bundle b : BundleController.getService().findAll()) {
-                if (b.getPlay_id().equals(bundle.getRun().getPlay_id())) {
-                    bundle.setRun(b);
-                    found = true;
-                    break;
-                }
-            }
+  public TopBundle create(TopBundle bundle) {
+    if (bundle.getEvent() != null) {
+      bundle.getEvent().updateChildren();
+      for (BossRelic r : bundle.getEvent().getBoss_relics()) {
+        if (r.getBundle() == null) {
+          System.out.println("HOW!");
         }
-        if (!found) {
-            Bundle bnd = new Bundle();
-            bnd.setTop(bundle);
-            bundle.setRun(bnd);
-        }
-        return this.repo.save(bundle);
+      }
     }
+    return this.repo.save(bundle);
+  }
 
-    public Collection<TopBundle> findAll() { return repo.findAll(); }
+  public Collection<TopBundle> findAll() { return repo.findAll(); }
 
-    public Optional<TopBundle> findById(long postId) { return this.repo.findById(postId); }
+  public Optional<TopBundle> findById(long postId) { return this.repo.findById(postId); }
 
-    public Boolean delete(long postId)
-    {
-        this.repo.deleteById(postId);
-        return findById(postId).isPresent();
-    }
+  public Boolean delete(long postId)
+  {
+    this.repo.deleteById(postId);
+    return findById(postId).isPresent();
+  }
 
 }

@@ -9,23 +9,25 @@ public class Potion {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long potion_id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonIgnoreProperties("potions_obtained")
     private Bundle bundle;
 
     private Integer floor;
+
+    @Column(name = "potion_key")
     private String key;
 
     public Potion() {}
 
-    public Long getId() {
-        return id;
+    public Long getPotion_id() {
+        return potion_id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setPotion_id(Long id) {
+        this.potion_id = id;
     }
 
     public Bundle getBundle() {

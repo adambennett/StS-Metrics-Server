@@ -10,9 +10,9 @@ public class BossRelic {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long boss_id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonIgnoreProperties("boss_relics")
     private Bundle bundle;
 
@@ -23,12 +23,14 @@ public class BossRelic {
 
     public BossRelic() {}
 
-    public Long getId() {
-        return id;
+/*    public BossRelic(Bundle bundle) { this.setBoss_id(bundle.getTop_id()); }*/
+
+    public Long getBoss_id() {
+        return boss_id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setBoss_id(Long id) {
+        this.boss_id = id;
     }
 
     public Bundle getBundle() {
