@@ -3,6 +3,7 @@ package DuelistMetrics.Server.controllers;
 import DuelistMetrics.Server.models.*;
 import DuelistMetrics.Server.services.*;
 import org.springframework.beans.factory.annotation.*;
+import org.springframework.data.domain.*;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.*;
@@ -21,10 +22,24 @@ public class TopBundleController {
 
     public static TopBundleService getService() { return bundles; }
 
+    @GetMapping("/Metrics/number")
+    @CrossOrigin(origins = {"http://sts-duelist-metrics.herokuapp.com", "http://localhost:4200"})
+    public static Integer getDBSize(Pageable pageable) {
+      Page<TopBundle> pages = bundles.findAllPages(pageable);
+      return pages.getTotalPages();
+    }
+
     @GetMapping("/Metrics")
     @CrossOrigin(origins = {"http://sts-duelist-metrics.herokuapp.com", "http://localhost:4200"})
     public static Collection<TopBundle> getBundles(){
         return bundles.findAll();
+    }
+
+    @GetMapping("/Metrics/pages")
+    @CrossOrigin(origins = {"http://sts-duelist-metrics.herokuapp.com", "http://localhost:4200"})
+    public static Page<TopBundle> getBundles(Pageable pageable)
+    {
+      return bundles.findAllPages(pageable);
     }
 
     @GetMapping("/Metrics/{id}")

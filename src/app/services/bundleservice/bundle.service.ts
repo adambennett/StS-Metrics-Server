@@ -13,11 +13,11 @@ export class BundleService {
   constructor(private http: HttpClient) { }
 
   getBundles(): Observable<any> {
-    return this.http.get(this.API + 'Betrics');
+    return this.http.get(this.API + 'Bundles');
   }
 
   get(id: number) {
-    return this.http.get(this.API + 'Betrics/' + id);
+    return this.http.get(this.API + 'Bundles/' + id);
   }
 
   getBoard(id: number) {

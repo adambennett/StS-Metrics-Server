@@ -1,4 +1,403 @@
+
 <mat-toolbar color="primary">
   <span>Duelist Metrics Server</span>
+  <mat-toolbar-row>
+    <button mat-button [matMenuTriggerFor]="pagemenu">Navigation</button>
+    <mat-menu #pagemenu="matMenu">
+      <button mat-menu-item [routerLink]="['/run-list']">Run Log</button>
+      <button mat-menu-item [matMenuTriggerFor]="deckmenu" [routerLink]="['/deck-compare']">Decks</button>
+      <mat-menu #deckmenu="matMenu">
+        <button mat-menu-item [routerLink]="['/run-list']" [matMenuTriggerFor]="allMenu">All</button>
+        <mat-menu #allMenu="matMenu">
+          <button mat-menu-item [routerLink]="['/run-list']">Card Tier List</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Encounters</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Popularity</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Winrates</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Most Upgraded Cards</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Non-Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Neow's Blessing Choices</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Purchased Items</button>
+        </mat-menu>
+        <button mat-menu-item [routerLink]="['/run-list']" [matMenuTriggerFor]="standardMenu">Standard</button>
+        <mat-menu #standardMenu="matMenu">
+          <button mat-menu-item [routerLink]="['/run-list']">Deck Info</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Tier List</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Encounters</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Popularity</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Winrates</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Most Upgraded Cards</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Non-Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Neow's Blessing Choices</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Purchased Items</button>
+        </mat-menu>
+        <button mat-menu-item [routerLink]="['/run-list']" [matMenuTriggerFor]="dragonMenu">Dragon</button>
+        <mat-menu #dragonMenu="matMenu">
+          <button mat-menu-item [routerLink]="['/run-list']">Deck Info</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Tier List</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Encounters</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Popularity</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Winrates</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Most Upgraded Cards</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Non-Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Neow's Blessing Choices</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Purchased Items</button>
+        </mat-menu>
+        <button mat-menu-item [routerLink]="['/run-list']" [matMenuTriggerFor]="naturiaMenu">Naturia</button>
+        <mat-menu #naturiaMenu="matMenu">
+          <button mat-menu-item [routerLink]="['/run-list']">Deck Info</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Tier List</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Encounters</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Popularity</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Winrates</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Most Upgraded Cards</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Non-Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Neow's Blessing Choices</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Purchased Items</button>
+        </mat-menu>
+        <button mat-menu-item [routerLink]="['/run-list']" [matMenuTriggerFor]="spellcasterMenu">Spellcaster</button>
+        <mat-menu #spellcasterMenu="matMenu">
+          <button mat-menu-item [routerLink]="['/run-list']">Deck Info</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Tier List</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Encounters</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Popularity</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Winrates</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Most Upgraded Cards</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Non-Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Neow's Blessing Choices</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Purchased Items</button>
+        </mat-menu>
+        <button mat-menu-item [routerLink]="['/run-list']" [matMenuTriggerFor]="toonMenu">Toon</button>
+        <mat-menu #toonMenu="matMenu">
+          <button mat-menu-item [routerLink]="['/run-list']">Deck Info</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Tier List</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Encounters</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Popularity</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Winrates</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Most Upgraded Cards</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Non-Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Neow's Blessing Choices</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Purchased Items</button>
+        </mat-menu>
+        <button mat-menu-item [routerLink]="['/run-list']" [matMenuTriggerFor]="zombieMenu">Zombie</button>
+        <mat-menu #zombieMenu="matMenu">
+          <button mat-menu-item [routerLink]="['/run-list']">Deck Info</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Tier List</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Encounters</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Popularity</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Winrates</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Most Upgraded Cards</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Non-Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Neow's Blessing Choices</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Purchased Items</button>
+        </mat-menu>
+        <button mat-menu-item [routerLink]="['/run-list']" [matMenuTriggerFor]="aquaMenu">Aqua</button>
+        <mat-menu #aquaMenu="matMenu">
+          <button mat-menu-item [routerLink]="['/run-list']">Deck Info</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Tier List</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Encounters</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Popularity</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Winrates</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Most Upgraded Cards</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Non-Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Neow's Blessing Choices</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Purchased Items</button>
+        </mat-menu>
+        <button mat-menu-item [routerLink]="['/run-list']" [matMenuTriggerFor]="fiendMenu">Fiend</button>
+        <mat-menu #fiendMenu="matMenu">
+          <button mat-menu-item [routerLink]="['/run-list']">Deck Info</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Tier List</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Encounters</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Popularity</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Winrates</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Most Upgraded Cards</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Non-Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Neow's Blessing Choices</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Purchased Items</button>
+        </mat-menu>
+        <button mat-menu-item [routerLink]="['/run-list']" [matMenuTriggerFor]="machineMenu">Machine</button>
+        <mat-menu #machineMenu="matMenu">
+          <button mat-menu-item [routerLink]="['/run-list']">Deck Info</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Tier List</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Encounters</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Popularity</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Winrates</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Most Upgraded Cards</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Non-Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Neow's Blessing Choices</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Purchased Items</button>
+        </mat-menu>
+        <button mat-menu-item [routerLink]="['/run-list']" [matMenuTriggerFor]="warriorMenu">Warrior</button>
+        <mat-menu #warriorMenu="matMenu">
+          <button mat-menu-item [routerLink]="['/run-list']">Deck Info</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Tier List</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Encounters</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Popularity</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Winrates</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Most Upgraded Cards</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Non-Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Neow's Blessing Choices</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Purchased Items</button>
+        </mat-menu>
+        <button mat-menu-item [routerLink]="['/run-list']" [matMenuTriggerFor]="insectMenu">Insect</button>
+        <mat-menu #insectMenu="matMenu">
+          <button mat-menu-item [routerLink]="['/run-list']">Deck Info</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Tier List</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Encounters</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Popularity</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Winrates</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Most Upgraded Cards</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Non-Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Neow's Blessing Choices</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Purchased Items</button>
+        </mat-menu>
+        <button mat-menu-item [routerLink]="['/run-list']" [matMenuTriggerFor]="plantMenu">Plant</button>
+        <mat-menu #plantMenu="matMenu">
+          <button mat-menu-item [routerLink]="['/run-list']">Deck Info</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Tier List</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Encounters</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Popularity</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Winrates</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Most Upgraded Cards</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Non-Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Neow's Blessing Choices</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Purchased Items</button>
+        </mat-menu>
+        <button mat-menu-item [routerLink]="['/run-list']" [matMenuTriggerFor]="megatypeMenu">Megatype</button>
+        <mat-menu #megatypeMenu="matMenu">
+          <button mat-menu-item [routerLink]="['/run-list']">Deck Info</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Tier List</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Encounters</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Popularity</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Winrates</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Most Upgraded Cards</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Non-Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Neow's Blessing Choices</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Purchased Items</button>
+        </mat-menu>
+        <button mat-menu-item [routerLink]="['/run-list']" [matMenuTriggerFor]="incrementMenu">Increment</button>
+        <mat-menu #incrementMenu="matMenu">
+          <button mat-menu-item [routerLink]="['/run-list']">Deck Info</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Tier List</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Encounters</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Popularity</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Winrates</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Most Upgraded Cards</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Non-Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Neow's Blessing Choices</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Purchased Items</button>
+        </mat-menu>
+        <button mat-menu-item [routerLink]="['/run-list']" [matMenuTriggerFor]="creatorMenu">Creator</button>
+        <mat-menu #creatorMenu="matMenu">
+          <button mat-menu-item [routerLink]="['/run-list']">Deck Info</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Tier List</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Encounters</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Popularity</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Winrates</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Most Upgraded Cards</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Non-Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Neow's Blessing Choices</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Purchased Items</button>
+        </mat-menu>
+        <button mat-menu-item [routerLink]="['/run-list']" [matMenuTriggerFor]="ojamaMenu">Ojama</button>
+        <mat-menu #ojamaMenu="matMenu">
+          <button mat-menu-item [routerLink]="['/run-list']">Deck Info</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Tier List</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Encounters</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Popularity</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Winrates</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Most Upgraded Cards</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Non-Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Neow's Blessing Choices</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Purchased Items</button>
+        </mat-menu>
+        <button mat-menu-item [routerLink]="['/run-list']" [matMenuTriggerFor]="exodiaMenu">Exodia</button>
+        <mat-menu #exodiaMenu="matMenu">
+          <button mat-menu-item [routerLink]="['/run-list']">Deck Info</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Tier List</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Encounters</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Popularity</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Winrates</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Most Upgraded Cards</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Non-Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Neow's Blessing Choices</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Purchased Items</button>
+        </mat-menu>
+        <button mat-menu-item [routerLink]="['/run-list']" [matMenuTriggerFor]="ascendedOneMenu">Ascended I</button>
+        <mat-menu #ascendedOneMenu="matMenu">
+          <button mat-menu-item [routerLink]="['/run-list']">Deck Info</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Tier List</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Encounters</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Popularity</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Winrates</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Most Upgraded Cards</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Non-Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Neow's Blessing Choices</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Purchased Items</button>
+        </mat-menu>
+        <button mat-menu-item [routerLink]="['/run-list']" [matMenuTriggerFor]="ascendedTwoMenu">Ascended II</button>
+        <mat-menu #ascendedTwoMenu="matMenu">
+          <button mat-menu-item [routerLink]="['/run-list']">Deck Info</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Tier List</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Encounters</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Popularity</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Winrates</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Most Upgraded Cards</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Non-Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Neow's Blessing Choices</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Purchased Items</button>
+        </mat-menu>
+        <button mat-menu-item [routerLink]="['/run-list']" [matMenuTriggerFor]="ascendedThreeMenu">Ascended III</button>
+        <mat-menu #ascendedThreeMenu="matMenu">
+          <button mat-menu-item [routerLink]="['/run-list']">Deck Info</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Tier List</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Encounters</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Popularity</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Winrates</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Most Upgraded Cards</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Non-Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Neow's Blessing Choices</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Purchased Items</button>
+        </mat-menu>
+        <button mat-menu-item [routerLink]="['/run-list']" [matMenuTriggerFor]="pharaohOneMenu">Pharaoh I</button>
+        <mat-menu #pharaohOneMenu="matMenu">
+          <button mat-menu-item [routerLink]="['/run-list']">Deck Info</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Tier List</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Encounters</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Popularity</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Winrates</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Most Upgraded Cards</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Non-Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Neow's Blessing Choices</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Purchased Items</button>
+        </mat-menu>
+        <button mat-menu-item [routerLink]="['/run-list']" [matMenuTriggerFor]="pharaohTwoMenu">Pharaoh II</button>
+        <mat-menu #pharaohTwoMenu="matMenu">
+          <button mat-menu-item [routerLink]="['/run-list']">Deck Info</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Tier List</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Encounters</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Popularity</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Winrates</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Most Upgraded Cards</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Non-Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Neow's Blessing Choices</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Purchased Items</button>
+        </mat-menu>
+        <button mat-menu-item [routerLink]="['/run-list']" [matMenuTriggerFor]="pharaohThreeMenu">Pharaoh III</button>
+        <mat-menu #pharaohThreeMenu="matMenu">
+          <button mat-menu-item [routerLink]="['/run-list']">Deck Info</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Tier List</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Encounters</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Popularity</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Winrates</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Most Upgraded Cards</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Non-Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Neow's Blessing Choices</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Purchased Items</button>
+        </mat-menu>
+        <button mat-menu-item [routerLink]="['/run-list']" [matMenuTriggerFor]="pharaohFourMenu">Pharaoh IV</button>
+        <mat-menu #pharaohFourMenu="matMenu">
+          <button mat-menu-item [routerLink]="['/run-list']">Deck Info</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Tier List</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Encounters</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Popularity</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Winrates</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Most Upgraded Cards</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Non-Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Neow's Blessing Choices</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Purchased Items</button>
+        </mat-menu>
+        <button mat-menu-item [routerLink]="['/run-list']" [matMenuTriggerFor]="pharaohFiveMenu">Pharaoh V</button>
+        <mat-menu #pharaohFiveMenu="matMenu">
+          <button mat-menu-item [routerLink]="['/run-list']">Deck Info</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Tier List</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Encounters</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Popularity</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Winrates</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Most Upgraded Cards</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Non-Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Neow's Blessing Choices</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Purchased Items</button>
+        </mat-menu>
+        <button mat-menu-item [routerLink]="['/run-list']" [matMenuTriggerFor]="randomSmallMenu">Random (Small)</button>
+        <mat-menu #randomSmallMenu="matMenu">
+          <button mat-menu-item [routerLink]="['/run-list']">Deck Info</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Tier List</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Encounters</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Popularity</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Winrates</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Most Upgraded Cards</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Non-Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Neow's Blessing Choices</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Purchased Items</button>
+        </mat-menu>
+        <button mat-menu-item [routerLink]="['/run-list']" [matMenuTriggerFor]="randomBigMenu">Random (Big)</button>
+        <mat-menu #randomBigMenu="matMenu">
+          <button mat-menu-item [routerLink]="['/run-list']">Deck Info</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Tier List</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Encounters</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Popularity</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Winrates</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Most Upgraded Cards</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Non-Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Neow's Blessing Choices</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Purchased Items</button>
+        </mat-menu>
+        <button mat-menu-item [routerLink]="['/run-list']" [matMenuTriggerFor]="upgradeMenu">Upgrade</button>
+        <mat-menu #upgradeMenu="matMenu">
+          <button mat-menu-item [routerLink]="['/run-list']">Deck Info</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Tier List</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Encounters</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Popularity</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Winrates</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Most Upgraded Cards</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Non-Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Neow's Blessing Choices</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Purchased Items</button>
+        </mat-menu>
+        <button mat-menu-item [routerLink]="['/run-list']" [matMenuTriggerFor]="metronomeMenu">Metronome</button>
+        <mat-menu #metronomeMenu="matMenu">
+          <button mat-menu-item [routerLink]="['/run-list']">Deck Info</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Tier List</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Encounters</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Popularity</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Card Winrates</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Most Upgraded Cards</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Non-Boss Relics</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Neow's Blessing Choices</button>
+          <button mat-menu-item [routerLink]="['/run-list']">Purchased Items</button>
+        </mat-menu>
+      </mat-menu>
+    </mat-menu>
+  </mat-toolbar-row>
 </mat-toolbar>
 <router-outlet></router-outlet>

@@ -48,12 +48,21 @@ import {PortalModule} from "@angular/cdk/portal";
 import {A11yModule} from "@angular/cdk/a11y";
 import {CdkStepperModule} from "@angular/cdk/stepper";
 import {CdkTableModule} from "@angular/cdk/table";
+import { DeckCompareComponent } from './deck-compare/deck-compare.component';
 
 const appRoutes: Routes = [
   { path: '', redirectTo: '/run-list', pathMatch: 'full' },
   {
     path: 'run-list',
     component: RunListComponent
+  },
+  {
+    path: 'deck-compare',
+    component: DeckCompareComponent
+  },
+  {
+    path: 'run-view',
+    component: RunViewComponent
   }
 ];
 
@@ -63,7 +72,8 @@ const appRoutes: Routes = [
     RunListComponent,
     MasterDeckListComponent,
     RelicListComponent,
-    RunViewComponent
+    RunViewComponent,
+    DeckCompareComponent
   ],
   imports: [
     BrowserModule,
@@ -112,7 +122,7 @@ const appRoutes: Routes = [
     MatTabsModule,
     MatToolbarModule,
     MatTooltipModule,
-    PortalModule
+    PortalModule,
   ],
   providers: [TopService, BundleService],
   bootstrap: [AppComponent]

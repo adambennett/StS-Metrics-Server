@@ -20,8 +20,16 @@ export class TopService {
     return this.http.get(this.API + 'Metrics/' + id);
   }
 
-  getBoard(id: number) {
+  getNumberOfBundles(): Observable<number> {
+    return this.http.get<number>(this.API + 'Metrics/number');
+  }
+
+  getBundle(id: number) {
     return this.http.get('http://localhost:8080/Metrics/' + id);
+  }
+
+  getBundlePages(pageNum: number, pageSize: number): Observable<any> {
+    return this.http.get(this.API + 'Metrics/pages?page=' + pageNum + '&size=' + pageSize);
   }
 
   save(bundle: any, id: number): Observable<any> {

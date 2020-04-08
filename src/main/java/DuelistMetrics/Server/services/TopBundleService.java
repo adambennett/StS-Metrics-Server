@@ -4,6 +4,7 @@ import DuelistMetrics.Server.controllers.*;
 import DuelistMetrics.Server.models.*;
 import DuelistMetrics.Server.repositories.*;
 import org.springframework.beans.factory.annotation.*;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.*;
 
 import java.util.*;
@@ -29,6 +30,8 @@ public class TopBundleService {
   }
 
   public Collection<TopBundle> findAll() { return repo.findAll(); }
+
+  public Page<TopBundle> findAllPages(Pageable pageable) { return repo.findAll(pageable); }
 
   public Optional<TopBundle> findById(long postId) { return this.repo.findById(postId); }
 
