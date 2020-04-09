@@ -4,15 +4,9 @@ import com.fasterxml.jackson.annotation.*;
 
 import javax.persistence.*;
 
-@Entity
+
 public class Event {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long event_id;
-
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JsonIgnoreProperties("event_choices")
     private Bundle bundle;
 
     private Integer damage_healed;
@@ -26,14 +20,6 @@ public class Event {
     private String player_choice;
 
     public Event() {}
-
-    public Long getEvent_id() {
-        return event_id;
-    }
-
-    public void setEvent_id(Long id) {
-        this.event_id = id;
-    }
 
     public Bundle getBundle() {
         return bundle;

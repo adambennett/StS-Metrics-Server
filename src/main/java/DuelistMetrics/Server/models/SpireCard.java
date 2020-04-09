@@ -5,32 +5,16 @@ import com.fasterxml.jackson.annotation.*;
 import javax.persistence.*;
 import java.util.*;
 
-@Entity
+
 public class SpireCard {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long card_id;
-
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JsonIgnoreProperties("card_choices")
     private Bundle bundle;
 
     private Integer floor;
     private String picked;
-
-    @ElementCollection
     private List<String> not_picked;
 
     public SpireCard() {}
-
-    public Long getCard_id() {
-        return card_id;
-    }
-
-    public void setCard_id(Long id) {
-        this.card_id = id;
-    }
 
     public Bundle getBundle() {
         return bundle;

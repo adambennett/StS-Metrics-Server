@@ -9,10 +9,9 @@ import java.util.*;
 public class OfferCard {
 
   @Id
- // @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long card_id;
 
-  @MapsId
   @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
   @JsonIgnoreProperties("cards")
   private PickInfo info;

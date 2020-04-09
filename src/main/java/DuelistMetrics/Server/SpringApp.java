@@ -11,9 +11,10 @@ public class SpringApp {
 
 	public static void main(String[] args) {
 	  SpringApplication.run(SpringApp.class, args);
-
-	  // BE CAREFUL WITH THIS
-    //try { BundleProcessor.readIn(); } catch (IOException ignored) {}
+	  //BundleProcessor.generatePickInfos();
+    //try { BundleProcessor.parse(); } catch (IOException ignored) {}
 	}
+
+
 
 }

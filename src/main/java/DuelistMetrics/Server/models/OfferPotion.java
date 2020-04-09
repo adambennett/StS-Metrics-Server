@@ -3,15 +3,15 @@ package DuelistMetrics.Server.models;
 import com.fasterxml.jackson.annotation.*;
 
 import javax.persistence.*;
+import java.util.*;
 
 @Entity
 public class OfferPotion {
 
   @Id
-  //@GeneratedValue(strategy = GenerationType.IDENTITY)
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long potion_id;
 
-  @MapsId
   @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
   @JsonIgnoreProperties("potions")
   private PickInfo info;
@@ -67,5 +67,18 @@ public class OfferPotion {
 
   public void setPickVic(Integer pickVic) {
     this.pickVic = pickVic;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof OfferPotion)) return false;
+    OfferPotion that = (OfferPotion) o;
+    return Objects.equals(getName(), that.getName());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(getName());
   }
 }

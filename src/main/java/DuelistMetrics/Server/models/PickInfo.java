@@ -45,22 +45,59 @@ public class PickInfo {
     this.deck = deck;
     this.ascension = asc;
     this.challenge_level = chal;
+    this.cards = new ArrayList<>();
+    this.relics = new ArrayList<>();
+    this.potions = new ArrayList<>();
+    this.neow = new ArrayList<>();
   }
 
   public void addCard(OfferCard card) {
-    this.cards.add(card);
+    if (!this.cards.contains(card)) { this.cards.add(card); }
+    else {
+      for (OfferCard c : this.cards) {
+        if (c.equals(card)) {
+          c.setPicked(c.getPicked() + card.getPicked());
+          c.setPickVic(c.getPickVic() + card.getPickVic());
+          c.setOffered(c.getOffered() + card.getOffered());
+        }
+      }
+    }
   }
 
   public void addRelic(OfferRelic relic) {
-    this.relics.add(relic);
+    if (!this.relics.contains(relic)) { this.relics.add(relic); }
+    else {
+      for (OfferRelic c : this.relics) {
+        if (c.equals(relic)) {
+          c.setPicked(c.getPicked() + relic.getPicked());
+          c.setPickVic(c.getPickVic() + relic.getPickVic());
+        }
+      }
+    }
   }
 
   public void addPotion(OfferPotion potion) {
-    this.potions.add(potion);
+    if (!this.potions.contains(potion)) { this.potions.add(potion); }
+    else {
+      for (OfferPotion c : this.potions) {
+        if (c.equals(potion)) {
+          c.setPicked(c.getPicked() + potion.getPicked());
+          c.setPickVic(c.getPickVic() + potion.getPickVic());
+        }
+      }
+    }
   }
 
   public void addNeow(OfferNeow offerNeow) {
-    this.neow.add(offerNeow);
+    if (!this.neow.contains(offerNeow)) { this.neow.add(offerNeow); }
+    else {
+      for (OfferNeow c : this.neow) {
+        if (c.equals(offerNeow)) {
+          c.setPicked(c.getPicked() + offerNeow.getPicked());
+          c.setPickVic(c.getPickVic() + offerNeow.getPickVic());
+        }
+      }
+    }
   }
 
   public Long getId() {

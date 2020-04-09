@@ -4,32 +4,16 @@ import com.fasterxml.jackson.annotation.*;
 
 import javax.persistence.*;
 
-@Entity
+
 public class CampfireChoice {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long fire_id;
-
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JsonIgnoreProperties("campfire_choices")
     private Bundle bundle;
 
     private Integer floor;
     private String data;
-
-    @Column(name = "fire_key")
     private String key;
 
     public CampfireChoice() {}
-
-    public Long getFire_id() {
-        return fire_id;
-    }
-
-    public void setFire_id(Long id) {
-        this.fire_id = id;
-    }
 
     public Bundle getBundle() {
         return bundle;

@@ -12,24 +12,28 @@ export class TopService {
 
   constructor(private http: HttpClient) { }
 
+  getCards(): Observable<any> {
+    return this.http.get(this.API + 'Cards');
+  }
+
   getBundles(): Observable<any> {
-    return this.http.get(this.API + 'Metrics');
+    return this.http.get(this.API + 'Runs');
   }
 
   get(id: number) {
-    return this.http.get(this.API + 'Metrics/' + id);
+    return this.http.get(this.API + 'Runs/' + id);
   }
 
   getNumberOfBundles(): Observable<number> {
-    return this.http.get<number>(this.API + 'Metrics/number');
+    return this.http.get<number>(this.API + 'Runs/number');
   }
 
   getBundle(id: number) {
-    return this.http.get('http://localhost:8080/Metrics/' + id);
+    return this.http.get(this.API + 'Runs/' + id);
   }
 
   getBundlePages(pageNum: number, pageSize: number): Observable<any> {
-    return this.http.get(this.API + 'Metrics/pages?page=' + pageNum + '&size=' + pageSize);
+    return this.http.get(this.API + 'Runs/pages?page=' + pageNum + '&size=' + pageSize);
   }
 
   save(bundle: any, id: number): Observable<any> {
@@ -37,7 +41,7 @@ export class TopService {
     if (bundle.href) {
       result = this.http.put(bundle.href, bundle);
     } else {
-      result = this.http.post(this.API + 'Metrics/', bundle);
+      result = this.http.post(this.API + 'Runs/', bundle);
     }
     return result;
   }
