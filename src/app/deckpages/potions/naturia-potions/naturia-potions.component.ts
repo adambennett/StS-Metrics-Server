@@ -10,7 +10,7 @@ import {TopService} from "../../../services/topservice/top.service";
   styleUrls: ['./naturia-potions.component.scss']
 })
 export class NaturiaPotionsComponent implements OnInit {
-  displayedColumns: string[] = ['name', 'popularity', 'power', 'offered', 'picked', 'pickVic'];
+  displayedColumns: string[] = ['name', 'popularity', 'power', 'picked', 'pickVic'];
   cards: Array<any>;
   dataSource: MatTableDataSource<any>;
 

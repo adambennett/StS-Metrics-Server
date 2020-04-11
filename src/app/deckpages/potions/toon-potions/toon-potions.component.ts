@@ -11,7 +11,7 @@ import {TopService} from "../../../services/topservice/top.service";
 })
 export class ToonPotionsComponent implements OnInit {
 
-  displayedColumns: string[] = ['name', 'popularity', 'power', 'offered', 'picked', 'pickVic'];
+  displayedColumns: string[] = ['name', 'popularity', 'power', 'picked', 'pickVic'];
   cards: Array<any>;
   dataSource: MatTableDataSource<any>;
 

@@ -10,7 +10,7 @@ import {TopService} from "../../../services/topservice/top.service";
   styleUrls: ['./all-neow.component.scss']
 })
 export class AllNeowComponent implements OnInit {
-  displayedColumns: string[] = ['name', 'popularity', 'power', 'offered', 'picked', 'pickVic'];
+  displayedColumns: string[] = ['name', 'popularity', 'power', 'picked', 'pickVic'];
   cards: Array<any>;
   dataSource: MatTableDataSource<any>;
 
