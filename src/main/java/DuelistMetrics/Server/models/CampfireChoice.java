@@ -5,45 +5,62 @@ import com.fasterxml.jackson.annotation.*;
 import javax.persistence.*;
 
 
+@Entity
 public class CampfireChoice {
 
-    private Bundle bundle;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long fire_id;
 
-    private Integer floor;
-    private String data;
-    private String key;
+  @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+  @JsonIgnoreProperties("campfire_choices")
+  private Bundle bundle;
 
-    public CampfireChoice() {}
+  private Integer floor;
+  private String data;
 
-    public Bundle getBundle() {
-        return bundle;
-    }
+  @Column(name = "fire_key")
+  private String key;
 
-    public void setBundle(Bundle bundle) {
-        this.bundle = bundle;
-    }
+  public CampfireChoice() {}
 
-    public Integer getFloor() {
-        return floor;
-    }
+  public Long getFire_id() {
+    return fire_id;
+  }
 
-    public void setFloor(Integer floor) {
-        this.floor = floor;
-    }
+  public void setFire_id(Long id) {
+    this.fire_id = id;
+  }
 
-    public String getData() {
-        return data;
-    }
+  public Bundle getBundle() {
+    return bundle;
+  }
 
-    public void setData(String data) {
-        this.data = data;
-    }
+  public void setBundle(Bundle bundle) {
+    this.bundle = bundle;
+  }
 
-    public String getKey() {
-        return key;
-    }
+  public Integer getFloor() {
+    return floor;
+  }
 
-    public void setKey(String key) {
-        this.key = key;
-    }
+  public void setFloor(Integer floor) {
+    this.floor = floor;
+  }
+
+  public String getData() {
+    return data;
+  }
+
+  public void setData(String data) {
+    this.data = data;
+  }
+
+  public String getKey() {
+    return key;
+  }
+
+  public void setKey(String key) {
+    this.key = key;
+  }
 }

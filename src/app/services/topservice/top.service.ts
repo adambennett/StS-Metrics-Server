@@ -12,41 +12,47 @@ export class TopService {
 
   constructor(private http: HttpClient) { }
 
+  getDeckCompare(): Observable<any> {
+    return this.http.get(this.API + 'Decks');
+  }
+
+  getDeckInfo(deck: string): Observable<any> {
+    return this.http.get(this.API + 'Decks/' + deck + "/info");
+  }
+
   getCards(): Observable<any> {
     return this.http.get(this.API + 'Cards');
   }
 
-  getBundles(): Observable<any> {
+  getRelics(): Observable<any> {
+    return this.http.get(this.API + 'Relics');
+  }
+
+  getPotions(): Observable<any> {
+    return this.http.get(this.API + 'Potions');
+  }
+
+  getNeows(): Observable<any> {
+    return this.http.get(this.API + 'Neow');
+  }
+
+  getCardsFromDeck(deck: string): Observable<any> {
+    return this.http.get(this.API + 'Cards/' + deck);
+  }
+
+  getRelicsFromDeck(deck: string): Observable<any> {
+    return this.http.get(this.API + 'Relics/' + deck);
+  }
+
+  getPotionsFromDeck(deck: string): Observable<any> {
+    return this.http.get(this.API + 'Potions/' + deck);
+  }
+
+  getNeowsFromDeck(deck: string): Observable<any> {
+    return this.http.get(this.API + 'Neow/' + deck);
+  }
+
+  getRuns(): Observable<any> {
     return this.http.get(this.API + 'Runs');
-  }
-
-  get(id: number) {
-    return this.http.get(this.API + 'Runs/' + id);
-  }
-
-  getNumberOfBundles(): Observable<number> {
-    return this.http.get<number>(this.API + 'Runs/number');
-  }
-
-  getBundle(id: number) {
-    return this.http.get(this.API + 'Runs/' + id);
-  }
-
-  getBundlePages(pageNum: number, pageSize: number): Observable<any> {
-    return this.http.get(this.API + 'Runs/pages?page=' + pageNum + '&size=' + pageSize);
-  }
-
-  save(bundle: any, id: number): Observable<any> {
-    let result: Observable<any>;
-    if (bundle.href) {
-      result = this.http.put(bundle.href, bundle);
-    } else {
-      result = this.http.post(this.API + 'Runs/', bundle);
-    }
-    return result;
-  }
-
-  remove(href: string) {
-    return this.http.delete(href);
   }
 }

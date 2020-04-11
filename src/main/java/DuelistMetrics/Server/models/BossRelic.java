@@ -6,35 +6,53 @@ import javax.persistence.*;
 import java.util.*;
 
 
+@Entity
 public class BossRelic {
 
-    private Bundle bundle;
-    private String picked;
-    private List<String> not_picked;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long boss_id;
 
-    public BossRelic() {}
+  @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+  @JsonIgnoreProperties("boss_relics")
+  private Bundle bundle;
 
-    public Bundle getBundle() {
-        return bundle;
-    }
+  private String picked;
 
-    public void setBundle(Bundle bundle) {
-        this.bundle = bundle;
-    }
+  @ElementCollection
+  private List<String> not_picked;
 
-    public String getPicked() {
-        return picked;
-    }
+  public BossRelic() {}
 
-    public void setPicked(String picked) {
-        this.picked = picked;
-    }
+  public Long getBoss_id() {
+    return boss_id;
+  }
 
-    public List<String> getNot_picked() {
-        return not_picked;
-    }
+  public void setBoss_id(Long id) {
+    this.boss_id = id;
+  }
 
-    public void setNot_picked(List<String> not_picked) {
-        this.not_picked = not_picked;
-    }
+  public Bundle getBundle() {
+    return bundle;
+  }
+
+  public void setBundle(Bundle bundle) {
+    this.bundle = bundle;
+  }
+
+  public String getPicked() {
+    return picked;
+  }
+
+  public void setPicked(String picked) {
+    this.picked = picked;
+  }
+
+  public List<String> getNot_picked() {
+    return not_picked;
+  }
+
+  public void setNot_picked(List<String> not_picked) {
+    this.not_picked = not_picked;
+  }
 }

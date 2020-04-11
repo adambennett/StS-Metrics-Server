@@ -5,36 +5,53 @@ import com.fasterxml.jackson.annotation.*;
 import javax.persistence.*;
 
 
+@Entity
 public class Potion {
 
-    private Bundle bundle;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long potion_id;
 
-    private Integer floor;
-    private String key;
+  @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+  @JsonIgnoreProperties("potions_obtained")
+  private Bundle bundle;
 
-    public Potion() {}
+  private Integer floor;
 
-    public Bundle getBundle() {
-        return bundle;
-    }
+  @Column(name = "potion_key")
+  private String key;
 
-    public void setBundle(Bundle bundle) {
-        this.bundle = bundle;
-    }
+  public Potion() {}
 
-    public Integer getFloor() {
-        return floor;
-    }
+  public Long getPotion_id() {
+    return potion_id;
+  }
 
-    public void setFloor(Integer floor) {
-        this.floor = floor;
-    }
+  public void setPotion_id(Long id) {
+    this.potion_id = id;
+  }
 
-    public String getKey() {
-        return key;
-    }
+  public Bundle getBundle() {
+    return bundle;
+  }
 
-    public void setKey(String key) {
-        this.key = key;
-    }
+  public void setBundle(Bundle bundle) {
+    this.bundle = bundle;
+  }
+
+  public Integer getFloor() {
+    return floor;
+  }
+
+  public void setFloor(Integer floor) {
+    this.floor = floor;
+  }
+
+  public String getKey() {
+    return key;
+  }
+
+  public void setKey(String key) {
+    this.key = key;
+  }
 }

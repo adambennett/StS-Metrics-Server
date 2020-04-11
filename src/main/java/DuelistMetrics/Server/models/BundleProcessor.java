@@ -12,19 +12,265 @@ import java.util.logging.*;
 
 public class BundleProcessor {
 
-  private static class Mapper<K> {
-    BiFunction<K, Integer, Integer> mapper;
 
-    public Mapper() { mapper = (k,v) -> (v==null) ? 1 : v+1; }
 
-    public BiFunction<K,Integer,Integer> mp(int amt) {
-      mapper = (k,v) -> (v==null) ? amt : v+amt;
-      return mapper; }
-
-    public BiFunction<K,Integer,Integer> mp() { return mapper; }
+  public static void parseFolder(String folderPath, boolean saveTopBundles, boolean saveRunsAndInfos) {
+    if (saveTopBundles || saveRunsAndInfos) {
+      Logger.getGlobal().info("Reading all files in src/main/resources/runs...");
+      ArrayList<TopBundle> bundles = readIn(folderPath);
+      Logger.getGlobal().info(bundles.size() + " run files read in for processing.");
+      if (getUserInput("Would you like to process " + bundles.size() + " run files? [Y/N]: ", "y")) {
+        if (getUserInput("Would you like to process ALL files in one go? [Y/N]: ","y")) {
+          for (TopBundle run : bundles) { parse(run, saveTopBundles, saveRunsAndInfos); }
+          Logger.getGlobal().info("Finished processing for " + bundles.size() + " run files");
+        }
+        else {
+          int filesProc = handleIntermittentProcess(bundles, saveTopBundles, saveRunsAndInfos);
+          Logger.getGlobal().info("Finished processing for " + filesProc + " run files");
+        }
+      }
+    }
+    else { Logger.getGlobal().info("Skipping runs folder check"); }
   }
 
-  public static void generatePickInfos() {
+  public static void parse(TopBundle bnd, boolean saveTopBundles, boolean saveRunsAndInfos) {
+    if (saveTopBundles || saveRunsAndInfos) {
+      Mapper<String> com = new Mapper<>();
+      Map<String, Integer> offered = new HashMap<>();
+      Map<String, Integer> picked = new HashMap<>();
+      Map<String, Integer> pickedVic = new HashMap<>();
+      Map<String, Integer> pickedR = new HashMap<>();
+      Map<String, Integer> pickedP = new HashMap<>();
+      Map<String, Integer> pickedN = new HashMap<>();
+      Map<String, Integer> pickedVicR = new HashMap<>();
+      Map<String, Integer> pickedVicP = new HashMap<>();
+      Map<String, Integer> pickedVicN = new HashMap<>();
+
+      PickInfo info = null;
+      boolean victory = bnd.getEvent().getVictory();
+      Integer ascensionLvl = bnd.getEvent().getAscension_level();
+      Integer challengeLvl = bnd.getEvent().getChallenge_level();
+      if (challengeLvl == null) { challengeLvl = -1; }
+      String deck = bnd.getEvent().getStarting_deck();
+      String runID = "run #" + bnd.getEvent().getPlay_id();
+      Logger.getGlobal().info("Attempting to parse and save " + runID);
+      //if (!bnd.getEvent().getIs_endless()) {
+        // Parse the information we are interested in from cards/relics/potions/neow bonuses
+        // Parsed info is saved into passed in maps
+        parseCards(bnd, offered, picked, pickedVic, com, victory);
+        parseRelics(bnd, pickedR, pickedVicR, com, victory);
+        parsePotions(bnd, pickedP, pickedVicP, com, victory);
+        parseNeow(bnd, pickedN, pickedVicN, victory);
+
+        // Find or create info model to represent the state of the run (ascension/challenge/starting deck)
+        info = getPinfo(deck, ascensionLvl, challengeLvl);
+
+        // Update info model with processed run info
+        processCards(info, offered, picked, pickedVic);
+        processRelics(info, pickedR, pickedVicR);
+        processPotions(info, pickedP, pickedVicP);
+        processNeow(info, pickedN, pickedVicN);
+      /*} else {
+        Logger.getGlobal().info("Endless run #" + runID + " will not have PickInfo saved.");
+      }*/
+
+      // Save all to DB
+      saveParsedInfo(info, bnd, deck, ascensionLvl, challengeLvl, runID, saveTopBundles, saveRunsAndInfos);
+    } else {
+      Logger.getGlobal().warning("Nothing to save!");
+    }
+  }
+
+  private static void saveParsedInfo(PickInfo info, TopBundle bnd, String deck, int asc, int chal, String runID, boolean saveTopBundles, boolean saveRunsAndInfos) {
+    if (saveRunsAndInfos || saveTopBundles) {
+      Logger.getGlobal().info("Parsed " + runID + ". Attempting to save to DB...");
+      if (saveRunsAndInfos) {
+        if (info != null) {
+          InfoController.getService().create(info);
+          Logger.getGlobal().info("PickInfo saved");
+        }
+        Boolean kaiba = bnd.getEvent().getPlaying_as_kaiba();
+        String killedBy = bnd.getEvent().getKilled_by();
+        if (kaiba == null) { kaiba = false; }
+        if (killedBy == null || killedBy.equals(" ")) { killedBy = "Self"; }
+        RunLog log = new RunLogBuilder()
+          .setAscension(asc)
+          .setChallenge(chal)
+          .setDeck(deck)
+          .setFloor(bnd.getEvent().getFloor_reached())
+          .setHost(bnd.getHost())
+          .setKaiba(kaiba)
+          .setKilledBy(killedBy)
+          .setVictory(bnd.getEvent().getVictory())
+          .createRunLog();
+        RunLogController.getService().create(log);
+        Logger.getGlobal().info("RunLog saved");
+      }
+      if (saveTopBundles) {
+        BundleController.getService().create(bnd);
+        Logger.getGlobal().info("TopBundle saved");
+      }
+      Logger.getGlobal().info("Full run data has been added to DB for " + runID);
+    } else {
+      Logger.getGlobal().warning("Nothing to save!");
+    }
+  }
+
+  private static PickInfo getPinfo(String deck, int asc, int chal) {
+    PickInfo info = InfoController.getService().findInfo(deck, asc, chal);
+    if (info == null) { info = new PickInfo(deck, asc, chal); }
+    return info;
+  }
+
+  private static void parseCards(TopBundle bnd, Map<String, Integer> offered, Map<String, Integer> picked, Map<String, Integer> pickedVic, Mapper<String> com, boolean vic) {
+    for (SpireCard c : bnd.getEvent().getCard_choices()) {
+      String pick = c.getPicked();
+      if (!pick.equals("SKIP") && !pick.equals("Singing Bowl")) {
+        StringBuilder bd = new StringBuilder();
+        bd.append(pick);
+        if (bd.indexOf("+") > 0) {
+          pick = pick.substring(0, bd.indexOf("+"));
+        }
+        offered.compute(pick, com.mp());
+        picked.compute(pick, com.mp());
+      }
+      List<String> notPicked = c.getNot_picked();
+      for (String s : notPicked) {
+        StringBuilder b = new StringBuilder();
+        b.append(s);
+        if (b.indexOf("+") > 0) {
+          s = s.substring(0, b.indexOf("+"));
+        }
+        offered.compute(s, com.mp());
+      }
+      if (vic && !pick.equals("SKIP") && !pick.equals("Singing Bowl")) { pickedVic.compute(pick, com.mp()); }
+    }
+  }
+
+  private static void parseRelics(TopBundle bnd, Map<String,Integer> pickedR, Map<String, Integer> pickedVicR, Mapper<String> com, boolean vic) {
+    for (String r : bnd.getEvent().getRelics()) {
+      pickedR.compute(r, com.mp());
+      if (vic) { pickedVicR.compute(r, com.mp()); }
+    }
+  }
+
+  private static void parsePotions(TopBundle bnd, Map<String,Integer> pickedP, Map<String, Integer> pickedVicP, Mapper<String> com, boolean vic) {
+    for (Potion p : bnd.getEvent().getPotions_obtained()) {
+      String pick = p.getKey();
+      pickedP.compute(pick, com.mp());
+      if (vic) { pickedVicP.compute(pick, com.mp()); }
+    }
+  }
+
+  private static void parseNeow(TopBundle bnd, Map<String,Integer> pickedN, Map<String, Integer> pickedVicN, boolean vic) {
+    String neow = bnd.getEvent().getNeow_bonus();
+    pickedN.compute(neow, (k,v) -> (v==null) ? 1 : v+1);
+    if (vic) { pickedVicN.compute(neow, (k,v) -> (v==null) ? 1 : v+1); }
+  }
+
+  private static void processCards(PickInfo info, Map<String, Integer> offered, Map<String, Integer> picked, Map<String, Integer> pickedVic) {
+    for (Map.Entry<String, Integer> entry : offered.entrySet()) { info.addCard(new OfferCard(entry.getKey(), entry.getValue(), 0, 0, info)); }
+    for (Map.Entry<String, Integer> entry : picked.entrySet()) {
+      boolean found = false;
+      for (OfferCard c : info.getCards()) {
+        if (c.getName().equals(entry.getKey())) {
+          c.setPicked(entry.getValue());
+          found = true;
+          break;
+        }
+      }
+      if (!found) { info.addCard(new OfferCard(entry.getKey(), 0, entry.getValue(), 0, info)); }
+    }
+    for (Map.Entry<String, Integer> entry : pickedVic.entrySet()) {
+      boolean found = false;
+      for (OfferCard c : info.getCards()) {
+        if (c.getName().equals(entry.getKey())) {
+          c.setPickVic(entry.getValue());
+          found = true;
+          break;
+        }
+      }
+      if (!found) { info.addCard(new OfferCard(entry.getKey(), 0, entry.getValue(), entry.getValue(), info)); }
+    }
+  }
+
+  private static void processRelics(PickInfo info, Map<String, Integer> pickedR, Map<String, Integer> pickedVicR) {
+    for (Map.Entry<String, Integer> entry : pickedR.entrySet()) { info.addRelic(new OfferRelic(entry.getKey(), entry.getValue(), 0, info)); }
+    for (Map.Entry<String, Integer> entry : pickedVicR.entrySet()) {
+      boolean found = false;
+      for (OfferRelic r : info.getRelics()) {
+        if (r.getName().equals(entry.getKey())) {
+          r.setPickVic(entry.getValue());
+          found = true;
+          break;
+        }
+      }
+      if (!found) { info.addRelic(new OfferRelic(entry.getKey(), entry.getValue(), entry.getValue(), info)); }
+    }
+  }
+
+  private static void processPotions(PickInfo info, Map<String, Integer> pickedP, Map<String, Integer> pickedVicP) {
+    for (Map.Entry<String, Integer> entry : pickedP.entrySet()) { info.addPotion(new OfferPotion(entry.getKey(), entry.getValue(), 0, info)); }
+    for (Map.Entry<String, Integer> entry : pickedVicP.entrySet()) {
+      boolean found = false;
+      for (OfferPotion p : info.getPotions()) {
+        if (p.getName().equals(entry.getKey())) {
+          p.setPickVic(entry.getValue());
+          found = true;
+          break;
+        }
+      }
+      if (!found) { info.addPotion(new OfferPotion(entry.getKey(), entry.getValue(), entry.getValue(), info)); }
+    }
+  }
+
+
+  private static void processNeow(PickInfo info, Map<String, Integer> pickedN, Map<String, Integer> pickedVicN) {
+    // Neow
+    for (Map.Entry<String, Integer> entry : pickedN.entrySet()) { info.addNeow(new OfferNeow(entry.getKey(), entry.getValue(), 0, info)); }
+    for (Map.Entry<String, Integer> entry : pickedVicN.entrySet()) {
+      boolean found = false;
+      for (OfferNeow n : info.getNeow()) {
+        if (n.getName().equals(entry.getKey())) {
+          n.setPickVic(entry.getValue());
+          found = true;
+          break;
+        }
+      }
+      if (!found) { info.addNeow(new OfferNeow(entry.getKey(), entry.getValue(), entry.getValue(), info)); }
+    }
+  }
+
+  private static ArrayList<TopBundle> readIn(String path){
+    File folder = new File(path);
+    File[] listOfFiles = folder.listFiles();
+    if (listOfFiles != null) {
+      ArrayList<TopBundle> output = new ArrayList<>();
+      if (listOfFiles.length > 0) {
+        for (File file : listOfFiles) {
+          if (file.isFile()) {
+            try {
+              output.add(new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).readValue(FileUtils.readFileToString(file), TopBundle.class));
+            } catch (IOException ignored) {}
+          }
+        }
+      }
+      return output;
+    }
+    Logger.getGlobal().warning("Did not read in runs properly!");
+    return new ArrayList<>();
+  }
+
+  private static Boolean getUserInput(String prompt, String passString) {
+    Scanner scanner = new Scanner(System.in);
+    System.out.println(prompt);
+    String userInput = scanner.nextLine();
+    return (userInput.toLowerCase().equals(passString.toLowerCase()));
+  }
+
+  // Only needed if/when database needs to be reset
+  // Run just once
+  private static void generatePickInfos() {
     ArrayList<String> decks = new ArrayList<>();
     decks.add("Standard Deck");
     decks.add("Dragon Deck");
@@ -65,321 +311,47 @@ public class BundleProcessor {
     }
   }
 
-  public static void parse(TopBundle bnd) {
-    Mapper<String> com = new Mapper<>();
-    Map<String, Integer> offered = new HashMap<>();
-    Map<String, Integer> picked = new HashMap<>();
-    Map<String, Integer> pickedVic = new HashMap<>();
-    Map<String, Integer> pickedR = new HashMap<>();
-    Map<String, Integer> pickedP = new HashMap<>();
-    Map<String, Integer> pickedN = new HashMap<>();
-    Map<String, Integer> pickedVicR = new HashMap<>();
-    Map<String, Integer> pickedVicP = new HashMap<>();
-    Map<String, Integer> pickedVicN = new HashMap<>();
-    boolean vic = bnd.getEvent().getVictory();
-    Integer asc = bnd.getEvent().getAscension_level();
-    Integer chal = bnd.getEvent().getChallenge_level();
-    String deck = bnd.getEvent().getStarting_deck();
-    for (SpireCard c : bnd.getEvent().getCard_choices()) {
-      String pick = c.getPicked();
-      if (!pick.equals("SKIP")) {
-        StringBuilder bd = new StringBuilder();
-        bd.append(pick);
-        if (bd.indexOf("+") > 0) {
-          pick = pick.substring(0, bd.indexOf("+"));
-        }
-        offered.compute(pick, com.mp());
-        picked.compute(pick, com.mp());
+  private static Integer handleIntermittentProcess(ArrayList<TopBundle> bundles, boolean saveTopBundles, boolean saveRunsAndInfos) {
+    Scanner scanner = new Scanner(System.in);
+    System.out.println("How many files to process between checks to continue? [Defaults to 100]: ");
+    String userInput = scanner.nextLine();
+    int totalProc = 0;
+    int filesToCheckBeforePrompt = 100;
+    int currentBundleIndex = 0;
+    try { filesToCheckBeforePrompt = Integer.parseInt(userInput); } catch (NumberFormatException ignored) {}
+    int filesLeft = bundles.size();
+    boolean cont = true;
+    while (cont) {
+      int amtChecked = 0;
+      while (currentBundleIndex < bundles.size() && filesLeft > 0 && amtChecked < filesToCheckBeforePrompt) {
+        parse(bundles.get(currentBundleIndex), saveTopBundles, saveRunsAndInfos);
+        amtChecked++;
+        filesLeft--;
+        currentBundleIndex++;
+        totalProc++;
       }
-      List<String> notPicked = c.getNot_picked();
-      for (String s : notPicked) {
-        StringBuilder b = new StringBuilder();
-        b.append(s);
-        if (b.indexOf("+") > 0) {
-          s = s.substring(0, b.indexOf("+"));
-        }
-        offered.compute(s, com.mp());
+      if (currentBundleIndex < bundles.size() && filesLeft > 0) {
+        System.out.println("Processed " + (currentBundleIndex) + " files out of " + bundles.size() + ". Would you like to continue? [Y/N]: ");
+        userInput = scanner.nextLine();
+        cont = userInput.toLowerCase().equals("y");
+      } else {
+        cont = false;
       }
-      if (vic && !pick.equals("SKIP")) { pickedVic.compute(pick, com.mp()); }
     }
-
-    for (String r : bnd.getEvent().getRelics()) {
-      pickedR.compute(r, com.mp());
-      if (vic) { pickedVicR.compute(r, com.mp()); }
-    }
-
-    for (Potion p : bnd.getEvent().getPotions_obtained()) {
-      String pick = p.getKey();
-      pickedP.compute(pick, com.mp());
-      if (vic) { pickedVicP.compute(pick, com.mp()); }
-    }
-
-    String neow = bnd.getEvent().getNeow_bonus();
-    pickedN.compute(neow, (k,v) -> (v==null) ? 1 : v+1);
-    if (vic) { pickedVicN.compute(neow, (k,v) -> (v==null) ? 1 : v+1); }
-
-
-
-    // Pinfo
-    if (chal == null) { chal = -1; }
-    PickInfo info = InfoController.getService().findInfo(deck, asc, chal);
-    if (info == null) {
-      info = new PickInfo(deck, asc, chal);
-    }
-
-    // Cards
-    for (Map.Entry<String, Integer> entry : offered.entrySet()) { info.addCard(new OfferCard(entry.getKey(), entry.getValue(), 0, 0, info)); }
-    for (Map.Entry<String, Integer> entry : picked.entrySet()) {
-      boolean found = false;
-      for (OfferCard c : info.getCards()) {
-        if (c.getName().equals(entry.getKey())) {
-          c.setPicked(entry.getValue());
-          found = true;
-          break;
-        }
-      }
-      if (!found) { info.addCard(new OfferCard(entry.getKey(), 0, entry.getValue(), 0, info)); }
-    }
-    for (Map.Entry<String, Integer> entry : pickedVic.entrySet()) {
-      boolean found = false;
-      for (OfferCard c : info.getCards()) {
-        if (c.getName().equals(entry.getKey())) {
-          c.setPickVic(entry.getValue());
-          found = true;
-          break;
-        }
-      }
-      if (!found) { info.addCard(new OfferCard(entry.getKey(), 0, entry.getValue(), entry.getValue(), info)); }
-    }
-
-    // Relics
-    for (Map.Entry<String, Integer> entry : pickedR.entrySet()) { info.addRelic(new OfferRelic(entry.getKey(), entry.getValue(), 0, info)); }
-    for (Map.Entry<String, Integer> entry : pickedVicR.entrySet()) {
-      boolean found = false;
-      for (OfferRelic r : info.getRelics()) {
-        if (r.getName().equals(entry.getKey())) {
-          r.setPickVic(entry.getValue());
-          found = true;
-          break;
-        }
-      }
-      if (!found) { info.addRelic(new OfferRelic(entry.getKey(), entry.getValue(), entry.getValue(), info)); }
-    }
-
-    // Potions
-    for (Map.Entry<String, Integer> entry : pickedP.entrySet()) { info.addPotion(new OfferPotion(entry.getKey(), entry.getValue(), 0, info)); }
-
-    for (Map.Entry<String, Integer> entry : pickedVicP.entrySet()) {
-      boolean found = false;
-      for (OfferPotion p : info.getPotions()) {
-        if (p.getName().equals(entry.getKey())) {
-          p.setPickVic(entry.getValue());
-          found = true;
-          break;
-        }
-      }
-      if (!found) { info.addPotion(new OfferPotion(entry.getKey(), entry.getValue(), entry.getValue(), info)); }
-    }
-
-    // Neow
-    for (Map.Entry<String, Integer> entry : pickedN.entrySet()) { info.addNeow(new OfferNeow(entry.getKey(), entry.getValue(), 0, info)); }
-    for (Map.Entry<String, Integer> entry : pickedVicN.entrySet()) {
-      boolean found = false;
-      for (OfferNeow n : info.getNeow()) {
-        if (n.getName().equals(entry.getKey())) {
-          n.setPickVic(entry.getValue());
-          found = true;
-          break;
-        }
-      }
-      if (!found) { info.addNeow(new OfferNeow(entry.getKey(), entry.getValue(), entry.getValue(), info)); }
-    }
-
-    InfoController.getService().create(info);
-    Boolean kaiba = bnd.getEvent().getPlaying_as_kaiba();
-    String killedBy = bnd.getEvent().getKilled_by();
-    if (kaiba == null) { kaiba = false; }
-    if (killedBy == null || killedBy.equals(" ")) { killedBy = "Self"; }
-    RunLog log = new RunLogBuilder()
-      .setAscension(asc)
-      .setChallenge(chal)
-      .setDeck(deck)
-      .setFloor(bnd.getEvent().getFloor_reached())
-      .setHost(bnd.getHost())
-      .setKaiba(kaiba)
-      .setKilledBy(killedBy)
-      .setVictory(bnd.getEvent().getVictory())
-      .createRunLog();
-    RunLogController.getService().create(log);
+    return totalProc;
   }
 
-  public static void parse() throws IOException {
-    ArrayList<TopBundle> bundles = readIn();
-    Mapper<String> com = new Mapper<>();
-    for (TopBundle bnd : bundles) {
-      Map<String, Integer> offered = new HashMap<>();
-      Map<String, Integer> picked = new HashMap<>();
-      Map<String, Integer> pickedVic = new HashMap<>();
-      Map<String, Integer> pickedR = new HashMap<>();
-      Map<String, Integer> pickedP = new HashMap<>();
-      Map<String, Integer> pickedN = new HashMap<>();
-      Map<String, Integer> pickedVicR = new HashMap<>();
-      Map<String, Integer> pickedVicP = new HashMap<>();
-      Map<String, Integer> pickedVicN = new HashMap<>();
-      boolean vic = bnd.getEvent().getVictory();
-      Integer asc = bnd.getEvent().getAscension_level();
-      Integer chal = bnd.getEvent().getChallenge_level();
-      String deck = bnd.getEvent().getStarting_deck();
-      for (SpireCard c : bnd.getEvent().getCard_choices()) {
-        String pick = c.getPicked();
-        if (!pick.equals("SKIP")) {
-          StringBuilder bd = new StringBuilder();
-          bd.append(pick);
-          if (bd.indexOf("+") > 0) {
-            pick = pick.substring(0, bd.indexOf("+"));
-          }
-          offered.compute(pick, com.mp());
-          picked.compute(pick, com.mp());
-        }
-        List<String> notPicked = c.getNot_picked();
-        for (String s : notPicked) {
-          StringBuilder b = new StringBuilder();
-          b.append(s);
-          if (b.indexOf("+") > 0) {
-            s = s.substring(0, b.indexOf("+"));
-          }
-          offered.compute(s, com.mp());
-        }
-        if (vic && !pick.equals("SKIP")) { pickedVic.compute(pick, com.mp()); }
-      }
+  private static class Mapper<K> {
+    BiFunction<K, Integer, Integer> mapper;
 
-      for (String r : bnd.getEvent().getRelics()) {
-        pickedR.compute(r, com.mp());
-        if (vic) { pickedVicR.compute(r, com.mp()); }
-      }
+    public Mapper() { mapper = (k,v) -> (v==null) ? 1 : v+1; }
 
-      for (Potion p : bnd.getEvent().getPotions_obtained()) {
-        String pick = p.getKey();
-        pickedP.compute(pick, com.mp());
-        if (vic) { pickedVicP.compute(pick, com.mp()); }
-      }
+    public BiFunction<K,Integer,Integer> mp(int amt) {
+      mapper = (k,v) -> (v==null) ? amt : v+amt;
+      return mapper; }
 
-      String neow = bnd.getEvent().getNeow_bonus();
-      pickedN.compute(neow, (k,v) -> (v==null) ? 1 : v+1);
-      if (vic) { pickedVicN.compute(neow, (k,v) -> (v==null) ? 1 : v+1); }
-
-
-
-      // Pinfo
-      if (chal == null) { chal = -1; }
-      PickInfo info = InfoController.getService().findInfo(deck, asc, chal);
-      if (info == null) {
-        info = new PickInfo(deck, asc, chal);
-      }
-
-      // Cards
-      for (Map.Entry<String, Integer> entry : offered.entrySet()) { info.addCard(new OfferCard(entry.getKey(), entry.getValue(), 0, 0, info)); }
-      for (Map.Entry<String, Integer> entry : picked.entrySet()) {
-        boolean found = false;
-        for (OfferCard c : info.getCards()) {
-          if (c.getName().equals(entry.getKey())) {
-            c.setPicked(entry.getValue());
-            found = true;
-            break;
-          }
-        }
-        if (!found) { info.addCard(new OfferCard(entry.getKey(), 0, entry.getValue(), 0, info)); }
-      }
-      for (Map.Entry<String, Integer> entry : pickedVic.entrySet()) {
-        boolean found = false;
-        for (OfferCard c : info.getCards()) {
-          if (c.getName().equals(entry.getKey())) {
-            c.setPickVic(entry.getValue());
-            found = true;
-            break;
-          }
-        }
-        if (!found) { info.addCard(new OfferCard(entry.getKey(), 0, entry.getValue(), entry.getValue(), info)); }
-      }
-
-      // Relics
-      for (Map.Entry<String, Integer> entry : pickedR.entrySet()) { info.addRelic(new OfferRelic(entry.getKey(), entry.getValue(), 0, info)); }
-      for (Map.Entry<String, Integer> entry : pickedVicR.entrySet()) {
-        boolean found = false;
-        for (OfferRelic r : info.getRelics()) {
-          if (r.getName().equals(entry.getKey())) {
-            r.setPickVic(entry.getValue());
-            found = true;
-            break;
-          }
-        }
-        if (!found) { info.addRelic(new OfferRelic(entry.getKey(), entry.getValue(), entry.getValue(), info)); }
-      }
-
-      // Potions
-      for (Map.Entry<String, Integer> entry : pickedP.entrySet()) { info.addPotion(new OfferPotion(entry.getKey(), entry.getValue(), 0, info)); }
-
-      for (Map.Entry<String, Integer> entry : pickedVicP.entrySet()) {
-        boolean found = false;
-        for (OfferPotion p : info.getPotions()) {
-          if (p.getName().equals(entry.getKey())) {
-            p.setPickVic(entry.getValue());
-            found = true;
-            break;
-          }
-        }
-        if (!found) { info.addPotion(new OfferPotion(entry.getKey(), entry.getValue(), entry.getValue(), info)); }
-      }
-
-      // Neow
-      for (Map.Entry<String, Integer> entry : pickedN.entrySet()) { info.addNeow(new OfferNeow(entry.getKey(), entry.getValue(), 0, info)); }
-      for (Map.Entry<String, Integer> entry : pickedVicN.entrySet()) {
-        boolean found = false;
-        for (OfferNeow n : info.getNeow()) {
-          if (n.getName().equals(entry.getKey())) {
-            n.setPickVic(entry.getValue());
-            found = true;
-            break;
-          }
-        }
-        if (!found) { info.addNeow(new OfferNeow(entry.getKey(), entry.getValue(), entry.getValue(), info)); }
-      }
-
-      InfoController.getService().create(info);
-      Boolean kaiba = bnd.getEvent().getPlaying_as_kaiba();
-      String killedBy = bnd.getEvent().getKilled_by();
-      if (kaiba == null) { kaiba = false; }
-      if (killedBy == null || killedBy.equals(" ")) { killedBy = "Self"; }
-      RunLog log = new RunLogBuilder()
-        .setAscension(asc)
-        .setChallenge(chal)
-        .setDeck(deck)
-        .setFloor(bnd.getEvent().getFloor_reached())
-        .setHost(bnd.getHost())
-        .setKaiba(kaiba)
-        .setKilledBy(killedBy)
-        .setVictory(bnd.getEvent().getVictory())
-        .createRunLog();
-      RunLogController.getService().create(log);
-    }
-  }
-
-  public static ArrayList<TopBundle> readIn() throws IOException {
-
-    File folder = new File("C:/Users/eX_Di/git/StS-Metrics-Server/src/main/resources/runs");
-    File[] listOfFiles = folder.listFiles();
-    if (listOfFiles != null) {
-      ArrayList<TopBundle> output = new ArrayList<>();
-      if (listOfFiles.length > 0) {
-        for (File file : listOfFiles) {
-          if (file.isFile()) {
-            output.add(new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).readValue(FileUtils.readFileToString(file), TopBundle.class));
-          }
-        }
-      }
-      return output;
-    }
-    Logger.getGlobal().warning("Did not read in runs properly!");
-    return new ArrayList<>();
+    public BiFunction<K,Integer,Integer> mp() { return mapper; }
   }
 }
+
+

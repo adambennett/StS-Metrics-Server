@@ -1,39 +1,58 @@
 package DuelistMetrics.Server.models;
 
 
+import com.fasterxml.jackson.annotation.*;
+
 import javax.persistence.*;
 
 
+@Entity
 public class Relic {
 
-    private Bundle bundle;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long relic_id;
 
-    private Integer floor;
-    private String key;
+  @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+  @JsonIgnoreProperties("relics_obtained")
+  private Bundle bundle;
 
-    public Relic() {}
+  private Integer floor;
 
-    public Bundle getBundle() {
-        return bundle;
-    }
+  @Column(name = "relic_key")
+  private String key;
 
-    public void setBundle(Bundle bundle) {
-        this.bundle = bundle;
-    }
+  public Relic() {}
 
-    public Integer getFloor() {
-        return floor;
-    }
+  public Long getRelic_id() {
+    return relic_id;
+  }
 
-    public void setFloor(Integer floor) {
-        this.floor = floor;
-    }
+  public void setRelic_id(Long id) {
+    this.relic_id = id;
+  }
 
-    public String getKey() {
-        return key;
-    }
+  public Bundle getBundle() {
+    return bundle;
+  }
 
-    public void setKey(String key) {
-        this.key = key;
-    }
+  public void setBundle(Bundle bundle) {
+    this.bundle = bundle;
+  }
+
+  public Integer getFloor() {
+    return floor;
+  }
+
+  public void setFloor(Integer floor) {
+    this.floor = floor;
+  }
+
+  public String getKey() {
+    return key;
+  }
+
+  public void setKey(String key) {
+    this.key = key;
+  }
 }

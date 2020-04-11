@@ -9,9 +9,15 @@ import javax.persistence.Entity;
 import java.math.*;
 import java.util.*;
 
-
+@Entity
 public class Bundle {
 
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long top_id;
+
+  @OneToOne(fetch = FetchType.EAGER, mappedBy = "event")
+  @JsonIgnoreProperties("event")
   private TopBundle top;
 
   private String build_version;
@@ -73,26 +79,77 @@ public class Bundle {
   private BigInteger seed_source_timestamp;
   private BigInteger timestamp;
 
+  @ElementCollection
   private List<Integer> current_hp_per_floor;
+
+  @ElementCollection
   private List<Integer> gold_per_floor;
+
+  @ElementCollection
   private List<Integer> item_purchase_floors;
+
+  @ElementCollection
   private List<Integer> items_purged_floors;
+
+  @ElementCollection
   private List<Integer> max_hp_per_floor;
+
+  @ElementCollection
   private List<Integer> potions_floor_spawned;
+
+  @ElementCollection
   private List<Integer> potions_floor_usage;
+
+  @ElementCollection
   private List<String> items_purchased;
+
+  @ElementCollection
   private List<String> items_purged;
+
+  @ElementCollection
   private List<String> master_deck;
+
+  @ElementCollection
   private List<String> path_per_floor;
+
+  @ElementCollection
   private List<String> path_taken;
+
+  @ElementCollection
   private List<String> relics;
 
+  @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "bundle", targetEntity = BossRelic.class)
+  @JsonIgnoreProperties("bundle")
+  @Fetch(value = FetchMode.SUBSELECT)
   private List<BossRelic> boss_relics;
+
+  @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "bundle", targetEntity = Event.class)
+  @JsonIgnoreProperties("bundle")
+  @Fetch(value = FetchMode.SUBSELECT)
   private List<Event> event_choices;
+
+  @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "bundle", targetEntity = SpireCard.class)
+  @JsonIgnoreProperties("bundle")
+  @Fetch(value = FetchMode.SUBSELECT)
   private List<SpireCard> card_choices;
+
+  @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "bundle", targetEntity = Potion.class)
+  @JsonIgnoreProperties("bundle")
+  @Fetch(value = FetchMode.SUBSELECT)
   private List<Potion> potions_obtained;
+
+  @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "bundle", targetEntity = Relic.class)
+  @JsonIgnoreProperties("bundle")
+  @Fetch(value = FetchMode.SUBSELECT)
   private List<Relic> relics_obtained;
+
+  @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "bundle", targetEntity = CampfireChoice.class)
+  @JsonIgnoreProperties("bundle")
+  @Fetch(value = FetchMode.SUBSELECT)
   private List<CampfireChoice> campfire_choices;
+
+  @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "bundle", targetEntity = DamageInfo.class)
+  @JsonIgnoreProperties("bundle")
   private List<DamageInfo> damage_taken;
 
   public void updateChildren() {

@@ -5,99 +5,114 @@ import com.fasterxml.jackson.annotation.*;
 import javax.persistence.*;
 
 
+@Entity
 public class Event {
 
-    private Bundle bundle;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long event_id;
 
-    private Integer damage_healed;
-    private Integer gold_gain;
-    private Integer damage_taken;
-    private Integer max_hp_gain;
-    private Integer max_hp_loss;
-    private Integer floor;
-    private Integer gold_loss;
-    private String event_name;
-    private String player_choice;
+  @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+  @JsonIgnoreProperties("event_choices")
+  private Bundle bundle;
 
-    public Event() {}
+  private Integer damage_healed;
+  private Integer gold_gain;
+  private Integer damage_taken;
+  private Integer max_hp_gain;
+  private Integer max_hp_loss;
+  private Integer floor;
+  private Integer gold_loss;
+  private String event_name;
+  private String player_choice;
 
-    public Bundle getBundle() {
-        return bundle;
-    }
+  public Event() {}
 
-    public void setBundle(Bundle bundle) {
-        this.bundle = bundle;
-    }
+  public Long getEvent_id() {
+    return event_id;
+  }
 
-    public Integer getDamage_healed() {
-        return damage_healed;
-    }
+  public void setEvent_id(Long id) {
+    this.event_id = id;
+  }
 
-    public void setDamage_healed(Integer damage_healed) {
-        this.damage_healed = damage_healed;
-    }
+  public Bundle getBundle() {
+    return bundle;
+  }
 
-    public Integer getGold_gain() {
-        return gold_gain;
-    }
+  public void setBundle(Bundle bundle) {
+    this.bundle = bundle;
+  }
 
-    public void setGold_gain(Integer gold_gain) {
-        this.gold_gain = gold_gain;
-    }
+  public Integer getDamage_healed() {
+    return damage_healed;
+  }
 
-    public String getPlayer_choice() {
-        return player_choice;
-    }
+  public void setDamage_healed(Integer damage_healed) {
+    this.damage_healed = damage_healed;
+  }
 
-    public void setPlayer_choice(String player_choice) {
-        this.player_choice = player_choice;
-    }
+  public Integer getGold_gain() {
+    return gold_gain;
+  }
 
-    public Integer getDamage_taken() {
-        return damage_taken;
-    }
+  public void setGold_gain(Integer gold_gain) {
+    this.gold_gain = gold_gain;
+  }
 
-    public void setDamage_taken(Integer damage_taken) {
-        this.damage_taken = damage_taken;
-    }
+  public String getPlayer_choice() {
+    return player_choice;
+  }
 
-    public Integer getMax_hp_gain() {
-        return max_hp_gain;
-    }
+  public void setPlayer_choice(String player_choice) {
+    this.player_choice = player_choice;
+  }
 
-    public void setMax_hp_gain(Integer max_hp_gain) {
-        this.max_hp_gain = max_hp_gain;
-    }
+  public Integer getDamage_taken() {
+    return damage_taken;
+  }
 
-    public Integer getMax_hp_loss() {
-        return max_hp_loss;
-    }
+  public void setDamage_taken(Integer damage_taken) {
+    this.damage_taken = damage_taken;
+  }
 
-    public void setMax_hp_loss(Integer max_hp_loss) {
-        this.max_hp_loss = max_hp_loss;
-    }
+  public Integer getMax_hp_gain() {
+    return max_hp_gain;
+  }
 
-    public Integer getFloor() {
-        return floor;
-    }
+  public void setMax_hp_gain(Integer max_hp_gain) {
+    this.max_hp_gain = max_hp_gain;
+  }
 
-    public void setFloor(Integer floor) {
-        this.floor = floor;
-    }
+  public Integer getMax_hp_loss() {
+    return max_hp_loss;
+  }
 
-    public Integer getGold_loss() {
-        return gold_loss;
-    }
+  public void setMax_hp_loss(Integer max_hp_loss) {
+    this.max_hp_loss = max_hp_loss;
+  }
 
-    public void setGold_loss(Integer gold_loss) {
-        this.gold_loss = gold_loss;
-    }
+  public Integer getFloor() {
+    return floor;
+  }
 
-    public String getEvent_name() {
-        return event_name;
-    }
+  public void setFloor(Integer floor) {
+    this.floor = floor;
+  }
 
-    public void setEvent_name(String event_name) {
-        this.event_name = event_name;
-    }
+  public Integer getGold_loss() {
+    return gold_loss;
+  }
+
+  public void setGold_loss(Integer gold_loss) {
+    this.gold_loss = gold_loss;
+  }
+
+  public String getEvent_name() {
+    return event_name;
+  }
+
+  public void setEvent_name(String event_name) {
+    this.event_name = event_name;
+  }
 }

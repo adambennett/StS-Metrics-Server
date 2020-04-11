@@ -6,45 +6,62 @@ import javax.persistence.*;
 import java.util.*;
 
 
+@Entity
 public class SpireCard {
 
-    private Bundle bundle;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long card_id;
 
-    private Integer floor;
-    private String picked;
-    private List<String> not_picked;
+  @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+  @JsonIgnoreProperties("card_choices")
+  private Bundle bundle;
 
-    public SpireCard() {}
+  private Integer floor;
+  private String picked;
 
-    public Bundle getBundle() {
-        return bundle;
-    }
+  @ElementCollection
+  private List<String> not_picked;
 
-    public void setBundle(Bundle bundle) {
-        this.bundle = bundle;
-    }
+  public SpireCard() {}
 
-    public Integer getFloor() {
-        return floor;
-    }
+  public Long getCard_id() {
+    return card_id;
+  }
 
-    public void setFloor(Integer floor) {
-        this.floor = floor;
-    }
+  public void setCard_id(Long id) {
+    this.card_id = id;
+  }
 
-    public String getPicked() {
-        return picked;
-    }
+  public Bundle getBundle() {
+    return bundle;
+  }
 
-    public void setPicked(String picked) {
-        this.picked = picked;
-    }
+  public void setBundle(Bundle bundle) {
+    this.bundle = bundle;
+  }
 
-    public List<String> getNot_picked() {
-        return not_picked;
-    }
+  public Integer getFloor() {
+    return floor;
+  }
 
-    public void setNot_picked(List<String> not_picked) {
-        this.not_picked = not_picked;
-    }
+  public void setFloor(Integer floor) {
+    this.floor = floor;
+  }
+
+  public String getPicked() {
+    return picked;
+  }
+
+  public void setPicked(String picked) {
+    this.picked = picked;
+  }
+
+  public List<String> getNot_picked() {
+    return not_picked;
+  }
+
+  public void setNot_picked(List<String> not_picked) {
+    this.not_picked = not_picked;
+  }
 }
