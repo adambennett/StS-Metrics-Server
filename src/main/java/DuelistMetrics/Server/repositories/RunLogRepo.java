@@ -38,4 +38,7 @@ public interface RunLogRepo extends JpaRepository<RunLog, Long> {
   @Query(value = "SELECT rl.deck, COUNT(*) FROM run_log rl WHERE rl.kaiba = 1 GROUP BY rl.deck", nativeQuery = true)
   List<String> getKaibaRuns();
 
+  @Query(value = "SELECT rl.deck, MAX(rl.challenge) FROM run_log rl GROUP BY rl.deck", nativeQuery = true)
+  List<String> getHighestChallenge();
+
 }

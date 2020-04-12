@@ -35,6 +35,7 @@ public class RunLogController {
       Map<String, Integer> kaiba = getService().getKaibaRuns();
       List<DeckKilledBy> killed = getService().getMostKilledBy();
       Map<String, Integer> floor = getService().getHighestFloor();
+      Map<String, Integer> highestChal = getService().getHighestChallenge();
       Map<String, String> deckToKilledBy = new HashMap<>();
       for (DeckKilledBy dkb : killed) {
         deckToKilledBy.put(dkb.getDeck(), dkb.getKilled_by() + " (" + dkb.getCount() + ")");
@@ -55,6 +56,7 @@ public class RunLogController {
           .setRuns(runs.get(deckName))
           .setWins(wins.get(deckName))
           .setMostKilledBy(deckToKilledBy.get(deckName))
+          .setHighestChallenge(highestChal.get(deckName))
           .createDisplayDeck();
         if (deck.getC20runs() == null) { deck.setC20runs(0); }
         if (deck.getC20wins() == null) { deck.setC20wins(0); }

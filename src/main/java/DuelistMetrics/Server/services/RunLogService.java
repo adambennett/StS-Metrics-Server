@@ -56,6 +56,10 @@ public class RunLogService {
     return getIntegers(this.repo.getKaibaRuns());
   }
 
+  public Map<String, Integer> getHighestChallenge() {
+    return getIntegers(this.repo.getHighestChallenge());
+  }
+
   public Map<String, Integer> getA20Runs() {
     return getIntegers(this.repo.getA20Runs());
   }

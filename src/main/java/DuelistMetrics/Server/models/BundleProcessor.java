@@ -7,6 +7,7 @@ import org.apache.commons.io.*;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.*;
 import java.util.function.*;
 import java.util.logging.*;
 
@@ -14,23 +15,33 @@ public class BundleProcessor {
 
 
 
-  public static void parseFolder(String folderPath, boolean saveTopBundles, boolean saveRunsAndInfos) {
+  public static void parseFolder(String folderPath, boolean saveTopBundles, boolean saveRunsAndInfos, boolean gpi) {
     if (saveTopBundles || saveRunsAndInfos) {
       Logger.getGlobal().info("Reading all files in src/main/resources/runs...");
       ArrayList<TopBundle> bundles = readIn(folderPath);
       Logger.getGlobal().info(bundles.size() + " run files read in for processing.");
       if (getUserInput("Would you like to process " + bundles.size() + " run files? [Y/N]: ", "y")) {
         if (getUserInput("Would you like to process ALL files in one go? [Y/N]: ","y")) {
+          gpi(gpi);
           for (TopBundle run : bundles) { parse(run, saveTopBundles, saveRunsAndInfos); }
           Logger.getGlobal().info("Finished processing for " + bundles.size() + " run files");
         }
         else {
-          int filesProc = handleIntermittentProcess(bundles, saveTopBundles, saveRunsAndInfos);
+          int filesProc = handleIntermittentProcess(bundles, saveTopBundles, saveRunsAndInfos, gpi);
           Logger.getGlobal().info("Finished processing for " + filesProc + " run files");
         }
       }
     }
     else { Logger.getGlobal().info("Skipping runs folder check"); }
+  }
+
+  public static void gpi(boolean gpi) {
+    if (gpi) {
+      long secs = generatePickInfos();
+      Logger.getGlobal().info("Generated PickInfos in " + secs + " seconds");
+    } else {
+      Logger.getGlobal().info("Did not generate PickInfos.");
+    }
   }
 
   public static void parse(TopBundle bnd, boolean saveTopBundles, boolean saveRunsAndInfos) {
@@ -54,25 +65,21 @@ public class BundleProcessor {
       String deck = bnd.getEvent().getStarting_deck();
       String runID = "run #" + bnd.getEvent().getPlay_id();
       Logger.getGlobal().info("Attempting to parse and save " + runID);
-      //if (!bnd.getEvent().getIs_endless()) {
-        // Parse the information we are interested in from cards/relics/potions/neow bonuses
-        // Parsed info is saved into passed in maps
-        parseCards(bnd, offered, picked, pickedVic, com, victory);
-        parseRelics(bnd, pickedR, pickedVicR, com, victory);
-        parsePotions(bnd, pickedP, pickedVicP, com, victory);
-        parseNeow(bnd, pickedN, pickedVicN, victory);
+      // Parse the information we are interested in from cards/relics/potions/neow bonuses
+      // Parsed info is saved into passed in maps
+      parseCards(bnd, offered, picked, pickedVic, com, victory);
+      parseRelics(bnd, pickedR, pickedVicR, com, victory);
+      parsePotions(bnd, pickedP, pickedVicP, com, victory);
+      parseNeow(bnd, pickedN, pickedVicN, victory);
 
-        // Find or create info model to represent the state of the run (ascension/challenge/starting deck)
-        info = getPinfo(deck, ascensionLvl, challengeLvl);
+      // Find or create info model to represent the state of the run (ascension/challenge/starting deck)
+      info = getPinfo(deck, ascensionLvl, challengeLvl);
 
-        // Update info model with processed run info
-        processCards(info, offered, picked, pickedVic);
-        processRelics(info, pickedR, pickedVicR);
-        processPotions(info, pickedP, pickedVicP);
-        processNeow(info, pickedN, pickedVicN);
-      /*} else {
-        Logger.getGlobal().info("Endless run #" + runID + " will not have PickInfo saved.");
-      }*/
+      // Update info model with processed run info
+      processCards(info, offered, picked, pickedVic);
+      processRelics(info, pickedR, pickedVicR);
+      processPotions(info, pickedP, pickedVicP);
+      processNeow(info, pickedN, pickedVicN);
 
       // Save all to DB
       saveParsedInfo(info, bnd, deck, ascensionLvl, challengeLvl, runID, saveTopBundles, saveRunsAndInfos);
@@ -226,7 +233,6 @@ public class BundleProcessor {
 
 
   private static void processNeow(PickInfo info, Map<String, Integer> pickedN, Map<String, Integer> pickedVicN) {
-    // Neow
     for (Map.Entry<String, Integer> entry : pickedN.entrySet()) { info.addNeow(new OfferNeow(entry.getKey(), entry.getValue(), 0, info)); }
     for (Map.Entry<String, Integer> entry : pickedVicN.entrySet()) {
       boolean found = false;
@@ -268,9 +274,7 @@ public class BundleProcessor {
     return (userInput.toLowerCase().equals(passString.toLowerCase()));
   }
 
-  // Only needed if/when database needs to be reset
-  // Run just once
-  private static void generatePickInfos() {
+  public static Long generatePickInfos() {
     ArrayList<String> decks = new ArrayList<>();
     decks.add("Standard Deck");
     decks.add("Dragon Deck");
@@ -301,6 +305,7 @@ public class BundleProcessor {
     decks.add("Random Deck (Big)");
     decks.add("Upgrade Deck");
     decks.add("Metronome Deck");
+    long startTime = System.nanoTime();
     for (String deck : decks) {
       for (int ascension = 0; ascension < 21; ascension++) {
         for (int challenge = -1; challenge < 21; challenge++) {
@@ -309,9 +314,11 @@ public class BundleProcessor {
         }
       }
     }
+    long endTime = System.nanoTime();
+    return TimeUnit.NANOSECONDS.toSeconds(endTime - startTime);
   }
 
-  private static Integer handleIntermittentProcess(ArrayList<TopBundle> bundles, boolean saveTopBundles, boolean saveRunsAndInfos) {
+  private static Integer handleIntermittentProcess(ArrayList<TopBundle> bundles, boolean saveTopBundles, boolean saveRunsAndInfos, boolean gpi) {
     Scanner scanner = new Scanner(System.in);
     System.out.println("How many files to process between checks to continue? [Defaults to 100]: ");
     String userInput = scanner.nextLine();
@@ -319,6 +326,7 @@ public class BundleProcessor {
     int filesToCheckBeforePrompt = 100;
     int currentBundleIndex = 0;
     try { filesToCheckBeforePrompt = Integer.parseInt(userInput); } catch (NumberFormatException ignored) {}
+    gpi(gpi);
     int filesLeft = bundles.size();
     boolean cont = true;
     while (cont) {

@@ -13,6 +13,7 @@ public class DisplayDeckBuilder {
     private Integer c20wins;
     private Integer floor;
     private Integer kaiba;
+    private Integer highestChallenge;
 
     public DisplayDeckBuilder setDeck(String deck) {
         this.deck = deck;
@@ -64,7 +65,12 @@ public class DisplayDeckBuilder {
         return this;
     }
 
+    public DisplayDeckBuilder setHighestChallenge(Integer highestChallenge) {
+        this.highestChallenge = highestChallenge;
+        return this;
+    }
+
     public DisplayDeck createDisplayDeck() {
-        return new DisplayDeck(deck, mostKilledBy, runs, wins, a20runs, a20wins, c20runs, c20wins, floor, kaiba);
+        return new DisplayDeck(deck, mostKilledBy, runs, wins, a20runs, a20wins, c20runs, c20wins, floor, kaiba, highestChallenge);
     }
 }

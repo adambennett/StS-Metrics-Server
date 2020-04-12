@@ -27,4 +27,7 @@ public interface InfoRepo extends JpaRepository<PickInfo, Long> {
   @Query("SELECT p FROM PickInfo p WHERE p.challenge_level >= :chal")
   Page<PickInfo> findAllByAtLeastChallenge(Pageable page, @Param("chal") int chal);
 
+  @Query("SELECT MAX(id) FROM PickInfo")
+  long getHighestID();
+
 }

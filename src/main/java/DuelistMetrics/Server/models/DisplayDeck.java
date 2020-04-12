@@ -14,8 +14,9 @@ public class DisplayDeck implements Comparable<DisplayDeck> {
   private Integer c20runs;
   private Integer c20wins;
   private Integer kaiba;
+  private Integer highestChallenge;
 
-  public DisplayDeck(String deck, String mostKilledBy, Integer runs, Integer wins, Integer a20runs, Integer a20wins, Integer c20runs, Integer c20wins, Integer floor, Integer kaiba) {
+  public DisplayDeck(String deck, String mostKilledBy, Integer runs, Integer wins, Integer a20runs, Integer a20wins, Integer c20runs, Integer c20wins, Integer floor, Integer kaiba, Integer highestChallenge) {
     this.deck = deck;
     this.mostKilledBy = mostKilledBy;
     this.runs = runs;
@@ -26,6 +27,7 @@ public class DisplayDeck implements Comparable<DisplayDeck> {
     this.c20wins = c20wins;
     this.floor = floor;
     this.kaiba = kaiba;
+    this.highestChallenge = highestChallenge;
   }
 
   public String getDeck() {
@@ -78,6 +80,14 @@ public class DisplayDeck implements Comparable<DisplayDeck> {
 
   public void setC20wins(Integer c20wins) {
     this.c20wins = c20wins;
+  }
+
+  public Integer getHighestChallenge() {
+    return highestChallenge;
+  }
+
+  public void setHighestChallenge(Integer highestChallenge) {
+    this.highestChallenge = highestChallenge;
   }
 
   @Override

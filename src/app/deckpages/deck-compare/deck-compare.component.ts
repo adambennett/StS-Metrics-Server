@@ -10,7 +10,7 @@ import {MatPaginator} from "@angular/material/paginator";
   styleUrls: ['./deck-compare.component.scss']
 })
 export class DeckCompareComponent implements OnInit {
-  displayedColumns: string[] = ['deck', 'runs', 'wins', 'a20runs', 'a20wins', 'c20runs', 'c20wins', 'floor', 'killed', 'kaiba'];
+  displayedColumns: string[] = ['deck', 'runs', 'wins', 'a20runs', 'a20wins', 'highestChallenge', 'c20runs', 'c20wins', 'floor', 'killed', 'kaiba'];
   cards: Array<any>;
   dataSource: MatTableDataSource<any>;
   @ViewChild(MatSort, {static: true}) sort: MatSort;

@@ -32,7 +32,7 @@ public class InfoService {
         return generatedInfo.get();
       }
     }
-    return this.repo.findInfo(deck, asc, chal);
+    return null;
   }
 
   public PickInfo create(PickInfo run) { return this.repo.save(run); }
@@ -76,6 +76,8 @@ public class InfoService {
     decks.add("Random Deck (Big)");
     decks.add("Upgrade Deck");
     decks.add("Metronome Deck");
+    decks.add("Giant Deck");
+    decks.add("Predaplant Deck");
   }
 
 }
