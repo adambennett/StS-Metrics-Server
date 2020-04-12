@@ -1,2 +1,2 @@
 # StS-Metrics-Server
-A spring boot + angular app that runs Duelist Mod metrics processing
+A spring boot app that runs Duelist Mod metrics processing
