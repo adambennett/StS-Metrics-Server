@@ -22,9 +22,9 @@ public class InfoController {
 
     public static InfoService getService() { return bundles; }
 
-    @RequestMapping("/error")
+/*    @GetMapping("/error")
     @CrossOrigin(origins = {"http://sts-duelist-metrics.herokuapp.com", "http://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
     public static String getError() {
         return "This is just the server.. perhaps you were trying to instead visit the metrics display site? That can be view at: https://sts-metrics-site.herokuapp.com/";
-    }
+    }*/
 }
