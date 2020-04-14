@@ -98,28 +98,21 @@ public class DisplayObjectController {
     return sortDuelistObjs(output);
   }
 
-  private static void createDisplayObj(Collection<DisplayObject> output, String s) {}
-
-  private static void createDisplayCard(Collection<DisplayCard> output, String s) {
+  private static void createDisplayObj(Collection<DisplayObject> output, String s) {
     String[] splice = s.split(",");
-    if (splice.length > 3) {
+    if (splice.length > 2) {
       String name = splice[0];
-      int off = Integer.parseInt(splice[1]);
-      int pick = Integer.parseInt(splice[2]);
-      int pickV = Integer.parseInt(splice[3]);
-      double pop = 0.0;
-      if (off > 0) { pop = (double)pick/off; }
+      int pick = Integer.parseInt(splice[1]);
+      int pickVic = Integer.parseInt(splice[2]);
       double power = 0.0;
-      if (pick - pickV > 0) { power = (double)pickV/(pick - pickV); }
-      DisplayCard ca = new DisplayCardBuilder()
-        .setName(name)
-        .setOffered(off)
-        .setPicked(pick)
-        .setPickVic(pickV)
-        .setPopularity(pop)
-        .setPower(power)
-        .createDisplayCard();
-      output.add(ca);
+      if (pick - pickVic > 0) { power = (double)pickVic/(pick - pickVic); }
+      DisplayObject obj = new DisplayObjectBuilder()
+              .setName(name)
+              .setPicked(pick)
+              .setPickVic(pickVic)
+              .setPower(power)
+              .createDisplayObject();
+      output.add(obj);
     }
   }
 

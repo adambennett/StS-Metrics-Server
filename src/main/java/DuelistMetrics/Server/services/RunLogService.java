@@ -24,6 +24,17 @@ public class RunLogService {
 
   public Optional<RunLog> findById(long infoID) { return this.repo.findById(infoID); }
 
+  public Long getA20WinsAll() { return this.repo.getA20WinsAll(); }
+  public Long getA20RunsAll() { return this.repo.getA20RunsAll(); }
+  public Long getC20WinsAll() { return this.repo.getC20WinsAll(); }
+  public Long getC20RunsAll() { return this.repo.getC20RunsAll(); }
+  public Long getWinsAll() { return this.repo.getWinsAll(); }
+  public Long getRunsAll() { return this.repo.getRunsAll(); }
+  public Long getHighestFloorAll() { return this.repo.getHighestFloorAll(); }
+  public List<String> getMostKilledByAll() { return this.repo.getMostKilledByAll(); }
+  public Long getKaibaRunsAll() { return this.repo.getKaibaRunsAll(); }
+  public Long getHighestChallengeAll() { return this.repo.getHighestChallengeAll(); }
+
   public Map<String, Integer> getC20Wins() {
     return getIntegers(this.repo.getC20Wins());
   }

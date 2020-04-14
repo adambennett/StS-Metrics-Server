@@ -38,7 +38,37 @@ public interface RunLogRepo extends JpaRepository<RunLog, Long> {
   @Query(value = "SELECT rl.deck, COUNT(*) FROM run_log rl WHERE rl.kaiba = 1 GROUP BY rl.deck", nativeQuery = true)
   List<String> getKaibaRuns();
 
-  @Query(value = "SELECT rl.deck, MAX(rl.challenge) FROM run_log rl GROUP BY rl.deck", nativeQuery = true)
+  @Query(value = "SELECT rl.deck, MAX(rl.challenge) FROM run_log rl  WHERE rl.victory = 1 GROUP BY rl.deck", nativeQuery = true)
   List<String> getHighestChallenge();
+
+  @Query(value = "SELECT SUM(rl.victory = 1) FROM run_log rl WHERE rl.ascension = 20", nativeQuery = true)
+  Long getA20WinsAll();
+
+  @Query(value = "SELECT COUNT(*) FROM run_log rl WHERE rl.ascension = 20", nativeQuery = true)
+  Long getA20RunsAll();
+
+  @Query(value = "SELECT SUM(rl.victory = 1) FROM run_log rl WHERE rl.challenge = 20", nativeQuery = true)
+  Long getC20WinsAll();
+
+  @Query(value = "SELECT COUNT(*) FROM run_log rl WHERE rl.challenge = 20", nativeQuery = true)
+  Long getC20RunsAll();
+
+  @Query(value = "SELECT SUM(rl.victory = 1) FROM run_log rl", nativeQuery = true)
+  Long getWinsAll();
+
+  @Query(value = "SELECT COUNT(*) FROM run_log rl", nativeQuery = true)
+  Long getRunsAll();
+
+  @Query(value = "SELECT MAX(rl.floor) FROM run_log rl", nativeQuery = true)
+  Long getHighestFloorAll();
+
+  @Query(value = "SELECT killed_by, COUNT(*) FROM run_log WHERE killed_by != 'Self'", nativeQuery = true)
+  List<String> getMostKilledByAll();
+
+  @Query(value = "SELECT COUNT(*) FROM run_log rl WHERE rl.kaiba = 1", nativeQuery = true)
+  Long getKaibaRunsAll();
+
+  @Query(value = "SELECT MAX(rl.challenge) FROM run_log rl WHERE rl.victory = 1", nativeQuery = true)
+  Long getHighestChallengeAll();
 
 }

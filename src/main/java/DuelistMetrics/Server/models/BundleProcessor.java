@@ -171,6 +171,7 @@ public class BundleProcessor {
 
   private static void parseNeow(TopBundle bnd, Map<String,Integer> pickedN, Map<String, Integer> pickedVicN, boolean vic) {
     String neow = bnd.getEvent().getNeow_bonus();
+    if (neow == null || neow.equals("")) { neow = "NONE"; }
     pickedN.compute(neow, (k,v) -> (v==null) ? 1 : v+1);
     if (vic) { pickedVicN.compute(neow, (k,v) -> (v==null) ? 1 : v+1); }
   }

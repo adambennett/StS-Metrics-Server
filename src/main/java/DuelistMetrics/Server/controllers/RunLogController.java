@@ -27,6 +27,38 @@ public class RunLogController {
     @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
     public static Collection<DisplayDeck> getDeckCompare() {
       List<DisplayDeck> output = new ArrayList<>();
+
+      Long allA20Wins = getService().getA20WinsAll();
+      Long allA20Runs = getService().getA20RunsAll();
+      Long allC20Wins = getService().getC20WinsAll();
+      Long allC20Runs = getService().getC20RunsAll();
+      Long allRuns = getService().getRunsAll();
+      Long allWins = getService().getWinsAll();
+      Long allKaiba = getService().getKaibaRunsAll();
+      if (allC20Wins == null) { allC20Wins = 0L; }
+      if (allC20Runs == null) { allC20Runs = 0L; }
+      List<String> allKilledList =  getService().getMostKilledByAll();
+      String allKilled ="";
+      if (allKilledList.size() > 0) {
+          String[] splice = allKilledList.get(0).split(",");
+          allKilled = splice[0] + " (" + splice[1] + ")";
+      }
+      Long allFloor = getService().getHighestFloorAll();
+      Long highestChallenge = getService().getHighestChallengeAll();
+      DisplayDeck allDeck = new DisplayDeckBuilder()
+                .setDeck("All")
+                .setA20runs(Math.toIntExact(allA20Runs))
+                .setA20wins(Math.toIntExact(allA20Wins))
+                .setC20runs(Math.toIntExact(allC20Runs))
+                .setC20wins(Math.toIntExact(allC20Wins))
+                .setFloor(Math.toIntExact(allFloor))
+                .setKaiba(Math.toIntExact(allKaiba))
+                .setRuns(Math.toIntExact(allRuns))
+                .setWins(Math.toIntExact(allWins))
+                .setMostKilledBy(allKilled)
+                .setHighestChallenge(Math.toIntExact(highestChallenge))
+                .createDisplayDeck();
+
       Map<String, Integer> a20Wins = getService().getA20Wins();
       Map<String, Integer> a20Runs = getService().getA20Runs();
       Map<String, Integer> c20Wins = getService().getC20Wins();
@@ -65,6 +97,7 @@ public class RunLogController {
         output.add(deck);
       }
       Collections.sort(output);
+      output.add(0, allDeck);
       return output;
     }
 
@@ -73,22 +106,6 @@ public class RunLogController {
     public static Collection<RunLog> getBundles(){
       return bundles.findAll();
     }
-
-/*
-    @Valid
-    @PostMapping("/Runs")
-    @CrossOrigin(origins = {"http://sts-duelist-metrics.herokuapp.com", "http://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
-    public ResponseEntity<?> save(@RequestBody RunLog run) {
-        run = bundles.create(run);
-        URI newPostUri = ServletUriComponentsBuilder
-                .fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(run.getRun_id())
-                .toUri();
-
-        return new ResponseEntity<>(newPostUri, HttpStatus.CREATED);
-    }
-*/
 
     @PutMapping("/upload")
     @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
