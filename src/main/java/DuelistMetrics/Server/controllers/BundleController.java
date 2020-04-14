@@ -21,38 +21,4 @@ public class BundleController {
     public BundleController(BundleService service) { bundles = service; }
 
     public static BundleService getService() { return bundles; }
-
-    @GetMapping("/Bundles")
-    @CrossOrigin(origins = {"http://sts-duelist-metrics.herokuapp.com", "http://localhost:4200"})
-    public static Collection<TopBundle> getBundles(){
-      return bundles.findAll();
-    }
-
-    @GetMapping("/Bundles/pages")
-    @CrossOrigin(origins = {"http://sts-duelist-metrics.herokuapp.com", "http://localhost:4200"})
-    public static Page<TopBundle> getBundles(Pageable pageable)
-    {
-      return bundles.findAllPages(pageable);
-    }
-
-    @GetMapping("/Bundles/{id}")
-    @CrossOrigin(origins = {"http://sts-duelist-metrics.herokuapp.com", "http://localhost:4200"})
-    public static ResponseEntity<?> getBundle(@PathVariable Long id) {
-        Optional<TopBundle> p = bundles.findById(id);
-        return (p.isPresent()) ? new ResponseEntity<> (p, HttpStatus.OK) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    }
-
-    @Valid
-    @PostMapping("/Bundles")
-    @CrossOrigin(origins = {"http://sts-duelist-metrics.herokuapp.com", "http://localhost:4200"})
-    public ResponseEntity<?> save(@RequestBody TopBundle run) {
-        run = bundles.create(run);
-        URI newPostUri = ServletUriComponentsBuilder
-                .fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(run.getTop_id())
-                .toUri();
-
-        return new ResponseEntity<>(newPostUri, HttpStatus.CREATED);
-    }
 }

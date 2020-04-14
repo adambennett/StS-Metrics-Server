@@ -68,28 +68,15 @@ public class RunLogController {
     }
 
     @GetMapping("/Runs")
-    @CrossOrigin(origins = {"http://sts-duelist-metrics.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"http://sts-duelist-metrics.herokuapp.com", "http://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
     public static Collection<RunLog> getBundles(){
       return bundles.findAll();
     }
 
-    @GetMapping("/Runs/pages")
-    @CrossOrigin(origins = {"http://sts-duelist-metrics.herokuapp.com", "http://localhost:4200"})
-    public static Page<RunLog> getBundles(Pageable pageable)
-    {
-      return bundles.findAllPages(pageable);
-    }
-
-    @GetMapping("/Runs/{id}")
-    @CrossOrigin(origins = {"http://sts-duelist-metrics.herokuapp.com", "http://localhost:4200"})
-    public static ResponseEntity<?> getBundle(@PathVariable Long id) {
-        Optional<RunLog> p = bundles.findById(id);
-        return (p.isPresent()) ? new ResponseEntity<> (p, HttpStatus.OK) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    }
-
+/*
     @Valid
     @PostMapping("/Runs")
-    @CrossOrigin(origins = {"http://sts-duelist-metrics.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"http://sts-duelist-metrics.herokuapp.com", "http://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
     public ResponseEntity<?> save(@RequestBody RunLog run) {
         run = bundles.create(run);
         URI newPostUri = ServletUriComponentsBuilder
@@ -100,9 +87,10 @@ public class RunLogController {
 
         return new ResponseEntity<>(newPostUri, HttpStatus.CREATED);
     }
+*/
 
     @PutMapping("/upload")
-    @CrossOrigin(origins = {"http://sts-duelist-metrics.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"http://sts-duelist-metrics.herokuapp.com", "http://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
     public ResponseEntity<?> upload(@RequestBody TopBundle run)
     {
       BundleProcessor.parse(run, true, true);

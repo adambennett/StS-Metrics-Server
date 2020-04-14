@@ -23,14 +23,8 @@ public class CardController {
   @Autowired
   public CardController(CardRepo card) { cards = card; }
 
-  @GetMapping("/Cards/all/list")
-  @CrossOrigin(origins = {"http://sts-duelist-metrics.herokuapp.com", "http://localhost:4200"})
-  public static Page<OfferCard> getOfferCards(Pageable pageable) {
-    return cards.findAll(pageable);
-  }
-
   @GetMapping("/Cards")
-  @CrossOrigin(origins = {"http://sts-duelist-metrics.herokuapp.com", "http://localhost:4200"})
+  @CrossOrigin(origins = {"http://sts-duelist-metrics.herokuapp.com", "http://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
   public static Collection<DisplayCard> getCards(){
     Collection<DisplayCard> output = new ArrayList<>();
     for (String s : cards.getAll()) {
@@ -54,7 +48,7 @@ public class CardController {
   }
 
   @GetMapping("/Cards/{deck}")
-  @CrossOrigin(origins = {"http://sts-duelist-metrics.herokuapp.com", "http://localhost:4200"})
+  @CrossOrigin(origins = {"http://sts-duelist-metrics.herokuapp.com", "http://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
   public static Collection<DisplayCard> getCards(@PathVariable String deck){
     Collection<DisplayCard> output = new ArrayList<>();
     for (String s : cards.getAllFromDeck(DeckNameProcessor.getProperDeckName(deck))) {
