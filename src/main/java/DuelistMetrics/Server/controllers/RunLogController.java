@@ -93,7 +93,11 @@ public class RunLogController {
     @CrossOrigin(origins = {"http://sts-duelist-metrics.herokuapp.com", "http://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
     public ResponseEntity<?> upload(@RequestBody TopBundle run)
     {
-      BundleProcessor.parse(run, true, true);
-      return new ResponseEntity<>(null, HttpStatus.OK);
+      if (run != null) {
+          BundleProcessor.parse(run, true, true);
+          return new ResponseEntity<>(null, HttpStatus.OK);
+      } else {
+          return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+      }
     }
 }
