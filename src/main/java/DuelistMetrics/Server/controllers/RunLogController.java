@@ -24,6 +24,7 @@ public class RunLogController {
     public static RunLogService getService() { return bundles; }
 
     @GetMapping("/Decks")
+    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
     public static Collection<DisplayDeck> getDeckCompare() {
       List<DisplayDeck> output = new ArrayList<>();
       Map<String, Integer> a20Wins = getService().getA20Wins();
@@ -68,7 +69,7 @@ public class RunLogController {
     }
 
     @GetMapping("/Runs")
-    @CrossOrigin(origins = {"http://sts-duelist-metrics.herokuapp.com", "http://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
     public static Collection<RunLog> getBundles(){
       return bundles.findAll();
     }
@@ -90,7 +91,7 @@ public class RunLogController {
 */
 
     @PutMapping("/upload")
-    @CrossOrigin(origins = {"http://sts-duelist-metrics.herokuapp.com", "http://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
     public ResponseEntity<?> upload(@RequestBody TopBundle run)
     {
       if (run != null) {
