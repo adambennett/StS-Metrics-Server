@@ -3,6 +3,7 @@ package DuelistMetrics.Server.models.builders;
 import DuelistMetrics.Server.models.*;
 
 public class RunLogBuilder {
+    private String time;
     private String host;
     private String deck;
     private String killedBy;
@@ -11,6 +12,11 @@ public class RunLogBuilder {
     private Integer floor;
     private Boolean kaiba;
     private Boolean victory;
+
+    public RunLogBuilder setTime(String time) {
+        this.time = time;
+        return this;
+    }
 
     public RunLogBuilder setHost(String host) {
         this.host = host;
@@ -53,6 +59,6 @@ public class RunLogBuilder {
     }
 
     public RunLog createRunLog() {
-        return new RunLog(host, deck, killedBy, ascension, challenge, floor, kaiba, victory);
+        return new RunLog(time, host, deck, killedBy, ascension, challenge, floor, kaiba, victory);
     }
 }

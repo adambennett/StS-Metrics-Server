@@ -2,6 +2,7 @@ package DuelistMetrics.Server.util;
 
 import DuelistMetrics.Server.models.*;
 
+import static com.google.common.base.Preconditions.*;
 import java.util.*;
 import java.util.logging.*;
 
@@ -26,6 +27,19 @@ public class LocalProccesor {
       Logger.getGlobal().info("Not checking runs folder.");
     }
     Logger.getGlobal().info("SpringApp running...");
+  }
+
+  public static String getDayOfMonthSuffix(final int n) {
+    checkArgument(n >= 1 && n <= 31, "illegal day of month: " + n);
+    if (n >= 11 && n <= 13) {
+      return "th";
+    }
+    switch (n % 10) {
+      case 1:  return "st";
+      case 2:  return "nd";
+      case 3:  return "rd";
+      default: return "th";
+    }
   }
 
 }

@@ -1,6 +1,7 @@
 package DuelistMetrics.Server.models;
 
 import javax.persistence.*;
+import java.text.*;
 
 @Entity
 public class RunLog {
@@ -9,6 +10,7 @@ public class RunLog {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long run_id;
 
+  private String time;
   private String host;
   private String deck;
   private String killedBy;
@@ -20,7 +22,8 @@ public class RunLog {
 
   public RunLog() {}
 
-  public RunLog(String host, String deck, String killedBy, Integer ascension, Integer challenge, Integer floor, Boolean kaiba, Boolean victory) {
+  public RunLog(String time, String host, String deck, String killedBy, Integer ascension, Integer challenge, Integer floor, Boolean kaiba, Boolean victory) {
+    this.time = time;
     this.host = host;
     this.deck = deck;
     this.killedBy = killedBy;
@@ -29,6 +32,14 @@ public class RunLog {
     this.floor = floor;
     this.kaiba = kaiba;
     this.victory = victory;
+  }
+
+  public String getTime() {
+    return time;
+  }
+
+  public void setTime(String time) {
+    this.time = time;
   }
 
   public Long getRun_id() {

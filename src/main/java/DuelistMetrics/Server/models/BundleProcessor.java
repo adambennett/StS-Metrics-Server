@@ -2,10 +2,12 @@ package DuelistMetrics.Server.models;
 
 import DuelistMetrics.Server.controllers.*;
 import DuelistMetrics.Server.models.builders.*;
+import DuelistMetrics.Server.util.*;
 import com.fasterxml.jackson.databind.*;
 import org.apache.commons.io.*;
 
 import java.io.*;
+import java.text.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.*;
@@ -100,6 +102,22 @@ public class BundleProcessor {
         String killedBy = bnd.getEvent().getKilled_by();
         if (kaiba == null) { kaiba = false; }
         if (killedBy == null || killedBy.equals(" ")) { killedBy = "Self"; }
+        SimpleDateFormat timestampFormatter = new SimpleDateFormat("yyyyMMddHHmmss");
+        String finalTimeStamp = "Unknown";
+        try {
+          Date reDated = timestampFormatter.parse(bnd.getEvent().getLocal_time());
+          String firstFormat = "EEEEE, MMMMM";
+          String dayFormat = "dd";
+          String endFormat = ", yyyy @ h:mm:ss a";
+          SimpleDateFormat frstFormat = new SimpleDateFormat(firstFormat);
+          SimpleDateFormat dyFormat = new SimpleDateFormat(dayFormat);
+          SimpleDateFormat enFormat = new SimpleDateFormat(endFormat);
+          String firstPart = frstFormat.format(reDated);
+          String dayPart = dyFormat.format(reDated);
+          String ending = enFormat.format(reDated);
+          dayPart += LocalProccesor.getDayOfMonthSuffix(Integer.parseInt(dayPart));
+          finalTimeStamp = firstPart + " " + dayPart + ending;
+        } catch (ParseException ignored) {}
         RunLog log = new RunLogBuilder()
           .setAscension(asc)
           .setChallenge(chal)
@@ -109,6 +127,7 @@ public class BundleProcessor {
           .setKaiba(kaiba)
           .setKilledBy(killedBy)
           .setVictory(bnd.getEvent().getVictory())
+          .setTime(finalTimeStamp)
           .createRunLog();
         RunLogController.getService().create(log);
         Logger.getGlobal().info("RunLog saved");
