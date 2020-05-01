@@ -107,7 +107,7 @@ public class BundleProcessor {
         try {
           Date reDated = timestampFormatter.parse(bnd.getEvent().getLocal_time());
           String firstFormat = "EEEEE, MMMMM";
-          String dayFormat = "dd";
+          String dayFormat = "d";
           String endFormat = ", yyyy @ h:mm:ss a";
           SimpleDateFormat frstFormat = new SimpleDateFormat(firstFormat);
           SimpleDateFormat dyFormat = new SimpleDateFormat(dayFormat);
