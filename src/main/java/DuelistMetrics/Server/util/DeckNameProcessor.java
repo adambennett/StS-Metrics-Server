@@ -65,6 +65,8 @@ public class DeckNameProcessor {
     decks.add("Random Deck (Big)");
     decks.add("Upgrade Deck");
     decks.add("Metronome Deck");
+    decks.add("Predaplant Deck");
+    decks.add("Giant Deck");
     int i = 0;
     for (String deck : decks) { deckPositions.put(deck, i++); }
   }
