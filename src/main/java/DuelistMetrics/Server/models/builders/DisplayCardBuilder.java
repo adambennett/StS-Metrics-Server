@@ -4,6 +4,7 @@ import DuelistMetrics.Server.models.*;
 
 public class DisplayCardBuilder {
     private String name;
+    private String uuid;
     private String cardID;
     private Double popularity;
     private Double power;
@@ -13,6 +14,11 @@ public class DisplayCardBuilder {
 
     public DisplayCardBuilder setName(String name) {
         this.name = name;
+        return this;
+    }
+
+    public DisplayCardBuilder setUuid(String uuid) {
+        this.uuid = uuid;
         return this;
     }
 
@@ -47,6 +53,6 @@ public class DisplayCardBuilder {
     }
 
     public DisplayCard createDisplayCard() {
-        return new DisplayCard(name, cardID, popularity, power, offered, picked, pickVic);
+        return new DisplayCard(name, uuid, cardID, popularity, power, offered, picked, pickVic);
     }
 }

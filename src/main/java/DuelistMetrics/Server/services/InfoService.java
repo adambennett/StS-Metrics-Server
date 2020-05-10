@@ -12,10 +12,11 @@ import java.util.*;
 public class InfoService {
 
   private InfoRepo repo;
+  private CardInfoRepo cardInfoRepo;
   private static ArrayList<String> decks;
 
   @Autowired
-  public InfoService(InfoRepo repo) { this.repo = repo; }
+  public InfoService(InfoRepo repo, CardInfoRepo crdRepo) { this.repo = repo; this.cardInfoRepo = crdRepo; }
 
   public PickInfo findInfo(String deck, int asc, int chal) {
     if (decks.contains(deck)) {
@@ -36,6 +37,10 @@ public class InfoService {
   }
 
   public PickInfo create(PickInfo run) { return this.repo.save(run); }
+
+  public CardInfoList createCardInfoList(CardInfoList list) { return this.cardInfoRepo.save(list); }
+
+  public Optional<CardInfoList> getInfo() { return this.cardInfoRepo.findById(1L); }
 
   public Collection<PickInfo> findAll() { return repo.findAll(); }
 

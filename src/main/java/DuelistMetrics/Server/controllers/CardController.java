@@ -14,6 +14,7 @@ import org.springframework.web.servlet.support.*;
 import javax.validation.*;
 import java.net.*;
 import java.util.*;
+import java.util.logging.*;
 
 @RestController
 public class CardController {
@@ -37,7 +38,10 @@ public class CardController {
     Collection<DisplayCard> realOutput = new ArrayList<>();
     Collection<DisplayCard> endOutput = new ArrayList<>();
     for (DisplayCard c : output) {
-      if (c.getName().length() > 10 && c.getName().startsWith("theDuelist")) {
+      Optional<DuelistCardData> dbCard = InfoController.getCardData(c.getUuid());
+      if (dbCard.isPresent()) { c.setName(dbCard.get().getGameName()); }
+      else { c.setName(c.getUuid()); }
+      if (c.getUuid().length() > 10 && c.getUuid().startsWith("theDuelist")) {
         realOutput.add(c);
       } else {
         endOutput.add(c);
@@ -69,7 +73,7 @@ public class CardController {
       double power = 0.0;
       if (pick - pickV > 0) { power = (double)pickV/(pick - pickV); }
       DisplayCard ca = new DisplayCardBuilder()
-        .setName(name)
+        .setUuid(name)
         .setOffered(off)
         .setPicked(pick)
         .setPickVic(pickV)
