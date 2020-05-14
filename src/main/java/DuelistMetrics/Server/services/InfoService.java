@@ -14,10 +14,31 @@ public class InfoService {
 
   private InfoRepo repo;
   private TopInfoBundleRepo bundleRepo;
+  private InfoCardRepo  cardRepo;
+  private InfoRelicRepo relicRepo;
+  private InfoPotionRepo potionRepo;
   private static ArrayList<String> decks;
 
   @Autowired
-  public InfoService(InfoRepo repo, TopInfoBundleRepo bundleRepo) { this.repo = repo; this.bundleRepo = bundleRepo; }
+  public InfoService(InfoRepo repo, TopInfoBundleRepo bundleRepo, InfoCardRepo cardRepo, InfoRelicRepo relicRepo, InfoPotionRepo potionRepo) {
+    this.repo = repo;
+    this.bundleRepo = bundleRepo;
+    this.cardRepo = cardRepo;
+    this.relicRepo = relicRepo;
+    this.potionRepo = potionRepo;
+  }
+
+  public List<InfoCard> findAllCards() {
+    return cardRepo.findAll();
+  }
+
+  public List<InfoPotion> findAllPotions() {
+    return potionRepo.findAll();
+  }
+
+  public List<InfoRelic> findAllRelics() {
+    return relicRepo.findAll();
+  }
 
   public PickInfo findInfo(String deck, int asc, int chal) {
     if (decks.contains(deck)) {

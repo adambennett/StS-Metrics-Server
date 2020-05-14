@@ -4,6 +4,7 @@ import DuelistMetrics.Server.models.*;
 
 public class DisplayObjectBuilder {
     private String name;
+    private String uuid;
     private Integer picked;
     private Integer pickVic;
     private Double popularity;
@@ -11,6 +12,11 @@ public class DisplayObjectBuilder {
 
     public DisplayObjectBuilder setName(String name) {
         this.name = name;
+        return this;
+    }
+
+    public DisplayObjectBuilder setUuid(String uuid) {
+        this.uuid = uuid;
         return this;
     }
 
@@ -35,6 +41,6 @@ public class DisplayObjectBuilder {
     }
 
     public DisplayObject createDisplayObject() {
-        return new DisplayObject(name, picked, pickVic, popularity, power);
+        return new DisplayObject(name, uuid, picked, pickVic, popularity, power);
     }
 }

@@ -7,17 +7,20 @@ import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import java.util.*;
+import java.util.logging.*;
 
 @RestController
 public class InfoController {
 
     private static InfoService bundles;
-   // private static Map<String, DuelistCardData> cardData;
+    private static Map<String, InfoCard> cardData;
+    private static Map<String, InfoRelic> relicData;
+    private static Map<String, InfoPotion> potionData;
 
     @Autowired
     public InfoController(InfoService service) {
         bundles = service;
-        //fillCardData();
+        fillAllData();
     }
 
     public static InfoService getService() { return bundles; }
@@ -34,14 +37,11 @@ public class InfoController {
         if (list != null) {
             List<ModInfoBundle> saved = new ArrayList<>(list.getInfo().size());
             for (ModInfoBundle mod : list.getInfo()) {
-               // if (!bundles.modExists(mod.getMod_id(), mod.getVersion()).isPresent()) {
-                    bundles.createBundle(mod);
-                    saved.add(mod);
-                /*} else {
-                    Logger.getGlobal().info("Skipping upload for " + mod.getModName() + " - " + mod.getVersion() + " because it already existed in the database.");
-                }*/
+                bundles.createBundle(mod);
+                saved.add(mod);
             }
             if (saved.size() > 0) {
+                fillAllData();
                 return new ResponseEntity<>(saved, HttpStatus.OK);
             } else {
                 return new ResponseEntity<>(list, HttpStatus.NO_CONTENT);
@@ -50,10 +50,45 @@ public class InfoController {
         return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-   /* private static void fillCardData() {
+    public static Optional<InfoCard> getCard(String game_id) {
+        if (cardData.containsKey(game_id)) { return Optional.of(cardData.get(game_id)); }
+        return Optional.empty();
+    }
+
+    public static Optional<InfoRelic> getRelic(String game_id) {
+        if (relicData.containsKey(game_id)) { return Optional.of(relicData.get(game_id)); }
+        return Optional.empty();
+    }
+
+    public static Optional<InfoPotion> getPotion(String game_id) {
+        if (potionData.containsKey(game_id)) { return Optional.of(potionData.get(game_id)); }
+        return Optional.empty();
+    }
+
+    private static void fillAllData() {
+        fillCardData();
+        fillRelicData();
+        fillPotionData();
+    }
+
+    private static void fillCardData() {
         cardData = new HashMap<>();
-        Optional<CardInfoList> list = bundles.getInfo();
-        list.ifPresent(li -> li.getCards().forEach(data -> cardData.put(data.getGameID(), data)));
-        list.ifPresent(cardInfoList -> Logger.getGlobal().info("Card Info DB: " + cardInfoList.getCards().size()));
-    }*/
+        List<InfoCard> cards = bundles.findAllCards();
+        cards.forEach(data -> cardData.put(data.getCard_id(), data));
+        Logger.getGlobal().info("Card Info DB: " + cardData.size());
+    }
+
+    private static void fillRelicData() {
+        relicData = new HashMap<>();
+        List<InfoRelic> relics = bundles.findAllRelics();
+        relics.forEach(data -> relicData.put(data.getRelic_id(), data));
+        Logger.getGlobal().info("Relic Info DB: " + relicData.size());
+    }
+
+    private static void fillPotionData() {
+        potionData = new HashMap<>();
+        List<InfoPotion> potions = bundles.findAllPotions();
+        potions.forEach(data -> potionData.put(data.getPotion_id(), data));
+        Logger.getGlobal().info("Potion Info DB: " + potionData.size());
+    }
 }
