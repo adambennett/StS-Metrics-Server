@@ -66,29 +66,32 @@ public class InfoController {
     }
 
     private static void fillAllData() {
-        fillCardData();
-        fillRelicData();
-        fillPotionData();
+        String cardOut = fillCardData();
+        String relicOut = fillRelicData();
+        String potionOut = fillPotionData();
+        Logger.getGlobal().info(cardOut);
+        Logger.getGlobal().info(relicOut);
+        Logger.getGlobal().info(potionOut);
     }
 
-    private static void fillCardData() {
+    private static String fillCardData() {
         cardData = new HashMap<>();
         List<InfoCard> cards = bundles.findAllCards();
         cards.forEach(data -> cardData.put(data.getCard_id(), data));
-        Logger.getGlobal().info("Card Info DB: " + cardData.size());
+        return "Card Info DB: " + cardData.size();
     }
 
-    private static void fillRelicData() {
+    private static String fillRelicData() {
         relicData = new HashMap<>();
         List<InfoRelic> relics = bundles.findAllRelics();
         relics.forEach(data -> relicData.put(data.getRelic_id(), data));
-        Logger.getGlobal().info("Relic Info DB: " + relicData.size());
+        return"Relic Info DB: " + relicData.size();
     }
 
-    private static void fillPotionData() {
+    private static String fillPotionData() {
         potionData = new HashMap<>();
         List<InfoPotion> potions = bundles.findAllPotions();
         potions.forEach(data -> potionData.put(data.getPotion_id(), data));
-        Logger.getGlobal().info("Potion Info DB: " + potionData.size());
+        return "Potion Info DB: " + potionData.size();
     }
 }
