@@ -1,6 +1,7 @@
 package DuelistMetrics.Server.services;
 
 import DuelistMetrics.Server.models.*;
+import DuelistMetrics.Server.models.infoModels.*;
 import DuelistMetrics.Server.repositories.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.data.domain.*;
@@ -12,11 +13,11 @@ import java.util.*;
 public class InfoService {
 
   private InfoRepo repo;
-  private CardInfoRepo cardInfoRepo;
+  private TopInfoBundleRepo bundleRepo;
   private static ArrayList<String> decks;
 
   @Autowired
-  public InfoService(InfoRepo repo, CardInfoRepo crdRepo) { this.repo = repo; this.cardInfoRepo = crdRepo; }
+  public InfoService(InfoRepo repo, TopInfoBundleRepo bundleRepo) { this.repo = repo; this.bundleRepo = bundleRepo; }
 
   public PickInfo findInfo(String deck, int asc, int chal) {
     if (decks.contains(deck)) {
@@ -38,9 +39,30 @@ public class InfoService {
 
   public PickInfo create(PickInfo run) { return this.repo.save(run); }
 
-  public CardInfoList createCardInfoList(CardInfoList list) { return this.cardInfoRepo.save(list); }
+  public List<String> getAllModuleVersions() { return this.bundleRepo.getAllModuleVersions(); }
 
-  public Optional<CardInfoList> getInfo() { return this.cardInfoRepo.findById(1L); }
+  public ModInfoBundle createBundle(ModInfoBundle mod) {
+    for (InfoCard c : mod.getCards()) {
+      c.setInfo(mod);
+    }
+
+    for (InfoRelic r : mod.getRelics()) {
+      r.setInfo(mod);
+    }
+
+    for (InfoPotion p : mod.getPotions()) {
+      p.setInfo(mod);
+    }
+
+    for (InfoKeyword k : mod.getKeywords()) {
+      k.setInfo(mod);
+    }
+
+    for (InfoCreature c : mod.getCreatures()) {
+      c.setInfo(mod);
+    }
+    return this.bundleRepo.save(mod);
+  }
 
   public Collection<PickInfo> findAll() { return repo.findAll(); }
 
