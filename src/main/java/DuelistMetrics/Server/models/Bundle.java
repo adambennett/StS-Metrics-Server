@@ -1,5 +1,6 @@
 package DuelistMetrics.Server.models;
 
+import DuelistMetrics.Server.models.infoModels.*;
 import com.fasterxml.jackson.annotation.*;
 import org.hibernate.annotations.*;
 
@@ -118,6 +119,11 @@ public class Bundle {
   @ElementCollection
   private List<String> relics;
 
+  @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "bundle", targetEntity = MiniMod.class)
+  @JsonIgnoreProperties("bundle")
+  @Fetch(value = FetchMode.SUBSELECT)
+  private List<MiniMod> modList;
+
   @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "bundle", targetEntity = BossRelic.class)
   @JsonIgnoreProperties("bundle")
   @Fetch(value = FetchMode.SUBSELECT)
@@ -152,112 +158,22 @@ public class Bundle {
   @JsonIgnoreProperties("bundle")
   private List<DamageInfo> damage_taken;
 
-  public void updateChildren() {
-    for (BossRelic r : this.boss_relics) {
-      r.setBundle(this);
-    }
-    for (Event r : this.event_choices) {
-      r.setBundle(this);
-    }
-    for (SpireCard r : this.card_choices) {
-      r.setBundle(this);
-    }
-    for (Potion r : this.potions_obtained) {
-      r.setBundle(this);
-    }
-    for (Relic r : this.relics_obtained) {
-      r.setBundle(this);
-    }
-    for (CampfireChoice r : this.campfire_choices) {
-      r.setBundle(this);
-    }
-    for (DamageInfo r : this.damage_taken) {
-      r.setBundle(this);
-    }
-    for (DamageInfo r : this.damage_taken) {
-      r.setBundle(this);
-    }
-  }
-
   public Bundle() {}
 
-  public Bundle(TopBundle top) {
-    Bundle event = top.getEvent();
-    this.top = top;
-    this.build_version= event.getBuild_version();
-    this.character_chosen= event.getCharacter_chosen();
-    this.duelistmod_version= event.getDuelistmod_version();
-    this.killed_by= event.getKilled_by();
-    this.local_time= event.getLocal_time();
-    this.neow_bonus= event.getNeow_bonus();
-    this.neow_cost= event.getNeow_cost();
-    this.play_id= event.getPlay_id();
-    this.pool_fill= event.getPool_fill();
-    this.seed_played= event.getSeed_played();
-    this.starting_deck= event.getStarting_deck();
-    this.add_base_game_cards= event.getAdd_base_game_cards();
-    this.allow_boosters= event.getAllow_boosters();
-    this.always_boosters= event.getAlways_boosters();
-    this.bonus_puzzle_summons= event.getBonus_puzzle_summons();
-    this.challenge_mode= event.getChallenge_mode();
-    this.chose_seed= event.getChose_seed();
-    this.customized_card_pool= event.getCustomized_card_pool();
-    this.duelist_curses= event.getDuelist_curses();
-    this.encounter_duelist_enemies= event.getEncounter_duelist_enemies();
-    this.is_ascension_mode= event.getIs_ascension_mode();
-    this.is_beta= event.getIs_beta();
-    this.is_daily= event.getIs_daily();
-    this.is_endless= event.getIs_endless();
-    this.is_prod= event.getIs_prod();
-    this.is_trial= event.getIs_trial();
-    this.playing_as_kaiba= event.getPlaying_as_kaiba();
-    this.reduced_basic= event.getReduced_basic();
-    this.remove_card_rewards= event.getRemove_card_rewards();
-    this.remove_creator= event.getRemove_creator();
-    this.remove_exodia= event.getRemove_exodia();
-    this.remove_ojama= event.getRemove_ojama();
-    this.remove_toons= event.getRemove_toons();
-    this.unlock_all_decks= event.getUnlock_all_decks();
-    this.victory= event.getVictory();
-    this.ascension_level= event.getAscension_level();
-    this.campfire_rested= event.getCampfire_rested();
-    this.campfire_upgraded= event.getCampfire_upgraded();
-    this.circlet_count= event.getCirclet_count();
-    this.floor_reached= event.getFloor_reached();
-    this.gold= event.getGold();
-    this.highest_max_summons= event.getHighest_max_summons();
-    this.number_of_monsters= event.getNumber_of_monsters();
-    this.number_of_resummons= event.getNumber_of_resummons();
-    this.number_of_spells= event.getNumber_of_spells();
-    this.number_of_traps= event.getNumber_of_traps();
-    this.playtime= event.getPlaytime();
-    this.purchased_purges= event.getPurchased_purges();
-    this.score= event.getScore();
-    this.total_synergy_tributes= event.getTotal_synergy_tributes();
-    this.win_rate= event.getWin_rate();
-    this.player_experience= event.getPlayer_experience();
-    this.seed_source_timestamp= event.getSeed_source_timestamp();
-    this.timestamp= event.getTimestamp();
-    this.current_hp_per_floor= event.getCurrent_hp_per_floor();
-    this.gold_per_floor= event.getGold_per_floor();
-    this.item_purchase_floors= event.getItem_purchase_floors();
-    this.items_purged_floors= event.getItems_purged_floors();
-    this.max_hp_per_floor= event.getMax_hp_per_floor();
-    this.potions_floor_spawned= event.getPotions_floor_spawned();
-    this.potions_floor_usage= event.getPotions_floor_usage();
-    this.items_purchased= event.getItems_purchased();
-    this.items_purged= event.getItems_purged();
-    this.master_deck= event.getMaster_deck();
-    this.path_per_floor= event.getPath_per_floor();
-    this.path_taken= event.getPath_taken();
-    this.relics= event.getRelics();
-    this.boss_relics= event.getBoss_relics();
-    this.event_choices= event.getEvent_choices();
-    this.card_choices= event.getCard_choices();
-    this.potions_obtained= event.getPotions_obtained();
-    this.relics_obtained= event.getRelics_obtained();
-    this.campfire_choices= event.getCampfire_choices();
-    this.damage_taken= event.getDamage_taken();
+  public Long getTop_id() {
+    return top_id;
+  }
+
+  public void setTop_id(Long top_id) {
+    this.top_id = top_id;
+  }
+
+  public List<MiniMod> getModList() {
+    return modList;
+  }
+
+  public void setModList(List<MiniMod> modList) {
+    this.modList = modList;
   }
 
   public void setTop(TopBundle top) {
@@ -865,4 +781,5 @@ public class Bundle {
   public void setChallenge_level(Integer challenge_level) {
     this.challenge_level = challenge_level;
   }
+
 }

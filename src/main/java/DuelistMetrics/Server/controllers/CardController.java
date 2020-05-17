@@ -21,15 +21,27 @@ import java.util.logging.*;
 public class CardController {
 
   private static CardRepo cards;
+  private static CardService serv;
+  private static InfoCardRepo infoCardRepo;
 
   @Autowired
-  public CardController(CardRepo card) { cards = card; }
+  public CardController(CardRepo card, InfoCardRepo infoRepo, CardService service) { cards = card; infoCardRepo = infoRepo; serv = service; }
 
-  @GetMapping("/Cards")
+  @GetMapping("/cards")
   @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
   public static Collection<DisplayCard> getCards(){
     Collection<DisplayCard> output = new ArrayList<>();
-    for (String s : cards.getAll()) {
+    for (String s : serv.getAll()) {
+      createDisplayCard(output, s);
+    }
+    return sortDuelistCards(output);
+  }
+
+  @GetMapping("/cards/{deck}")
+  @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+  public static Collection<DisplayCard> getCards(@PathVariable String deck){
+    Collection<DisplayCard> output = new ArrayList<>();
+    for (String s : cards.getAllFromDeck(DeckNameProcessor.getProperDeckName(deck))) {
       createDisplayCard(output, s);
     }
     return sortDuelistCards(output);
@@ -50,16 +62,6 @@ public class CardController {
     }
     realOutput.addAll(endOutput);
     return realOutput;
-  }
-
-  @GetMapping("/Cards/{deck}")
-  @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
-  public static Collection<DisplayCard> getCards(@PathVariable String deck){
-    Collection<DisplayCard> output = new ArrayList<>();
-    for (String s : cards.getAllFromDeck(DeckNameProcessor.getProperDeckName(deck))) {
-      createDisplayCard(output, s);
-    }
-    return sortDuelistCards(output);
   }
 
   private static void createDisplayCard(Collection<DisplayCard> output, String s) {

@@ -24,7 +24,7 @@ public class DisplayObjectController {
     neo = no;
   }
 
-  @GetMapping("/Relics")
+  @GetMapping("/relics")
   @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
   public static Collection<DisplayObject> getRelics(){
     Collection<DisplayObject> output = new ArrayList<>();
@@ -34,7 +34,7 @@ public class DisplayObjectController {
     return sortDuelistObjs(output, "relics");
   }
 
-  @GetMapping("/Potions")
+  @GetMapping("/potions")
   @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
   public static Collection<DisplayObject> getPotions(){
     Collection<DisplayObject> output = new ArrayList<>();
@@ -44,7 +44,7 @@ public class DisplayObjectController {
     return sortDuelistObjs(output, "potions");
   }
 
-  @GetMapping("/Neow")
+  @GetMapping("/neow")
   @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
   public static Collection<DisplayObject> getNeows(){
     Collection<DisplayObject> output = new ArrayList<>();
@@ -54,7 +54,7 @@ public class DisplayObjectController {
     return sortDuelistObjs(output, "neow");
   }
 
-  @GetMapping("/Relics/{deck}")
+  @GetMapping("/relics/{deck}")
   @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
   public static Collection<DisplayObject> getRelics(@PathVariable String deck){
     Collection<DisplayObject> output = new ArrayList<>();
@@ -64,7 +64,7 @@ public class DisplayObjectController {
     return sortDuelistObjs(output, "relics");
   }
 
-  @GetMapping("/Potions/{deck}")
+  @GetMapping("/potions/{deck}")
   @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
   public static Collection<DisplayObject> getPotions(@PathVariable String deck){
     Collection<DisplayObject> output = new ArrayList<>();
@@ -74,7 +74,7 @@ public class DisplayObjectController {
     return sortDuelistObjs(output, "potions");
   }
 
-  @GetMapping("/Neow/{deck}")
+  @GetMapping("/neow/{deck}")
   @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
   public static Collection<DisplayObject> getCards(@PathVariable String deck){
     Collection<DisplayObject> output = new ArrayList<>();

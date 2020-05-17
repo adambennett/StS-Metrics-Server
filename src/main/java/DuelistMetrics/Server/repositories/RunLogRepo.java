@@ -71,4 +71,10 @@ public interface RunLogRepo extends JpaRepository<RunLog, Long> {
   @Query(value = "SELECT MAX(rl.challenge) FROM run_log rl WHERE rl.victory = 1", nativeQuery = true)
   Long getHighestChallengeAll();
 
+  List<RunLog> getAllByCharacterEquals(String character);
+
+  @Query(value = "SELECT DISTINCT rl.character FROM run_log rl", nativeQuery = true)
+  List<String> getAllCharacters();
+
+
 }

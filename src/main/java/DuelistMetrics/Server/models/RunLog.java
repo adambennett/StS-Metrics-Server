@@ -10,6 +10,7 @@ public class RunLog {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long run_id;
 
+  private String character;
   private String time;
   private String host;
   private String deck;
@@ -22,7 +23,7 @@ public class RunLog {
 
   public RunLog() {}
 
-  public RunLog(String time, String host, String deck, String killedBy, Integer ascension, Integer challenge, Integer floor, Boolean kaiba, Boolean victory) {
+  public RunLog(String time, String host, String deck, String killedBy, Integer ascension, Integer challenge, Integer floor, Boolean kaiba, Boolean victory, String character) {
     this.time = time;
     this.host = host;
     this.deck = deck;
@@ -32,6 +33,15 @@ public class RunLog {
     this.floor = floor;
     this.kaiba = kaiba;
     this.victory = victory;
+    this.character = character;
+  }
+
+  public String getCharacter() {
+    return character;
+  }
+
+  public void setCharacter(String character) {
+    this.character = character;
   }
 
   public String getTime() {

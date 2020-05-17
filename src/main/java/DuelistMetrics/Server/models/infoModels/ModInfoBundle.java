@@ -15,7 +15,7 @@ public class ModInfoBundle {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long info_bundle_id;
 
-    private String mod_id;
+    private String modID;
     private String name;
     private String modName;
     private String version;
@@ -81,12 +81,12 @@ public class ModInfoBundle {
         this.info_bundle_id = info_bundle_id;
     }
 
-    public String getMod_id() {
-        return mod_id;
+    public String getModID() {
+        return modID;
     }
 
-    public void setMod_id(String mod_id) {
-        this.mod_id = mod_id;
+    public void setModID(String mod_id) {
+        this.modID = mod_id;
     }
 
     public String getName() {

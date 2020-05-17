@@ -16,6 +16,10 @@ public class RunLogService {
   @Autowired
   public RunLogService(RunLogRepo repo) { this.repo = repo; }
 
+  public List<RunLog> getAllByChar(String chararacter) { return this.repo.getAllByCharacterEquals(chararacter); }
+
+  public List<String> getAllCharacters() { return this.repo.getAllCharacters(); }
+
   public RunLog create(RunLog run) { return this.repo.save(run); }
 
   public Collection<RunLog> findAll() { return repo.findAll(); }

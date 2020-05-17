@@ -12,12 +12,12 @@ import java.util.*;
 @Service
 public class InfoService {
 
-  private InfoRepo repo;
-  private TopInfoBundleRepo bundleRepo;
-  private InfoCardRepo  cardRepo;
-  private InfoRelicRepo relicRepo;
-  private InfoPotionRepo potionRepo;
-  private static ArrayList<String> decks;
+  private final InfoRepo repo;
+  private final TopInfoBundleRepo bundleRepo;
+  private final InfoCardRepo  cardRepo;
+  private final InfoRelicRepo relicRepo;
+  private final InfoPotionRepo potionRepo;
+  private static final ArrayList<String> decks;
 
   @Autowired
   public InfoService(InfoRepo repo, TopInfoBundleRepo bundleRepo, InfoCardRepo cardRepo, InfoRelicRepo relicRepo, InfoPotionRepo potionRepo) {
@@ -58,9 +58,11 @@ public class InfoService {
     return null;
   }
 
-  public PickInfo create(PickInfo run) { return this.repo.save(run); }
+  public void create(PickInfo run) { this.repo.save(run); }
 
   public List<String> getAllModuleVersions() { return this.bundleRepo.getAllModuleVersions(); }
+
+  public Optional<ModInfoBundle> getModInfo(String id, String version) { return this.bundleRepo.findByModIDAndVersion(id, version); }
 
   public ModInfoBundle createBundle(ModInfoBundle mod) {
     for (InfoCard c : mod.getCards()) {
@@ -84,14 +86,6 @@ public class InfoService {
     }
     return this.bundleRepo.save(mod);
   }
-
-  public Collection<PickInfo> findAll() { return repo.findAll(); }
-
-  public Page<PickInfo> findAllPages(Pageable pageable) { return repo.findAll(pageable); }
-
-  public Optional<PickInfo> findById(long infoID) { return this.repo.findById(infoID); }
-
-  public Boolean delete(long infoID) { this.repo.deleteById(infoID); return findById(infoID).isPresent(); }
 
   static {
     decks = new ArrayList<>();

@@ -23,7 +23,37 @@ public class RunLogController {
 
     public static RunLogService getService() { return bundles; }
 
-    @GetMapping("/Decks")
+    @PostMapping("/upload")
+    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    public ResponseEntity<?> upload(@RequestBody TopBundle run)
+    {
+        if (run != null) {
+            BundleProcessor.parse(run, true, true);
+            return new ResponseEntity<>(null, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+        }
+    }
+
+    @GetMapping("/runs")
+    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    public static Collection<RunLog> getBundles(){
+        return bundles.findAll();
+    }
+
+    @GetMapping("/runs/{character}")
+    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    public static Collection<RunLog> getBundles(@PathVariable String character){
+        return bundles.getAllByChar(character);
+    }
+
+    @GetMapping("/allCharacters")
+    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    public static Collection<String> getCharacters() {
+        return bundles.getAllCharacters();
+    }
+
+    @GetMapping("/decks")
     @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
     public static Collection<DisplayDeck> getDeckCompare() {
       List<DisplayDeck> output = new ArrayList<>();
@@ -78,6 +108,7 @@ public class RunLogController {
         decks.add(entry.getKey());
       }
       for (String deckName : decks) {
+
         DisplayDeck deck = new DisplayDeckBuilder()
           .setDeck(deckName)
           .setA20runs(a20Runs.get(deckName))
@@ -99,23 +130,5 @@ public class RunLogController {
       Collections.sort(output);
       output.add(0, allDeck);
       return output;
-    }
-
-    @GetMapping("/Runs")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
-    public static Collection<RunLog> getBundles(){
-      return bundles.findAll();
-    }
-
-    @PutMapping("/upload")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
-    public ResponseEntity<?> upload(@RequestBody TopBundle run)
-    {
-      if (run != null) {
-          BundleProcessor.parse(run, true, true);
-          return new ResponseEntity<>(null, HttpStatus.OK);
-      } else {
-          return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
-      }
     }
 }
