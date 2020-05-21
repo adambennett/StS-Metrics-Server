@@ -2,6 +2,7 @@ package DuelistMetrics.Server.models;
 
 import DuelistMetrics.Server.controllers.*;
 import DuelistMetrics.Server.models.builders.*;
+import DuelistMetrics.Server.models.infoModels.*;
 import DuelistMetrics.Server.util.*;
 import com.fasterxml.jackson.databind.*;
 import org.apache.commons.io.*;
@@ -64,7 +65,12 @@ public class BundleProcessor {
       Integer ascensionLvl = bnd.getEvent().getAscension_level();
       Integer challengeLvl = bnd.getEvent().getChallenge_level();
       if (challengeLvl == null) { challengeLvl = -1; }
-      String deck = bnd.getEvent().getStarting_deck();
+      String deck;
+      if (bnd.getEvent().getStarting_deck() != null) {
+        deck = bnd.getEvent().getStarting_deck();
+      } else {
+        deck = "NotYugi";
+      }
       String runID = "run #" + bnd.getEvent().getPlay_id();
       Logger.getGlobal().info("Attempting to parse and save " + runID);
       // Parse the information we are interested in from cards/relics/potions/neow bonuses
@@ -128,13 +134,16 @@ public class BundleProcessor {
           .setKilledBy(killedBy)
           .setVictory(bnd.getEvent().getVictory())
           .setTime(finalTimeStamp)
+          .setCharacter(bnd.getEvent().getCharacter_chosen())
           .createRunLog();
         RunLogController.getService().create(log);
         Logger.getGlobal().info("RunLog saved");
       }
       if (saveTopBundles) {
-        BundleController.getService().create(bnd);
-        Logger.getGlobal().info("TopBundle saved");
+        bnd.getEvent().updateChildren();
+        bnd.getEvent().removeDisallowedRelics();
+        TopBundle top = BundleController.getService().create(bnd);
+        Logger.getGlobal().info("TopBundle " + top.getTop_id() + " saved");
       }
       Logger.getGlobal().info("Full run data has been added to DB for " + runID);
     } else {
@@ -175,8 +184,10 @@ public class BundleProcessor {
 
   private static void parseRelics(TopBundle bnd, Map<String,Integer> pickedR, Map<String, Integer> pickedVicR, Mapper<String> com, boolean vic) {
     for (String r : bnd.getEvent().getRelics()) {
-      pickedR.compute(r, com.mp());
-      if (vic) { pickedVicR.compute(r, com.mp()); }
+      if (RelicFilter.getInstance().allowed(r)) {
+        pickedR.compute(r, com.mp());
+        if (vic) { pickedVicR.compute(r, com.mp()); }
+      }
     }
   }
 

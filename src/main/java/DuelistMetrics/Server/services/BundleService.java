@@ -11,17 +11,22 @@ import java.util.*;
 @Service
 public class BundleService {
 
-  private BundleRepo repo;
+  private TopBundleRepo repo;
+  private BundleRepo innerRepo;
 
   @Autowired
-  public BundleService(BundleRepo repo) { this.repo = repo; }
+  public BundleService(TopBundleRepo repo, BundleRepo inner) { this.repo = repo; this.innerRepo = inner; }
 
   public TopBundle create(TopBundle run) { return this.repo.save(run); }
 
   public Collection<TopBundle> findAll() { return repo.findAll(); }
 
+  public Collection<Bundle> findAllInner() { return innerRepo.findAll(); }
+
   public Page<TopBundle> findAllPages(Pageable pageable) { return repo.findAll(pageable); }
 
   public Optional<TopBundle> findById(long infoID) { return this.repo.findById(infoID); }
+
+  public Optional<Bundle> findByIdInner(long ID) { return this.innerRepo.findById(ID); }
 
 }

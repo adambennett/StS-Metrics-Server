@@ -5,4 +5,4 @@ import org.springframework.data.jpa.repository.*;
 import org.springframework.stereotype.*;
 
 @Repository
-public interface BundleRepo extends JpaRepository<Bundle, Long> {}
+public interface TopBundleRepo extends JpaRepository<TopBundle, Long> {}

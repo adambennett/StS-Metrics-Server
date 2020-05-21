@@ -75,4 +75,18 @@ public class InfoKeyword {
     public void setName(String name) {
         this.name = name;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof InfoKeyword)) return false;
+        InfoKeyword that = (InfoKeyword) o;
+        return Objects.equals(getInfo(), that.getInfo()) &&
+                Objects.equals(getName(), that.getName());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getInfo(), getName());
+    }
 }

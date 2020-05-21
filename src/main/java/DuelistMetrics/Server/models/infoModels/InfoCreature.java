@@ -3,6 +3,7 @@ package DuelistMetrics.Server.models.infoModels;
 import com.fasterxml.jackson.annotation.*;
 
 import javax.persistence.*;
+import java.util.*;
 
 @Entity
 public class InfoCreature {
@@ -80,11 +81,25 @@ public class InfoCreature {
         this.maxHP = maxHP;
     }
 
-    public Boolean getPlayer() {
+    public Boolean getIsPlayer() {
         return isPlayer;
     }
 
-    public void setPlayer(Boolean player) {
+    public void setIsPlayer(Boolean player) {
         isPlayer = player;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof InfoCreature)) return false;
+        InfoCreature that = (InfoCreature) o;
+        return Objects.equals(getInfo(), that.getInfo()) &&
+                Objects.equals(getCreature_id(), that.getCreature_id());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getInfo(), getCreature_id());
     }
 }

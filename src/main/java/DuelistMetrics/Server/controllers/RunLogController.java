@@ -23,12 +23,43 @@ public class RunLogController {
 
     public static RunLogService getService() { return bundles; }
 
-    @GetMapping("/Decks")
+    @PostMapping("/upload")
+    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    public ResponseEntity<?> upload(@RequestBody TopBundle run)
+    {
+        if (run != null) {
+            BundleProcessor.parse(run, true, true);
+            return new ResponseEntity<>(null, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+        }
+    }
+
+    @GetMapping("/runs")
+    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    public static Collection<RunLog> getBundles(){
+        return bundles.findAll();
+    }
+
+    @GetMapping("/runs/{character}")
+    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    public static Collection<RunLog> getBundles(@PathVariable String character){
+        return bundles.getAllByChar(character);
+    }
+
+    @GetMapping("/allCharacters")
+    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    public static Collection<String> getCharacters() {
+        return bundles.getAllCharacters();
+    }
+
+    @GetMapping("/decks")
     @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
     public static Collection<DisplayDeck> getDeckCompare() {
       List<DisplayDeck> output = new ArrayList<>();
 
-      Long allA20Wins = getService().getA20WinsAll();
+      Optional<Long> allA20W = getService().getA20WinsAll();
+      Long allA20Wins = allA20W.orElse(0L);
       Long allA20Runs = getService().getA20RunsAll();
       Long allC20Wins = getService().getC20WinsAll();
       Long allC20Runs = getService().getC20RunsAll();
@@ -44,7 +75,7 @@ public class RunLogController {
           allKilled = splice[0] + " (" + splice[1] + ")";
       }
       Long allFloor = getService().getHighestFloorAll();
-      Long highestChallenge = getService().getHighestChallengeAll();
+      Optional<Long> highestChallenge = getService().getHighestChallengeAll();
       DisplayDeck allDeck = new DisplayDeckBuilder()
                 .setDeck("All")
                 .setA20runs(Math.toIntExact(allA20Runs))
@@ -56,7 +87,7 @@ public class RunLogController {
                 .setRuns(Math.toIntExact(allRuns))
                 .setWins(Math.toIntExact(allWins))
                 .setMostKilledBy(allKilled)
-                .setHighestChallenge(Math.toIntExact(highestChallenge))
+                .setHighestChallenge(Math.toIntExact(highestChallenge.orElse(-1L)))
                 .createDisplayDeck();
 
       Map<String, Integer> a20Wins = getService().getA20Wins();
@@ -78,6 +109,7 @@ public class RunLogController {
         decks.add(entry.getKey());
       }
       for (String deckName : decks) {
+
         DisplayDeck deck = new DisplayDeckBuilder()
           .setDeck(deckName)
           .setA20runs(a20Runs.get(deckName))
@@ -99,23 +131,5 @@ public class RunLogController {
       Collections.sort(output);
       output.add(0, allDeck);
       return output;
-    }
-
-    @GetMapping("/Runs")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
-    public static Collection<RunLog> getBundles(){
-      return bundles.findAll();
-    }
-
-    @PutMapping("/upload")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
-    public ResponseEntity<?> upload(@RequestBody TopBundle run)
-    {
-      if (run != null) {
-          BundleProcessor.parse(run, true, true);
-          return new ResponseEntity<>(null, HttpStatus.OK);
-      } else {
-          return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
-      }
     }
 }

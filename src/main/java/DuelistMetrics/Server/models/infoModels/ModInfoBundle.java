@@ -15,7 +15,7 @@ public class ModInfoBundle {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long info_bundle_id;
 
-    private String mod_id;
+    private String modID;
     private String name;
     private String modName;
     private String version;
@@ -49,19 +49,19 @@ public class ModInfoBundle {
 
     public ModInfoBundle() {}
 
-    public Boolean getDuelist() {
+    public Boolean getIsDuelist() {
         return isDuelist;
     }
 
-    public void setDuelist(Boolean duelist) {
+    public void setIsDuelist(Boolean duelist) {
         isDuelist = duelist;
     }
 
-    public Boolean getBaseGame() {
+    public Boolean getIsBaseGame() {
         return isBaseGame;
     }
 
-    public void setBaseGame(Boolean baseGame) {
+    public void setIsBaseGame(Boolean baseGame) {
         isBaseGame = baseGame;
     }
 
@@ -81,12 +81,12 @@ public class ModInfoBundle {
         this.info_bundle_id = info_bundle_id;
     }
 
-    public String getMod_id() {
-        return mod_id;
+    public String getModID() {
+        return modID;
     }
 
-    public void setMod_id(String mod_id) {
-        this.mod_id = mod_id;
+    public void setModID(String mod_id) {
+        this.modID = mod_id;
     }
 
     public String getName() {
@@ -143,5 +143,19 @@ public class ModInfoBundle {
 
     public void setKeywords(List<InfoKeyword> keywords) {
         this.keywords = keywords;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ModInfoBundle)) return false;
+        ModInfoBundle that = (ModInfoBundle) o;
+        return Objects.equals(getModID(), that.getModID()) &&
+                Objects.equals(getVersion(), that.getVersion());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getModID(), getVersion());
     }
 }

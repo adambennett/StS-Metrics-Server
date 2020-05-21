@@ -187,11 +187,11 @@ public class InfoCard {
         this.entomb = entomb;
     }
 
-    public Boolean getDuelistCard() {
+    public Boolean getIsDuelistCard() {
         return isDuelistCard;
     }
 
-    public void setDuelistCard(Boolean duelistCard) {
+    public void setIsDuelistCard(Boolean duelistCard) {
         isDuelistCard = duelistCard;
     }
 
@@ -201,5 +201,19 @@ public class InfoCard {
 
     public void setPools(List<String> pools) {
         this.pools = pools;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof InfoCard)) return false;
+        InfoCard infoCard = (InfoCard) o;
+        return Objects.equals(getInfo(), infoCard.getInfo()) &&
+                Objects.equals(getCard_id(), infoCard.getCard_id());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getInfo(), getCard_id());
     }
 }

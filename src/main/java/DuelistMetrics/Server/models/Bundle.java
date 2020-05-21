@@ -1,5 +1,7 @@
 package DuelistMetrics.Server.models;
 
+import DuelistMetrics.Server.models.infoModels.*;
+import DuelistMetrics.Server.util.*;
 import com.fasterxml.jackson.annotation.*;
 import org.hibernate.annotations.*;
 
@@ -118,6 +120,11 @@ public class Bundle {
   @ElementCollection
   private List<String> relics;
 
+  @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "bundle", targetEntity = MiniMod.class)
+  @JsonIgnoreProperties("bundle")
+  @Fetch(value = FetchMode.SUBSELECT)
+  private List<MiniMod> modList = new ArrayList<>();
+
   @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "bundle", targetEntity = BossRelic.class)
   @JsonIgnoreProperties("bundle")
   @Fetch(value = FetchMode.SUBSELECT)
@@ -151,33 +158,6 @@ public class Bundle {
   @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "bundle", targetEntity = DamageInfo.class)
   @JsonIgnoreProperties("bundle")
   private List<DamageInfo> damage_taken;
-
-  public void updateChildren() {
-    for (BossRelic r : this.boss_relics) {
-      r.setBundle(this);
-    }
-    for (Event r : this.event_choices) {
-      r.setBundle(this);
-    }
-    for (SpireCard r : this.card_choices) {
-      r.setBundle(this);
-    }
-    for (Potion r : this.potions_obtained) {
-      r.setBundle(this);
-    }
-    for (Relic r : this.relics_obtained) {
-      r.setBundle(this);
-    }
-    for (CampfireChoice r : this.campfire_choices) {
-      r.setBundle(this);
-    }
-    for (DamageInfo r : this.damage_taken) {
-      r.setBundle(this);
-    }
-    for (DamageInfo r : this.damage_taken) {
-      r.setBundle(this);
-    }
-  }
 
   public Bundle() {}
 
@@ -258,6 +238,67 @@ public class Bundle {
     this.relics_obtained= event.getRelics_obtained();
     this.campfire_choices= event.getCampfire_choices();
     this.damage_taken= event.getDamage_taken();
+    this.modList = event.getModList();
+  }
+
+  public void removeDisallowedRelics() {
+    List<String> newList = new ArrayList<>();
+    for (String r : this.relics) {
+      if (RelicFilter.getInstance().allowed(r)) {
+        newList.add(r);
+      }
+    }
+    this.relics.clear();
+    this.relics.addAll(newList);
+  }
+
+  public void updateChildren() {
+    for (BossRelic r : this.boss_relics) {
+      r.setBundle(this);
+    }
+    for (Event r : this.event_choices) {
+      r.setBundle(this);
+    }
+    for (SpireCard r : this.card_choices) {
+      r.setBundle(this);
+    }
+    for (Potion r : this.potions_obtained) {
+      r.setBundle(this);
+    }
+
+    for (Relic r : this.relics_obtained) {
+        r.setBundle(this);
+    }
+
+    for (CampfireChoice r : this.campfire_choices) {
+      r.setBundle(this);
+    }
+    for (DamageInfo r : this.damage_taken) {
+      r.setBundle(this);
+    }
+    for (DamageInfo r : this.damage_taken) {
+      r.setBundle(this);
+    }
+
+    for (MiniMod mod : this.modList) {
+      mod.setBundle(this);
+    }
+  }
+
+  public Long getTop_id() {
+    return top_id;
+  }
+
+  public void setTop_id(Long top_id) {
+    this.top_id = top_id;
+  }
+
+  public List<MiniMod> getModList() {
+    return modList;
+  }
+
+  public void setModList(List<MiniMod> modList) {
+    this.modList = modList;
   }
 
   public void setTop(TopBundle top) {
@@ -865,4 +906,5 @@ public class Bundle {
   public void setChallenge_level(Integer challenge_level) {
     this.challenge_level = challenge_level;
   }
+
 }
