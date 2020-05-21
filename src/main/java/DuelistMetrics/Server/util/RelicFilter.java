@@ -1,13 +1,12 @@
 package DuelistMetrics.Server.util;
 
-import DuelistMetrics.Server.models.*;
 
 import java.util.*;
 
 public class RelicFilter {
     
     private final Map<String, String> disallowedRelics;
-    private static RelicFilter instance;
+    private static final RelicFilter instance;
     
     private RelicFilter() { 
         disallowedRelics = new HashMap<>(); 

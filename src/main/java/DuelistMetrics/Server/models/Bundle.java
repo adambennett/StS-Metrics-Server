@@ -241,6 +241,17 @@ public class Bundle {
     this.modList = event.getModList();
   }
 
+  public void removeDisallowedRelics() {
+    List<String> newList = new ArrayList<>();
+    for (String r : this.relics) {
+      if (RelicFilter.getInstance().allowed(r)) {
+        newList.add(r);
+      }
+    }
+    this.relics.clear();
+    this.relics.addAll(newList);
+  }
+
   public void updateChildren() {
     for (BossRelic r : this.boss_relics) {
       r.setBundle(this);

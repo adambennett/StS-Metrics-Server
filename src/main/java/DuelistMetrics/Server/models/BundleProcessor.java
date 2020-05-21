@@ -141,6 +141,7 @@ public class BundleProcessor {
       }
       if (saveTopBundles) {
         bnd.getEvent().updateChildren();
+        bnd.getEvent().removeDisallowedRelics();
         TopBundle top = BundleController.getService().create(bnd);
         Logger.getGlobal().info("TopBundle " + top.getTop_id() + " saved");
       }
