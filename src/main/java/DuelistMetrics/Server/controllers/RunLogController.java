@@ -23,7 +23,7 @@ public class RunLogController {
 
     public static RunLogService getService() { return bundles; }
 
-    @PostMapping("/upload")
+    @PostMapping("/runupload")
     @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
     public ResponseEntity<?> upload(@RequestBody TopBundle run)
     {
