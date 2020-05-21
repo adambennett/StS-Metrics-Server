@@ -3,6 +3,7 @@ package DuelistMetrics.Server.models.infoModels;
 import com.fasterxml.jackson.annotation.*;
 
 import javax.persistence.*;
+import java.util.*;
 
 @Entity
 public class InfoPotion {
@@ -91,5 +92,19 @@ public class InfoPotion {
 
     public void setPlayerClass(String playerClass) {
         this.playerClass = playerClass;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof InfoPotion)) return false;
+        InfoPotion that = (InfoPotion) o;
+        return Objects.equals(getInfo(), that.getInfo()) &&
+                Objects.equals(getPotion_id(), that.getPotion_id());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getInfo(), getPotion_id());
     }
 }

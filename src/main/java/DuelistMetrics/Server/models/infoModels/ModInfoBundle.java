@@ -49,19 +49,19 @@ public class ModInfoBundle {
 
     public ModInfoBundle() {}
 
-    public Boolean getDuelist() {
+    public Boolean getIsDuelist() {
         return isDuelist;
     }
 
-    public void setDuelist(Boolean duelist) {
+    public void setIsDuelist(Boolean duelist) {
         isDuelist = duelist;
     }
 
-    public Boolean getBaseGame() {
+    public Boolean getIsBaseGame() {
         return isBaseGame;
     }
 
-    public void setBaseGame(Boolean baseGame) {
+    public void setIsBaseGame(Boolean baseGame) {
         isBaseGame = baseGame;
     }
 
@@ -143,5 +143,19 @@ public class ModInfoBundle {
 
     public void setKeywords(List<InfoKeyword> keywords) {
         this.keywords = keywords;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ModInfoBundle)) return false;
+        ModInfoBundle that = (ModInfoBundle) o;
+        return Objects.equals(getModID(), that.getModID()) &&
+                Objects.equals(getVersion(), that.getVersion());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getModID(), getVersion());
     }
 }

@@ -2,18 +2,12 @@ package DuelistMetrics.Server.controllers;
 
 import DuelistMetrics.Server.models.*;
 import DuelistMetrics.Server.models.infoModels.*;
-import DuelistMetrics.Server.repositories.*;
 import DuelistMetrics.Server.services.*;
 import org.springframework.beans.factory.annotation.*;
-import org.springframework.data.domain.*;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.*;
 
-import javax.validation.*;
-import java.net.*;
 import java.util.*;
-import java.util.logging.*;
 
 @RestController
 public class BundleController {
@@ -50,7 +44,7 @@ public class BundleController {
             List<MiniMod> mods = bnd.get().getModList();
             List<ModInfoBundle> fullModList = new ArrayList<>();
             for (MiniMod mod : mods) {
-                Optional<ModInfoBundle> fullMod = info.getModInfo(mod.getID(), mod.getModVersion());
+                Optional<ModInfoBundle> fullMod = info.getModInfo(mod.getModID(), mod.getModVersion());
                 fullMod.ifPresent(fullModList::add);
             }
             return new ResponseEntity<>(fullModList, HttpStatus.OK);

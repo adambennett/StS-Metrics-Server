@@ -4,6 +4,7 @@ import DuelistMetrics.Server.models.*;
 import com.fasterxml.jackson.annotation.*;
 
 import javax.persistence.*;
+import java.util.*;
 
 @Entity
 public class MiniMod {
@@ -16,7 +17,7 @@ public class MiniMod {
     @JsonIgnoreProperties("modList")
     private Bundle bundle;
 
-    private String ID;
+    private String modID;
     private String modVersion;
     private String name;
 
@@ -46,12 +47,12 @@ public class MiniMod {
         this.bundle = bundle;
     }
 
-    public String getID() {
-        return ID;
+    public String getModID() {
+        return modID;
     }
 
-    public void setID(String ID) {
-        this.ID = ID;
+    public void setModID(String ID) {
+        this.modID = ID;
     }
 
     public String getModVersion() {
@@ -60,5 +61,21 @@ public class MiniMod {
 
     public void setModVersion(String modVersion) {
         this.modVersion = modVersion;
+    }
+
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof MiniMod)) return false;
+        MiniMod miniMod = (MiniMod) o;
+        return Objects.equals(getModID(), miniMod.getModID()) &&
+                Objects.equals(getModVersion(), miniMod.getModVersion());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getModID(), getModVersion());
     }
 }

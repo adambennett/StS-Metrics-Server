@@ -2,6 +2,7 @@ package DuelistMetrics.Server.models;
 
 import DuelistMetrics.Server.controllers.*;
 import DuelistMetrics.Server.models.builders.*;
+import DuelistMetrics.Server.models.infoModels.*;
 import DuelistMetrics.Server.util.*;
 import com.fasterxml.jackson.databind.*;
 import org.apache.commons.io.*;
@@ -139,6 +140,7 @@ public class BundleProcessor {
         Logger.getGlobal().info("RunLog saved");
       }
       if (saveTopBundles) {
+        bnd.getEvent().updateChildren();
         TopBundle top = BundleController.getService().create(bnd);
         Logger.getGlobal().info("TopBundle " + top.getTop_id() + " saved");
       }
@@ -181,8 +183,10 @@ public class BundleProcessor {
 
   private static void parseRelics(TopBundle bnd, Map<String,Integer> pickedR, Map<String, Integer> pickedVicR, Mapper<String> com, boolean vic) {
     for (String r : bnd.getEvent().getRelics()) {
-      pickedR.compute(r, com.mp());
-      if (vic) { pickedVicR.compute(r, com.mp()); }
+      if (RelicFilter.getInstance().allowed(r)) {
+        pickedR.compute(r, com.mp());
+        if (vic) { pickedVicR.compute(r, com.mp()); }
+      }
     }
   }
 

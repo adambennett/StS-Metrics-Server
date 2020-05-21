@@ -3,6 +3,7 @@ package DuelistMetrics.Server.models.infoModels;
 import com.fasterxml.jackson.annotation.*;
 
 import javax.persistence.*;
+import java.util.*;
 
 @Entity
 public class InfoRelic {
@@ -26,7 +27,18 @@ public class InfoRelic {
     @Column(length = 4028)
     private String description;
 
+    @Column(length = 4028)
+    private String descriptionPlain;
+
     public InfoRelic() {}
+
+    public String getDescriptionPlain() {
+        return descriptionPlain;
+    }
+
+    public void setDescriptionPlain(String descriptionPlain) {
+        this.descriptionPlain = descriptionPlain;
+    }
 
     public Long getInfo_relic_id() {
         return info_relic_id;
@@ -90,5 +102,19 @@ public class InfoRelic {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof InfoRelic)) return false;
+        InfoRelic infoRelic = (InfoRelic) o;
+        return Objects.equals(getInfo(), infoRelic.getInfo()) &&
+                Objects.equals(getRelic_id(), infoRelic.getRelic_id());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getInfo(), getRelic_id());
     }
 }

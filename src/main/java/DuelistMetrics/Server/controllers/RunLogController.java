@@ -23,7 +23,7 @@ public class RunLogController {
 
     public static RunLogService getService() { return bundles; }
 
-    @PostMapping("/upload")
+    @PostMapping("/runupload")
     @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
     public ResponseEntity<?> upload(@RequestBody TopBundle run)
     {
@@ -58,7 +58,8 @@ public class RunLogController {
     public static Collection<DisplayDeck> getDeckCompare() {
       List<DisplayDeck> output = new ArrayList<>();
 
-      Long allA20Wins = getService().getA20WinsAll();
+      Optional<Long> allA20W = getService().getA20WinsAll();
+      Long allA20Wins = allA20W.orElse(0L);
       Long allA20Runs = getService().getA20RunsAll();
       Long allC20Wins = getService().getC20WinsAll();
       Long allC20Runs = getService().getC20RunsAll();
@@ -74,7 +75,7 @@ public class RunLogController {
           allKilled = splice[0] + " (" + splice[1] + ")";
       }
       Long allFloor = getService().getHighestFloorAll();
-      Long highestChallenge = getService().getHighestChallengeAll();
+      Optional<Long> highestChallenge = getService().getHighestChallengeAll();
       DisplayDeck allDeck = new DisplayDeckBuilder()
                 .setDeck("All")
                 .setA20runs(Math.toIntExact(allA20Runs))
@@ -86,7 +87,7 @@ public class RunLogController {
                 .setRuns(Math.toIntExact(allRuns))
                 .setWins(Math.toIntExact(allWins))
                 .setMostKilledBy(allKilled)
-                .setHighestChallenge(Math.toIntExact(highestChallenge))
+                .setHighestChallenge(Math.toIntExact(highestChallenge.orElse(-1L)))
                 .createDisplayDeck();
 
       Map<String, Integer> a20Wins = getService().getA20Wins();

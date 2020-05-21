@@ -97,14 +97,35 @@ public class InfoController {
     }
 
     private static InfoCard mostRecent(InfoCard inMap, InfoCard newEntry) {
-        return (new Semver(newEntry.getInfo().getVersion()).isGreaterThan(new Semver(inMap.getInfo().getVersion()))) ? newEntry : inMap;
+        if (!inMap.getInfo().getModID().equals("slay-the-spire")) {
+            try {
+                Semver inSem = new Semver(inMap.getInfo().getVersion());
+                Semver newSem = new Semver(newEntry.getInfo().getVersion());
+                return newSem.isGreaterThan(inSem) ? newEntry : inMap;
+            } catch (SemverException ignored) {}
+        }
+        return inMap;
     }
 
     private static InfoPotion mostRecent(InfoPotion inMap, InfoPotion newEntry) {
-        return (new Semver(newEntry.getInfo().getVersion()).isGreaterThan(new Semver(inMap.getInfo().getVersion()))) ? newEntry : inMap;
+        if (!inMap.getInfo().getModID().equals("slay-the-spire")) {
+            try {
+                Semver inSem = new Semver(inMap.getInfo().getVersion());
+                Semver newSem = new Semver(newEntry.getInfo().getVersion());
+                return newSem.isGreaterThan(inSem) ? newEntry : inMap;
+            } catch (SemverException ignored) {}
+        }
+        return inMap;
     }
 
     private static InfoRelic mostRecent(InfoRelic inMap, InfoRelic newEntry) {
-        return (new Semver(newEntry.getInfo().getVersion()).isGreaterThan(new Semver(inMap.getInfo().getVersion()))) ? newEntry : inMap;
+        if (!inMap.getInfo().getModID().equals("slay-the-spire")) {
+            try {
+                Semver inSem = new Semver(inMap.getInfo().getVersion());
+                Semver newSem = new Semver(newEntry.getInfo().getVersion());
+                return newSem.isGreaterThan(inSem) ? newEntry : inMap;
+            } catch (SemverException ignored) {}
+        }
+        return inMap;
     }
 }

@@ -42,7 +42,7 @@ public interface RunLogRepo extends JpaRepository<RunLog, Long> {
   List<String> getHighestChallenge();
 
   @Query(value = "SELECT SUM(rl.victory = 1) FROM run_log rl WHERE rl.ascension = 20", nativeQuery = true)
-  Long getA20WinsAll();
+  Optional<Long> getA20WinsAll();
 
   @Query(value = "SELECT COUNT(*) FROM run_log rl WHERE rl.ascension = 20", nativeQuery = true)
   Long getA20RunsAll();
@@ -69,11 +69,11 @@ public interface RunLogRepo extends JpaRepository<RunLog, Long> {
   Long getKaibaRunsAll();
 
   @Query(value = "SELECT MAX(rl.challenge) FROM run_log rl WHERE rl.victory = 1", nativeQuery = true)
-  Long getHighestChallengeAll();
+  Optional<Long> getHighestChallengeAll();
 
-  List<RunLog> getAllByCharacterEquals(String character);
+  List<RunLog> getAllByCharacterNameEquals(String characterName);
 
-  @Query(value = "SELECT DISTINCT rl.character FROM run_log rl", nativeQuery = true)
+  @Query(value = "SELECT DISTINCT rl.character_name FROM run_log rl", nativeQuery = true)
   List<String> getAllCharacters();
 
 
