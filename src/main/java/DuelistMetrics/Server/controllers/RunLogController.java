@@ -115,16 +115,16 @@ public class RunLogController {
         }
         DisplayDeck deck = new DisplayDeckBuilder()
           .setDeck(dName)
-          .setA20runs(a20Runs.get(deckName))
-          .setA20wins(a20Wins.get(deckName))
-          .setC20runs(c20Runs.get(deckName))
-          .setC20wins(c20Wins.get(deckName))
-          .setFloor(floor.get(deckName))
+          .setA20runs(a20Runs.getOrDefault(deckName, 0))
+          .setA20wins(a20Wins.getOrDefault(deckName, 0))
+          .setC20runs(c20Runs.getOrDefault(deckName, 0))
+          .setC20wins(c20Wins.getOrDefault(deckName, 0))
+          .setFloor(floor.getOrDefault(deckName, 0))
           .setKaiba(kaiba.get(deckName))
-          .setRuns(runs.get(deckName))
-          .setWins(wins.get(deckName))
+          .setRuns(runs.getOrDefault(deckName, 0))
+          .setWins(wins.getOrDefault(deckName, 0))
           .setMostKilledBy(deckToKilledBy.get(deckName))
-          .setHighestChallenge(highestChal.get(deckName))
+          .setHighestChallenge(highestChal.getOrDefault(deckName, -1))
           .createDisplayDeck();
         if (deck.getC20runs() == null) { deck.setC20runs(0); }
         if (deck.getC20wins() == null) { deck.setC20wins(0); }
