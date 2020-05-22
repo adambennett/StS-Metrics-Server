@@ -105,13 +105,16 @@ public class RunLogController {
         deckToKilledBy.put(dkb.getDeck(), dkb.getKilled_by() + " (" + dkb.getCount() + ")");
       }
       ArrayList<String> decks = new ArrayList<>();
-      for (Map.Entry<String, Integer> entry : a20Runs.entrySet()) {
+      for (Map.Entry<String, Integer> entry : runs.entrySet()) {
         decks.add(entry.getKey());
       }
       for (String deckName : decks) {
-
+        String dName = deckName;
+        if (deckName.equals("NotYugi")) {
+            dName = "Non-Duelist Character";
+        }
         DisplayDeck deck = new DisplayDeckBuilder()
-          .setDeck(deckName)
+          .setDeck(dName)
           .setA20runs(a20Runs.get(deckName))
           .setA20wins(a20Wins.get(deckName))
           .setC20runs(c20Runs.get(deckName))

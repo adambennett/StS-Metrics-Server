@@ -92,6 +92,6 @@ public class DisplayDeck implements Comparable<DisplayDeck> {
 
   @Override
   public int compareTo(DisplayDeck o) {
-    return DeckNameProcessor.deckPositions.get(this.deck).compareTo(DeckNameProcessor.deckPositions.get(o.getDeck()));
+    return (DeckNameProcessor.deckPositions.containsKey(this.deck)) ? DeckNameProcessor.deckPositions.get(this.deck).compareTo(DeckNameProcessor.deckPositions.get(o.getDeck())) : 0;
   }
 }
