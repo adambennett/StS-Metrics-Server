@@ -113,6 +113,7 @@ public class RunLogController {
         deckToKilledBy.put(dkb.getDeck(), creature + " (" + dkb.getCount() + ")");
       }
       ArrayList<String> decks = new ArrayList<>();
+      DisplayDeck nonDuelist = null;
       for (Map.Entry<String, Integer> entry : runs.entrySet()) {
         decks.add(entry.getKey());
       }
@@ -137,10 +138,15 @@ public class RunLogController {
         if (deck.getC20runs() == null) { deck.setC20runs(0); }
         if (deck.getC20wins() == null) { deck.setC20wins(0); }
         if (deck.getKaiba() == null) { deck.setKaiba(0); }
-        output.add(deck);
+        if (dName.equals("Non-Duelist Character")) {
+            nonDuelist = deck;
+        } else {
+            output.add(deck);
+        }
       }
       Collections.sort(output);
       output.add(0, allDeck);
+      if (nonDuelist != null) { output.add(nonDuelist); }
       return output;
     }
 }
