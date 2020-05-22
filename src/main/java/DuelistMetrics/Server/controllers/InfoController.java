@@ -17,6 +17,8 @@ public class InfoController {
     private static Map<String, InfoCard> cardData;
     private static Map<String, InfoRelic> relicData;
     private static Map<String, InfoPotion> potionData;
+    private static Map<String, InfoCreature> creatureData;
+
 
     @Autowired
     public InfoController(InfoService service) {
@@ -66,13 +68,20 @@ public class InfoController {
         return Optional.empty();
     }
 
+    public static Optional<InfoCreature> getCreature(String game_id) {
+        if (creatureData.containsKey(game_id)) { return Optional.of(creatureData.get(game_id)); }
+        return Optional.empty();
+    }
+
     private static void fillAllData() {
         String cardOut = fillCardData();
         String relicOut = fillRelicData();
         String potionOut = fillPotionData();
+        String creatureOut = fillCreatureData();
         Logger.getGlobal().info(cardOut);
         Logger.getGlobal().info(relicOut);
         Logger.getGlobal().info(potionOut);
+        Logger.getGlobal().info(creatureOut);
     }
 
     private static String fillCardData() {
@@ -94,6 +103,24 @@ public class InfoController {
         List<InfoPotion> potions = bundles.findAllPotions();
         potions.forEach(data -> potionData.compute(data.getPotion_id(), (k, v) -> (v!=null) ? mostRecent(potionData.get(k), data) : data));
         return "Potion Info DB: " + potionData.size();
+    }
+
+    private static String fillCreatureData() {
+        creatureData = new HashMap<>();
+        List<InfoCreature> potions = bundles.findAllCreatures();
+        potions.forEach(data -> creatureData.compute(data.getCreature_id(), (k, v) -> (v!=null) ? mostRecent(creatureData.get(k), data) : data));
+        return "Creature Info DB: " + creatureData.size();
+    }
+
+    private static InfoCreature mostRecent(InfoCreature inMap, InfoCreature newEntry) {
+        if (!inMap.getInfo().getModID().equals("slay-the-spire")) {
+            try {
+                Semver inSem = new Semver(inMap.getInfo().getVersion());
+                Semver newSem = new Semver(newEntry.getInfo().getVersion());
+                return newSem.isGreaterThan(inSem) ? newEntry : inMap;
+            } catch (SemverException ignored) {}
+        }
+        return inMap;
     }
 
     private static InfoCard mostRecent(InfoCard inMap, InfoCard newEntry) {

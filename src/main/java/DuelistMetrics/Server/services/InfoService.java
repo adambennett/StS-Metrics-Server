@@ -17,15 +17,17 @@ public class InfoService {
   private final InfoCardRepo  cardRepo;
   private final InfoRelicRepo relicRepo;
   private final InfoPotionRepo potionRepo;
+  private final InfoCreatureRepo creatureRepo;
   private static final ArrayList<String> decks;
 
   @Autowired
-  public InfoService(InfoRepo repo, TopInfoBundleRepo bundleRepo, InfoCardRepo cardRepo, InfoRelicRepo relicRepo, InfoPotionRepo potionRepo) {
+  public InfoService(InfoRepo repo, TopInfoBundleRepo bundleRepo, InfoCardRepo cardRepo, InfoRelicRepo relicRepo, InfoPotionRepo potionRepo, InfoCreatureRepo creatureRepo) {
     this.repo = repo;
     this.bundleRepo = bundleRepo;
     this.cardRepo = cardRepo;
     this.relicRepo = relicRepo;
     this.potionRepo = potionRepo;
+    this.creatureRepo = creatureRepo;
   }
 
   public List<InfoCard> findAllCards() {
@@ -34,6 +36,10 @@ public class InfoService {
 
   public List<InfoPotion> findAllPotions() {
     return potionRepo.findAll();
+  }
+
+  public List<InfoCreature> findAllCreatures() {
+    return creatureRepo.findAll();
   }
 
   public List<InfoRelic> findAllRelics() {

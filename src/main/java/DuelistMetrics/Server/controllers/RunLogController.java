@@ -2,6 +2,7 @@ package DuelistMetrics.Server.controllers;
 
 import DuelistMetrics.Server.models.*;
 import DuelistMetrics.Server.models.builders.*;
+import DuelistMetrics.Server.models.infoModels.*;
 import DuelistMetrics.Server.services.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.data.domain.*;
@@ -102,7 +103,14 @@ public class RunLogController {
       Map<String, Integer> highestChal = getService().getHighestChallenge();
       Map<String, String> deckToKilledBy = new HashMap<>();
       for (DeckKilledBy dkb : killed) {
-        deckToKilledBy.put(dkb.getDeck(), dkb.getKilled_by() + " (" + dkb.getCount() + ")");
+        Optional<InfoCreature> dbCreature = InfoController.getCreature(dkb.getKilled_by());
+        String creature = "";
+        if (dbCreature.isPresent()) {
+            creature = dbCreature.get().getName();
+        } else {
+            creature = dkb.getKilled_by();
+        }
+        deckToKilledBy.put(dkb.getDeck(), creature + " (" + dkb.getCount() + ")");
       }
       ArrayList<String> decks = new ArrayList<>();
       for (Map.Entry<String, Integer> entry : runs.entrySet()) {
@@ -123,7 +131,7 @@ public class RunLogController {
           .setKaiba(kaiba.get(deckName))
           .setRuns(runs.getOrDefault(deckName, 0))
           .setWins(wins.getOrDefault(deckName, 0))
-          .setMostKilledBy(deckToKilledBy.get(deckName))
+          .setMostKilledBy(deckToKilledBy.getOrDefault(deckName, "Unknown"))
           .setHighestChallenge(highestChal.getOrDefault(deckName, -1))
           .createDisplayDeck();
         if (deck.getC20runs() == null) { deck.setC20runs(0); }
