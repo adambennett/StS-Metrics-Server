@@ -77,11 +77,11 @@ public class InfoController {
         String cardOut = fillCardData();
         String relicOut = fillRelicData();
         String potionOut = fillPotionData();
-        String creatureOut = fillCreatureData();
+       // String creatureOut = fillCreatureData();
         Logger.getGlobal().info(cardOut);
         Logger.getGlobal().info(relicOut);
         Logger.getGlobal().info(potionOut);
-        Logger.getGlobal().info(creatureOut);
+      //  Logger.getGlobal().info(creatureOut);
     }
 
     private static String fillCardData() {
