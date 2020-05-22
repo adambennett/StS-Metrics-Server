@@ -103,14 +103,14 @@ public class RunLogController {
       Map<String, Integer> highestChal = getService().getHighestChallenge();
       Map<String, String> deckToKilledBy = new HashMap<>();
       for (DeckKilledBy dkb : killed) {
-       /* Optional<InfoCreature> dbCreature = InfoController.getCreature(dkb.getKilled_by());
+        Optional<InfoCreature> dbCreature = InfoController.getCreature(dkb.getKilled_by());
         String creature = "";
         if (dbCreature.isPresent()) {
             creature = dbCreature.get().getName();
         } else {
             creature = dkb.getKilled_by();
-        }*/
-        deckToKilledBy.put(dkb.getDeck(), dkb.getKilled_by() + " (" + dkb.getCount() + ")");
+        }
+        deckToKilledBy.put(dkb.getDeck(), creature + " (" + dkb.getCount() + ")");
       }
       ArrayList<String> decks = new ArrayList<>();
       for (Map.Entry<String, Integer> entry : runs.entrySet()) {
