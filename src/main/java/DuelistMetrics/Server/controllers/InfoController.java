@@ -32,9 +32,16 @@ public class InfoController {
     @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
     public ResponseEntity<?> infoUpload(@RequestBody TopInfoBundle list){
         if (list != null) {
+            Map<String, List<String>> output = recheckModules();
             List<ModInfoBundle> saved = new ArrayList<>(list.getInfo().size());
             for (ModInfoBundle mod : list.getInfo()) {
-                saved.add(bundles.createBundle(mod));
+                if (output.containsKey(mod.getModID())) {
+                    if (!output.get(mod.getModID()).contains(mod.getVersion())) {
+                        saved.add(bundles.createBundle(mod));
+                    }
+                } else {
+                    saved.add(bundles.createBundle(mod));
+                }
             }
             if (saved.size() > 0) {
                 fillAllData();
@@ -51,6 +58,25 @@ public class InfoController {
     public ResponseEntity<?> getTrackedVersions() {
         List<String> versions = bundles.getAllModuleVersions();
         return new ResponseEntity<>(versions, HttpStatus.OK);
+    }
+
+    private static Map<String, List<String>> recheckModules() {
+        List<String> out = bundles.getAllModuleVersions();
+        Map<String, List<String>> output = new HashMap<>();
+        for (String module : out) {
+            String[] splice = module.split(",");
+            String mod = splice[0];
+            String ver = splice[1];
+            List<String> newArr;
+            if (output.containsKey(mod)) {
+                newArr = output.get(mod);
+            } else {
+                newArr = new ArrayList<>();
+                newArr.add(ver);
+            }
+            output.put(mod, newArr);
+        }
+        return output;
     }
 
     public static Optional<InfoCard> getCard(String game_id) {
