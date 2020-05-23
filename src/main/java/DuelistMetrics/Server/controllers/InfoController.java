@@ -72,8 +72,8 @@ public class InfoController {
                 newArr = output.get(mod);
             } else {
                 newArr = new ArrayList<>();
-                newArr.add(ver);
             }
+            newArr.add(ver);
             output.put(mod, newArr);
         }
         return output;
