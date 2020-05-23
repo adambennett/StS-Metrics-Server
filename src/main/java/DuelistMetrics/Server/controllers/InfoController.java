@@ -23,7 +23,7 @@ public class InfoController {
     @Autowired
     public InfoController(InfoService service) {
         bundles = service;
-        fillAllData();
+       // fillAllData();
     }
 
     public static InfoService getService() { return bundles; }
@@ -100,14 +100,14 @@ public class InfoController {
     }
 
     private static void fillAllData() {
-        String cardOut = fillCardData();
+        /*String cardOut = fillCardData();
         String relicOut = fillRelicData();
         String potionOut = fillPotionData();
        // String creatureOut = fillCreatureData();
         Logger.getGlobal().info(cardOut);
         Logger.getGlobal().info(relicOut);
         Logger.getGlobal().info(potionOut);
-       // Logger.getGlobal().info(creatureOut);
+       // Logger.getGlobal().info(creatureOut);*/
     }
 
     private static String fillCardData() {
