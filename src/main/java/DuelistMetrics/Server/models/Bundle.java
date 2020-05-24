@@ -33,6 +33,8 @@ public class Bundle {
   private String pool_fill;
   private String seed_played;
   private String starting_deck;
+  private String country;
+  private String lang;
 
   private Boolean add_base_game_cards;
   private Boolean allow_boosters;
@@ -283,6 +285,22 @@ public class Bundle {
     for (MiniMod mod : this.modList) {
       mod.setBundle(this);
     }
+  }
+
+  public String getCountry() {
+    return country;
+  }
+
+  public void setCountry(String country) {
+    this.country = country;
+  }
+
+  public String getLang() {
+    return lang;
+  }
+
+  public void setLang(String lang) {
+    this.lang = lang;
   }
 
   public Long getTop_id() {
