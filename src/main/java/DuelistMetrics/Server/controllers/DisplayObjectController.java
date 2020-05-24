@@ -96,6 +96,8 @@ public class DisplayObjectController {
         Optional<InfoPotion> dbPotion = InfoController.getPotion(c.getUuid());
         if (dbPotion.isPresent()) { c.setName(dbPotion.get().getName()); }
         else { c.setName(c.getUuid()); }
+      } else {
+        c.setName(c.getUuid());
       }
       if (c.getUuid().length() > 10 && c.getUuid().startsWith("theDuelist")) {
         realOutput.add(c);

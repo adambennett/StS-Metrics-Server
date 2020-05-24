@@ -51,7 +51,9 @@ public class RunLogController {
     @GetMapping("/allCharacters")
     @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
     public static Collection<String> getCharacters() {
-        return bundles.getAllCharacters();
+        List<String> out = bundles.getAllCharacters();
+        Collections.sort(out);
+        return out;
     }
 
     @GetMapping("/decks")

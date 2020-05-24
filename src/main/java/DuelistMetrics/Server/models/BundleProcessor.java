@@ -2,14 +2,15 @@ package DuelistMetrics.Server.models;
 
 import DuelistMetrics.Server.controllers.*;
 import DuelistMetrics.Server.models.builders.*;
-import DuelistMetrics.Server.models.infoModels.*;
 import DuelistMetrics.Server.util.*;
 import com.fasterxml.jackson.databind.*;
 import org.apache.commons.io.*;
 
+import java.awt.*;
 import java.io.*;
 import java.text.*;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.*;
 import java.util.function.*;
 import java.util.logging.*;
@@ -30,12 +31,13 @@ public class BundleProcessor {
           Logger.getGlobal().info("Finished processing for " + bundles.size() + " run files");
         }
         else {
+          gpi(gpi);
           int filesProc = handleIntermittentProcess(bundles, saveTopBundles, saveRunsAndInfos, gpi);
           Logger.getGlobal().info("Finished processing for " + filesProc + " run files");
         }
       }
     }
-    else { Logger.getGlobal().info("Skipping runs folder check"); }
+    else { gpi(gpi); Logger.getGlobal().info("Skipping runs folder check"); }
   }
 
   public static void gpi(boolean gpi) {
@@ -370,6 +372,7 @@ public class BundleProcessor {
         totalProc++;
       }
       if (currentBundleIndex < bundles.size() && filesLeft > 0) {
+        processingStepCompleteAlert();
         System.out.println("Processed " + (currentBundleIndex) + " files out of " + bundles.size() + ". Would you like to continue? [Y/N]: ");
         userInput = scanner.nextLine();
         cont = userInput.toLowerCase().equals("y");
@@ -378,6 +381,18 @@ public class BundleProcessor {
       }
     }
     return totalProc;
+  }
+
+  private static void processingStepCompleteAlert() {
+    try {
+      Toolkit.getDefaultToolkit().beep();
+      Thread.sleep(ThreadLocalRandom.current().nextInt(500, 1000));
+      Toolkit.getDefaultToolkit().beep();
+      Thread.sleep(ThreadLocalRandom.current().nextInt(500, 1000));
+      Toolkit.getDefaultToolkit().beep();
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
   }
 
   private static class Mapper<K> {

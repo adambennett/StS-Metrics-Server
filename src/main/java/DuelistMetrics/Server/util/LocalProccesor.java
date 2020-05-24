@@ -24,9 +24,9 @@ public class LocalProccesor {
       boolean logsnInfos = userInput.toLowerCase().equals("y");
       BundleProcessor.parseFolder("C:/Users/eX_Di/git/StS-Metrics-Server/src/main/resources/runs", tops, logsnInfos, gpi);
     } else {
+      BundleProcessor.gpi(gpi);
       Logger.getGlobal().info("Not checking runs folder.");
     }
-    Logger.getGlobal().info("SpringApp running...");
   }
 
   public static String getDayOfMonthSuffix(final int n) {
