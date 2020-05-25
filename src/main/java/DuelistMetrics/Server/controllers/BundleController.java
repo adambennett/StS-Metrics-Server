@@ -26,7 +26,11 @@ public class BundleController {
         try {
             TreeMap<String, Integer> output = bundles.getCountryCounts();
             SortedSet<Map.Entry<String, Integer>> realOutput = entriesSortedByValues(output);
-            return (output.size() > 0) ? new ResponseEntity<>(realOutput, HttpStatus.OK) : new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+            List<String> finalOut = new ArrayList<>();
+            for (Map.Entry<String, Integer> a : realOutput) {
+                finalOut.add("\"" + a.getKey() + "\" : " + a.getValue());
+            }
+            return (finalOut.size() > 0) ? new ResponseEntity<>(finalOut, HttpStatus.OK) : new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
         } catch (Exception ex) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
