@@ -20,6 +20,17 @@ public class BundleController {
 
     public static BundleService getService() { return bundles; }
 
+    @GetMapping("/runCountByCountry")
+    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    public ResponseEntity<?> getBundles(@PathVariable Long id) {
+        try {
+            Map<String, Integer> output = bundles.getCountryCounts();
+            return (output.size() > 0) ? new ResponseEntity<>(output, HttpStatus.OK) : new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+        } catch (Exception ex) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @GetMapping("/mods/{id}")
     @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
     public ResponseEntity<?> getModsFromBundle(@PathVariable Long id) {

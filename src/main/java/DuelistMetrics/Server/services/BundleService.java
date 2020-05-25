@@ -29,4 +29,22 @@ public class BundleService {
 
   public Optional<Bundle> findByIdInner(long ID) { return this.innerRepo.findById(ID); }
 
+  public Map<String, Integer> getCountryCounts() {
+    List<String> query = innerRepo.getCountryCounts();
+    Map<String, Integer> out = new HashMap<>();
+    for (String s : query) {
+      String[] splice = s.split(",");
+      String country = splice[0];
+      Locale locale = new Locale("", country);
+      String displayCountry = locale.getDisplayCountry();
+      try {
+        Integer num = Integer.parseInt(splice[1]);
+        out.compute(displayCountry, (k,v) -> (v==null) ? num : v+num);
+      } catch (NumberFormatException ignored) {
+        out.compute(displayCountry, (k,v) -> -99);
+      }
+    }
+    return out;
+  }
+
 }
