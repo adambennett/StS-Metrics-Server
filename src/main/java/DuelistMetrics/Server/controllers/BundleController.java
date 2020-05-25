@@ -22,7 +22,7 @@ public class BundleController {
 
     @GetMapping("/runCountByCountry")
     @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
-    public ResponseEntity<?> getBundles(@PathVariable Long id) {
+    public ResponseEntity<?> getBundles() {
         try {
             Map<String, Integer> output = bundles.getCountryCounts();
             return (output.size() > 0) ? new ResponseEntity<>(output, HttpStatus.OK) : new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
