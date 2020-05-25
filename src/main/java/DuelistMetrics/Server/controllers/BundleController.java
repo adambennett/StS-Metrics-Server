@@ -25,14 +25,18 @@ public class BundleController {
     public ResponseEntity<?> getBundles() {
         try {
             TreeMap<String, Integer> output = bundles.getCountryCounts();
-            return (output.size() > 0) ? new ResponseEntity<>(entriesSortedByValues(output), HttpStatus.OK) : new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+            SortedSet<Map.Entry<String, Integer>> realOutput = entriesSortedByValues(output);
+            return (output.size() > 0) ? new ResponseEntity<>(realOutput, HttpStatus.OK) : new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
         } catch (Exception ex) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    private static <K,V extends Comparable<? super V>> SortedSet<Map.Entry<K,V>> entriesSortedByValues(Map<K,V> map) {
-        SortedSet<Map.Entry<K,V>> sortedEntries = new TreeSet<>(Map.Entry.comparingByValue());
+    public static <K,V extends Comparable<? super V>> SortedSet<Map.Entry<K,V>> entriesSortedByValues(Map<K,V> map) {
+        SortedSet<Map.Entry<K,V>> sortedEntries = new TreeSet<>((e1, e2) -> {
+            int res = e2.getValue().compareTo(e1.getValue());
+            return res != 0 ? res : 1;
+        });
         sortedEntries.addAll(map.entrySet());
         return sortedEntries;
     }
