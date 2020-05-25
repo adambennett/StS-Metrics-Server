@@ -25,10 +25,16 @@ public class BundleController {
     public ResponseEntity<?> getBundles() {
         try {
             TreeMap<String, Integer> output = bundles.getCountryCounts();
-            return (output.size() > 0) ? new ResponseEntity<>(output, HttpStatus.OK) : new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+            return (output.size() > 0) ? new ResponseEntity<>(entriesSortedByValues(output), HttpStatus.OK) : new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
         } catch (Exception ex) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private static <K,V extends Comparable<? super V>> SortedSet<Map.Entry<K,V>> entriesSortedByValues(Map<K,V> map) {
+        SortedSet<Map.Entry<K,V>> sortedEntries = new TreeSet<>(Map.Entry.comparingByValue());
+        sortedEntries.addAll(map.entrySet());
+        return sortedEntries;
     }
 
     @GetMapping("/mods/{id}")
