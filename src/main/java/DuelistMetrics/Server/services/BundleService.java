@@ -29,9 +29,9 @@ public class BundleService {
 
   public Optional<Bundle> findByIdInner(long ID) { return this.innerRepo.findById(ID); }
 
-  public Map<String, Integer> getCountryCounts() {
+  public TreeMap<String, Integer> getCountryCounts() {
     List<String> query = innerRepo.getCountryCounts();
-    Map<String, Integer> out = new HashMap<>();
+    TreeMap<String, Integer> out = new TreeMap<>();
     for (String s : query) {
       String[] splice = s.split(",");
       String country = splice[0];

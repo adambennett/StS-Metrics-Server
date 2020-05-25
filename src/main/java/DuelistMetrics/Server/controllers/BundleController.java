@@ -24,7 +24,7 @@ public class BundleController {
     @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
     public ResponseEntity<?> getBundles() {
         try {
-            Map<String, Integer> output = bundles.getCountryCounts();
+            TreeMap<String, Integer> output = bundles.getCountryCounts();
             return (output.size() > 0) ? new ResponseEntity<>(output, HttpStatus.OK) : new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
         } catch (Exception ex) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
