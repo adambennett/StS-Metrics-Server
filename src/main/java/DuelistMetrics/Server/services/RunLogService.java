@@ -18,6 +18,8 @@ public class RunLogService {
 
   public List<RunLog> getAllByChar(String chararacter) { return this.repo.getAllByCharacterNameEquals(chararacter); }
 
+  public List<RunLog> getAllByAnyOtherChar(String exemptCharacter) { return this.repo.getAllByCharacterNameIsNot(exemptCharacter); }
+
   public List<String> getAllCharacters() { return this.repo.getAllCharacters(); }
 
   public RunLog create(RunLog run) { return this.repo.save(run); }

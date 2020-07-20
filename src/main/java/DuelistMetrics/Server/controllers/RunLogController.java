@@ -48,6 +48,12 @@ public class RunLogController {
         return bundles.getAllByChar(character);
     }
 
+    @GetMapping("/runs/nonduelist")
+    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    public static Collection<RunLog> getAllNonDuelistCharacterRuns(){
+        return bundles.getAllByAnyOtherChar("THE_DUELIST");
+    }
+
     @GetMapping("/allCharacters")
     @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
     public static Collection<String> getCharacters() {

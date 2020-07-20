@@ -73,6 +73,8 @@ public interface RunLogRepo extends JpaRepository<RunLog, Long> {
 
   List<RunLog> getAllByCharacterNameEquals(String characterName);
 
+  List<RunLog> getAllByCharacterNameIsNot(String characterName);
+
   @Query(value = "SELECT DISTINCT rl.character_name FROM run_log rl", nativeQuery = true)
   List<String> getAllCharacters();
 

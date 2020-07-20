@@ -12,6 +12,8 @@ import java.util.logging.*;
 
 @RestController
 public class InfoController {
+    
+    private static final Logger logger = Logger.getLogger("DuelistMetrics.Server.InfoController");
 
     private static InfoService bundles;
     private static Map<String, InfoCard> cardData;
@@ -104,10 +106,10 @@ public class InfoController {
         String relicOut = fillRelicData();
         String potionOut = fillPotionData();
         String creatureOut = fillCreatureData();
-        Logger.getGlobal().info(cardOut);
-        Logger.getGlobal().info(relicOut);
-        Logger.getGlobal().info(potionOut);
-        Logger.getGlobal().info(creatureOut);
+        logger.info(cardOut);
+        logger.info(relicOut);
+        logger.info(potionOut);
+        logger.info(creatureOut);
     }
 
     private static String fillCardData() {
