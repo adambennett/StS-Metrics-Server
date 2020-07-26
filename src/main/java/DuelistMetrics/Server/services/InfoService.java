@@ -18,17 +18,24 @@ public class InfoService {
   private final InfoRelicRepo relicRepo;
   private final InfoPotionRepo potionRepo;
   private final InfoCreatureRepo creatureRepo;
+  private final MiniModRepo miniModRepo;
   private static final ArrayList<String> decks;
 
   @Autowired
-  public InfoService(InfoRepo repo, TopInfoBundleRepo bundleRepo, InfoCardRepo cardRepo, InfoRelicRepo relicRepo, InfoPotionRepo potionRepo, InfoCreatureRepo creatureRepo) {
+  public InfoService(InfoRepo repo, TopInfoBundleRepo bundleRepo, InfoCardRepo cardRepo, InfoRelicRepo relicRepo, InfoPotionRepo potionRepo, InfoCreatureRepo creatureRepo, MiniModRepo miniModRepo) {
     this.repo = repo;
     this.bundleRepo = bundleRepo;
     this.cardRepo = cardRepo;
     this.relicRepo = relicRepo;
     this.potionRepo = potionRepo;
     this.creatureRepo = creatureRepo;
+    this.miniModRepo = miniModRepo;
   }
+
+
+  public List<ModInfoBundle> getAllMods() { return this.bundleRepo.findAll(); }
+
+  public List<MiniMod> allModsWithoutAuthors() { return miniModRepo.getMiniModsByAuthorIsNull(); }
 
   public List<InfoCard> findAllCards() {
     return cardRepo.findAll();
@@ -68,7 +75,13 @@ public class InfoService {
 
   public List<String> getAllModuleVersions() { return this.bundleRepo.getAllModuleVersions(); }
 
+  public List<String> getModList() { return this.bundleRepo.getMods(); }
+
   public Optional<ModInfoBundle> getModInfo(String id, String version) { return this.bundleRepo.findByModIDAndVersion(id, version); }
+
+  public ModInfoBundle updateQuickFields(ModInfoBundle mod) {
+    return this.bundleRepo.save(mod);
+  }
 
   public ModInfoBundle createBundle(ModInfoBundle mod) {
     for (InfoCard c : mod.getCards()) {

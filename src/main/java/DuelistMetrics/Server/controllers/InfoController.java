@@ -1,6 +1,7 @@
 package DuelistMetrics.Server.controllers;
 
 
+import DuelistMetrics.Server.models.*;
 import DuelistMetrics.Server.models.infoModels.*;
 import DuelistMetrics.Server.services.*;
 import com.vdurmont.semver4j.*;
@@ -55,11 +56,32 @@ public class InfoController {
         return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @GetMapping("/authorMissing")
+    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    public ResponseEntity<?> getMissingAuthors() {
+        return new ResponseEntity<>(bundles.allModsWithoutAuthors(), HttpStatus.OK);
+    }
+
     @GetMapping("/allModuleVersions")
     @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
     public ResponseEntity<?> getTrackedVersions() {
         List<String> versions = bundles.getAllModuleVersions();
         return new ResponseEntity<>(versions, HttpStatus.OK);
+    }
+
+    @GetMapping("/modlist")
+    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    public ResponseEntity<?> getAllMods() {
+        List<String> versions = bundles.getModList();
+        List<Country> mods = new ArrayList<>();
+        for (String module : versions) {
+            String[] splice = module.split(",");
+            String name = splice.length > 1 ? splice[1] : "Slay the Spire";
+            Country mod = new Country(name, splice[0]);
+            mods.add(mod);
+        }
+        Collections.sort(mods);
+        return new ResponseEntity<>(mods, HttpStatus.OK);
     }
 
     private static Map<String, List<String>> recheckModules() {

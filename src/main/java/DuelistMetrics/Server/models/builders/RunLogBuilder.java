@@ -8,6 +8,9 @@ public class RunLogBuilder {
     private String host;
     private String deck;
     private String killedBy;
+    private String country;
+    private String language;
+    private String filterDate;
     private Integer ascension;
     private Integer challenge;
     private Integer floor;
@@ -64,7 +67,22 @@ public class RunLogBuilder {
         return this;
     }
 
+    public RunLogBuilder setCountry(String country) {
+        this.country = country;
+        return this;
+    }
+
+    public RunLogBuilder setLanguage(String language) {
+        this.language = language;
+        return this;
+    }
+
+    public RunLogBuilder setFilterDate(String filterDate) {
+        this.filterDate = filterDate;
+        return this;
+    }
+
     public RunLog createRunLog() {
-        return new RunLog(time, host, deck, killedBy, ascension, challenge, floor, kaiba, victory, character);
+        return new RunLog(time, host, deck, killedBy, ascension, challenge, floor, kaiba, victory, character, country, language, filterDate);
     }
 }

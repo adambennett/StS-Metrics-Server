@@ -18,6 +18,7 @@ public class ModInfoBundle {
     private String modID;
     private String name;
     private String modName;
+    private String displayName;
     private String version;
     private Boolean isDuelist;
     private Boolean isBaseGame;
@@ -143,6 +144,14 @@ public class ModInfoBundle {
 
     public void setKeywords(List<InfoKeyword> keywords) {
         this.keywords = keywords;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
     }
 
     @Override

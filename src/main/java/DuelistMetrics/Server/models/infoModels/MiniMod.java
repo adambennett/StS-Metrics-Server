@@ -20,6 +20,7 @@ public class MiniMod {
     private String modID;
     private String modVersion;
     private String name;
+    private String author;
 
     public MiniMod() {}
 
@@ -63,7 +64,13 @@ public class MiniMod {
         this.modVersion = modVersion;
     }
 
+    public String getAuthor() {
+        return author;
+    }
 
+    public void setAuthor(String author) {
+        this.author = author;
+    }
 
     @Override
     public boolean equals(Object o) {

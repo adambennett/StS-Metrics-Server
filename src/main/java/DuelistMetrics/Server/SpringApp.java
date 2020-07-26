@@ -1,5 +1,6 @@
 package DuelistMetrics.Server;
 
+import DuelistMetrics.Server.controllers.*;
 import DuelistMetrics.Server.util.*;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -13,7 +14,9 @@ public class SpringApp {
 
 	public static void main(String[] args) {
 		SpringApplication.run(SpringApp.class, args);
-		//LocalProccesor.runInitCommands();
 		logger.info("SpringApp running...");
+		//LocalProccesor.runInitCommands();
+		//RunLogController.updateAllRunLogsWithCountryAndTime();
+		//logger.info("SpringApp finished with local commands. Running...");
 	}
 }

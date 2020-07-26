@@ -18,7 +18,11 @@ public class RunLogService {
 
   public List<RunLog> getAllByChar(String chararacter) { return this.repo.getAllByCharacterNameEquals(chararacter); }
 
+  public List<RunLog> getAllByCountry(String country) { return this.repo.getAllByCountry(country); }
+
   public List<RunLog> getAllByAnyOtherChar(String exemptCharacter) { return this.repo.getAllByCharacterNameIsNot(exemptCharacter); }
+
+  public List<RunLog> getAllByTime(String timeStart, String timeEnd) { return this.repo.getRunLogsByFilterDateBetween(timeStart, timeEnd); }
 
   public List<String> getAllCharacters() { return this.repo.getAllCharacters(); }
 

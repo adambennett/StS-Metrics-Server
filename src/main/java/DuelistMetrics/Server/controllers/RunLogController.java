@@ -4,6 +4,7 @@ import DuelistMetrics.Server.models.*;
 import DuelistMetrics.Server.models.builders.*;
 import DuelistMetrics.Server.models.infoModels.*;
 import DuelistMetrics.Server.services.*;
+import com.sun.org.apache.xpath.internal.operations.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.data.domain.*;
 import org.springframework.http.*;
@@ -11,6 +12,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.*;
 
 import javax.validation.*;
+import java.lang.*;
+import java.lang.String;
 import java.net.*;
 import java.util.*;
 
@@ -18,9 +21,35 @@ import java.util.*;
 public class RunLogController {
 
     private static RunLogService bundles;
+    private static BundleService realBundles; // temp delete this
+    private static InfoService infos;         // this too
 
     @Autowired
-    public RunLogController(RunLogService service) { bundles = service; }
+    public RunLogController(RunLogService service, BundleService serv, InfoService inf) { bundles = service; realBundles = serv; infos = inf;}
+
+    public static void updateModInfoBundles() {
+        List<ModInfoBundle> mods = infos.getAllMods();
+        for (ModInfoBundle mod : mods) {
+            mod.setDisplayName(mod.getName());
+            infos.updateQuickFields(mod);
+        }
+    }
+
+    public static void updateAllRunLogsWithCountryAndTime() {
+        Collection<RunLog> runs = bundles.findAll();
+        for (RunLog log : runs) {
+            if (log.getFilterDate() == null) {
+                Optional<Bundle> bnd = realBundles.findByIdInner(log.getRun_id());
+                if (bnd.isPresent()) {
+                    Bundle bundle = bnd.get();
+                    log.setCountry(bundle.getCountry());
+                    log.setLanguage(bundle.getLang());
+                    log.setFilterDate(bundle.getLocal_time());
+                    bundles.create(log);
+                }
+            }
+        }
+    }
 
     public static RunLogService getService() { return bundles; }
 
@@ -36,6 +65,23 @@ public class RunLogController {
         }
     }
 
+    @GetMapping("/run/{id}")
+    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    public static ResponseEntity<?> getRunDetails(@PathVariable Long id){
+        List<ModViewer> mods = BundleController.getModsFromBundle(id);
+        Optional<Bundle> bnd = realBundles.findByIdInner(id);
+        Optional<TopBundle> top = realBundles.findById(id);
+        if (bnd.isPresent() && top.isPresent()) {
+            Bundle modifiedBnd = bnd.get();
+            modifiedBnd.setTop(null);
+            TopBundle modifiedTop = top.get();
+            modifiedTop.setEvent(null);
+            return new ResponseEntity<>(new RunDetails(modifiedTop, modifiedBnd, mods), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+        }
+    }
+
     @GetMapping("/runs")
     @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
     public static Collection<RunLog> getBundles(){
@@ -46,6 +92,18 @@ public class RunLogController {
     @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
     public static Collection<RunLog> getBundles(@PathVariable String character){
         return bundles.getAllByChar(character);
+    }
+
+    @GetMapping("/runs/country/{country}")
+    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    public static Collection<RunLog> getRunsByCountry(@PathVariable String country){
+        return bundles.getAllByCountry(country);
+    }
+
+    @GetMapping("/runs/time/{time}/{time2}")
+    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    public static Collection<RunLog> getRunsByTime(@PathVariable String time, @PathVariable String time2){
+        return bundles.getAllByTime(time, time2);
     }
 
     @GetMapping("/runs/nonduelist")

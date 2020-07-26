@@ -26,7 +26,27 @@ public class BundleController {
         try {
             TreeMap<String, Integer> output = bundles.getCountryCounts();
             SortedSet<Map.Entry<String, Integer>> realOutput = entriesSortedByValues(output);
-            return (realOutput.size() > 0) ? new ResponseEntity<>(realOutput, HttpStatus.OK) : new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+            List<CountryRunCount> objOut = new ArrayList<>();
+            for (Map.Entry<String, Integer> entry : realOutput) {
+                objOut.add(new CountryRunCount(entry.getKey(), entry.getValue()));
+            }
+            return (objOut.size() > 0) ? new ResponseEntity<>(objOut, HttpStatus.OK) : new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+        } catch (Exception ex) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/countries")
+    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    public ResponseEntity<?> getCountries() {
+        try {
+            Map<String, String> query = bundles.getCountryNameAndID();
+            List<Country> countries = new ArrayList<>();
+            for (Map.Entry<String, String> entry : query.entrySet()) {
+                Country country = new Country(entry.getKey(), entry.getValue());
+                countries.add(country);
+            }
+            return (countries.size() > 0) ? new ResponseEntity<>(countries, HttpStatus.OK) : new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
         } catch (Exception ex) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -41,20 +61,17 @@ public class BundleController {
         return sortedEntries;
     }
 
-    @GetMapping("/mods/{id}")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
-    public ResponseEntity<?> getModsFromBundle(@PathVariable Long id) {
+    public static List<ModViewer> getModsFromBundle(Long id) {
         Optional<Bundle> bnd = bundles.findByIdInner(id);
+        List<ModViewer> fullModList = new ArrayList<>();
         if (bnd.isPresent()) {
             List<MiniMod> mods = bnd.get().getModList();
-            List<ModViewer> fullModList = new ArrayList<>();
             for (MiniMod mod : mods) {
                 ModViewer view = new ModViewer(mod.getName(), mod.getModVersion());
                 fullModList.add(view);
             }
-            return new ResponseEntity<>(fullModList, HttpStatus.OK);
         }
-        return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+        return fullModList;
     }
 
     @GetMapping("/fullmods/{id}")

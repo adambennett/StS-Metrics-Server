@@ -1,5 +1,6 @@
 package DuelistMetrics.Server.services;
 
+import DuelistMetrics.Server.controllers.*;
 import DuelistMetrics.Server.models.*;
 import DuelistMetrics.Server.repositories.*;
 import org.springframework.beans.factory.annotation.*;
@@ -29,6 +30,10 @@ public class BundleService {
 
   public Optional<Bundle> findByIdInner(long ID) { return this.innerRepo.findById(ID); }
 
+  public List<String> getCountries() {
+    return innerRepo.getCountries();
+  }
+
   public TreeMap<String, Integer> getCountryCounts() {
     List<String> query = innerRepo.getCountryCounts();
     TreeMap<String, Integer> out = new TreeMap<>();
@@ -45,6 +50,24 @@ public class BundleService {
       }
     }
     return out;
+  }
+
+  public Map<String, String> getCountryNameAndID() {
+    List<String> query  = innerRepo.getCountryCounts();
+    Map<String, String> output = new HashMap<>();
+    LinkedHashMap<String, String> sortedOutput = new LinkedHashMap<>();
+    for (String s : query) {
+      String[] splice = s.split(",");
+      String country = splice[0];
+      String displayCountry = new Locale("", country).getDisplayCountry();
+      output.put(displayCountry, country);
+    }
+    TreeMap<String, Integer> sorted = getCountryCounts();
+    SortedSet<Map.Entry<String, Integer>> realSorted = BundleController.entriesSortedByValues(sorted);
+    for (Map.Entry<String, Integer> entry : realSorted) {
+      sortedOutput.put(entry.getKey(), output.get(entry.getKey()));
+    }
+    return sortedOutput;
   }
 
 }

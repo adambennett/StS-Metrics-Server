@@ -12,4 +12,8 @@ public interface BundleRepo extends JpaRepository<Bundle, Long> {
     @Query(value = "SELECT country, COUNT(*) FROM bundle WHERE country IS NOT NULL GROUP BY country", nativeQuery = true)
     List<String> getCountryCounts();
 
+    @Query(value = "SELECT country FROM bundle WHERE country IS NOT NULL GROUP BY country", nativeQuery = true)
+    List<String> getCountries();
+
+
 }

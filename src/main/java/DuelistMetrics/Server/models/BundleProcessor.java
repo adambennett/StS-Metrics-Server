@@ -137,6 +137,9 @@ public class BundleProcessor {
           .setVictory(bnd.getEvent().getVictory())
           .setTime(finalTimeStamp)
           .setCharacter(bnd.getEvent().getCharacter_chosen())
+          .setCountry(bnd.getEvent().getCountry())
+          .setLanguage(bnd.getEvent().getLang())
+          .setFilterDate(bnd.getEvent().getLocal_time())
           .createRunLog();
         RunLogController.getService().create(log);
         Logger.getGlobal().info("RunLog saved");

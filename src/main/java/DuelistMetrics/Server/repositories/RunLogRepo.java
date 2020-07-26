@@ -65,6 +65,8 @@ public interface RunLogRepo extends JpaRepository<RunLog, Long> {
   @Query(value = "SELECT killed_by, COUNT(*) FROM run_log WHERE killed_by != 'Self'", nativeQuery = true)
   List<String> getMostKilledByAll();
 
+  List<RunLog> getRunLogsByFilterDateBetween(String timeStart, String timeEnd);
+
   @Query(value = "SELECT COUNT(*) FROM run_log rl WHERE rl.kaiba = 1", nativeQuery = true)
   Long getKaibaRunsAll();
 
@@ -74,6 +76,8 @@ public interface RunLogRepo extends JpaRepository<RunLog, Long> {
   List<RunLog> getAllByCharacterNameEquals(String characterName);
 
   List<RunLog> getAllByCharacterNameIsNot(String characterName);
+
+  List<RunLog> getAllByCountry(String country);
 
   @Query(value = "SELECT DISTINCT rl.character_name FROM run_log rl", nativeQuery = true)
   List<String> getAllCharacters();
