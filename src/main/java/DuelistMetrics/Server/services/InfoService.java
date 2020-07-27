@@ -35,8 +35,6 @@ public class InfoService {
 
   public List<ModInfoBundle> getAllMods() { return this.bundleRepo.findAll(); }
 
-  public List<MiniMod> allModsWithoutAuthors() { return miniModRepo.getMiniModsByAuthorIsNull(); }
-
   public List<InfoCard> findAllCards() {
     return cardRepo.findAll();
   }

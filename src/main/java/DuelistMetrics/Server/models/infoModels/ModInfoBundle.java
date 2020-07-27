@@ -23,6 +23,9 @@ public class ModInfoBundle {
     private Boolean isDuelist;
     private Boolean isBaseGame;
 
+    @ElementCollection
+    private List<String> authors;
+
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "info", targetEntity = InfoCard.class)
     @JsonIgnoreProperties("info")
     @Fetch(value = FetchMode.SUBSELECT)
@@ -152,6 +155,14 @@ public class ModInfoBundle {
 
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
+    }
+
+    public List<String> getAuthors() {
+        return authors;
+    }
+
+    public void setAuthors(List<String> authors) {
+        this.authors = authors;
     }
 
     @Override

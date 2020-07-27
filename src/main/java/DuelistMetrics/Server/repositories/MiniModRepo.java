@@ -9,5 +9,4 @@ import java.util.*;
 @Repository
 public interface MiniModRepo extends JpaRepository<MiniMod, Long> {
 
-    List<MiniMod> getMiniModsByAuthorIsNull();
 }

@@ -20,7 +20,9 @@ public class MiniMod {
     private String modID;
     private String modVersion;
     private String name;
-    private String author;
+
+    @ElementCollection
+    private List<String> authors;
 
     public MiniMod() {}
 
@@ -64,12 +66,12 @@ public class MiniMod {
         this.modVersion = modVersion;
     }
 
-    public String getAuthor() {
-        return author;
+    public List<String> getAuthors() {
+        return authors;
     }
 
-    public void setAuthor(String author) {
-        this.author = author;
+    public void setAuthors(List<String> authors) {
+        this.authors = authors;
     }
 
     @Override

@@ -56,12 +56,6 @@ public class InfoController {
         return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @GetMapping("/authorMissing")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
-    public ResponseEntity<?> getMissingAuthors() {
-        return new ResponseEntity<>(bundles.allModsWithoutAuthors(), HttpStatus.OK);
-    }
-
     @GetMapping("/allModuleVersions")
     @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
     public ResponseEntity<?> getTrackedVersions() {

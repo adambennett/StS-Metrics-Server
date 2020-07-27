@@ -68,15 +68,9 @@ public class RunLogController {
     @GetMapping("/run/{id}")
     @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
     public static ResponseEntity<?> getRunDetails(@PathVariable Long id){
-        List<ModViewer> mods = BundleController.getModsFromBundle(id);
-        Optional<Bundle> bnd = realBundles.findByIdInner(id);
         Optional<TopBundle> top = realBundles.findById(id);
-        if (bnd.isPresent() && top.isPresent()) {
-            Bundle modifiedBnd = bnd.get();
-            modifiedBnd.setTop(null);
-            TopBundle modifiedTop = top.get();
-            modifiedTop.setEvent(null);
-            return new ResponseEntity<>(new RunDetails(modifiedTop, modifiedBnd, mods), HttpStatus.OK);
+        if (top.isPresent()) {
+            return new ResponseEntity<>(top, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
         }
