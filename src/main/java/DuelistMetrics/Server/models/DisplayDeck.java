@@ -2,6 +2,8 @@ package DuelistMetrics.Server.models;
 
 import DuelistMetrics.Server.util.*;
 
+import java.util.*;
+
 public class DisplayDeck implements Comparable<DisplayDeck> {
 
   private final String deck;
@@ -15,19 +17,23 @@ public class DisplayDeck implements Comparable<DisplayDeck> {
   private Integer c20wins;
   private Integer kaiba;
   private Integer highestChallenge;
+  private List<Integer> highestChallengeRunID;
+  private List<Integer> highestFloorRunID;
 
-  public DisplayDeck(String deck, String mostKilledBy, Integer runs, Integer wins, Integer a20runs, Integer a20wins, Integer c20runs, Integer c20wins, Integer floor, Integer kaiba, Integer highestChallenge) {
+  public DisplayDeck(String deck, String mostKilledBy, Integer runs, Integer wins, Integer a20runs, Integer a20wins, Integer floor, Integer c20runs, Integer c20wins, Integer kaiba, Integer highestChallenge, List<Integer> highestChallengeRunID, List<Integer> highestFloorRunID) {
     this.deck = deck;
     this.mostKilledBy = mostKilledBy;
     this.runs = runs;
     this.wins = wins;
     this.a20runs = a20runs;
     this.a20wins = a20wins;
+    this.floor = floor;
     this.c20runs = c20runs;
     this.c20wins = c20wins;
-    this.floor = floor;
     this.kaiba = kaiba;
     this.highestChallenge = highestChallenge;
+    this.highestChallengeRunID = highestChallengeRunID;
+    this.highestFloorRunID = highestFloorRunID;
   }
 
   public String getDeck() {
@@ -88,6 +94,22 @@ public class DisplayDeck implements Comparable<DisplayDeck> {
 
   public void setHighestChallenge(Integer highestChallenge) {
     this.highestChallenge = highestChallenge;
+  }
+
+  public List<Integer> getHighestChallengeRunID() {
+    return highestChallengeRunID;
+  }
+
+  public void setHighestChallengeRunID(List<Integer> highestChallengeRunID) {
+    this.highestChallengeRunID = highestChallengeRunID;
+  }
+
+  public List<Integer> getHighestFloorRunID() {
+    return highestFloorRunID;
+  }
+
+  public void setHighestFloorRunID(List<Integer> highestFloorRunID) {
+    this.highestFloorRunID = highestFloorRunID;
   }
 
   @Override

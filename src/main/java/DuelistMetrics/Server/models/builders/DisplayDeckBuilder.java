@@ -2,6 +2,8 @@ package DuelistMetrics.Server.models.builders;
 
 import DuelistMetrics.Server.models.*;
 
+import java.util.*;
+
 public class DisplayDeckBuilder {
     private String deck;
     private String mostKilledBy;
@@ -9,11 +11,13 @@ public class DisplayDeckBuilder {
     private Integer wins;
     private Integer a20runs;
     private Integer a20wins;
+    private Integer floor;
     private Integer c20runs;
     private Integer c20wins;
-    private Integer floor;
     private Integer kaiba;
     private Integer highestChallenge;
+    private List<Integer> highestChallengeRunID;
+    private List<Integer> highestFloorRunID;
 
     public DisplayDeckBuilder setDeck(String deck) {
         this.deck = deck;
@@ -45,6 +49,11 @@ public class DisplayDeckBuilder {
         return this;
     }
 
+    public DisplayDeckBuilder setFloor(Integer floor) {
+        this.floor = floor;
+        return this;
+    }
+
     public DisplayDeckBuilder setC20runs(Integer c20runs) {
         this.c20runs = c20runs;
         return this;
@@ -52,11 +61,6 @@ public class DisplayDeckBuilder {
 
     public DisplayDeckBuilder setC20wins(Integer c20wins) {
         this.c20wins = c20wins;
-        return this;
-    }
-
-    public DisplayDeckBuilder setFloor(Integer floor) {
-        this.floor = floor;
         return this;
     }
 
@@ -70,7 +74,17 @@ public class DisplayDeckBuilder {
         return this;
     }
 
+    public DisplayDeckBuilder setHighestChallengeRunID(List<Integer> highestChallengeRunID) {
+        this.highestChallengeRunID = highestChallengeRunID;
+        return this;
+    }
+
+    public DisplayDeckBuilder setHighestFloorRunID(List<Integer> highestFloorRunID) {
+        this.highestFloorRunID = highestFloorRunID;
+        return this;
+    }
+
     public DisplayDeck createDisplayDeck() {
-        return new DisplayDeck(deck, mostKilledBy, runs, wins, a20runs, a20wins, c20runs, c20wins, floor, kaiba, highestChallenge);
+        return new DisplayDeck(deck, mostKilledBy, runs, wins, a20runs, a20wins, floor, c20runs, c20wins, kaiba, highestChallenge, highestChallengeRunID, highestFloorRunID);
     }
 }
