@@ -16,7 +16,17 @@ public class RunLogService {
   @Autowired
   public RunLogService(RunLogRepo repo) { this.repo = repo; }
 
+  public List<RunLog> getAllById(List<Long> id) { return this.repo.findAllById(id); }
+
   public List<RunLog> getAllByChar(String chararacter) { return this.repo.getAllByCharacterNameEquals(chararacter); }
+
+  public List<RunLog> getAllByCountry(String country) { return this.repo.getAllByCountry(country); }
+
+  public List<RunLog> getAllByHost(String host) { return this.repo.getAllByHost(host); }
+
+  public List<RunLog> getAllByAnyOtherChar(String exemptCharacter) { return this.repo.getAllByCharacterNameIsNot(exemptCharacter); }
+
+  public List<RunLog> getAllByTime(String timeStart, String timeEnd) { return this.repo.getRunLogsByFilterDateBetween(timeStart, timeEnd); }
 
   public List<String> getAllCharacters() { return this.repo.getAllCharacters(); }
 
@@ -38,6 +48,7 @@ public class RunLogService {
   public List<String> getMostKilledByAll() { return this.repo.getMostKilledByAll(); }
   public Long getKaibaRunsAll() { return this.repo.getKaibaRunsAll(); }
   public Optional<Long> getHighestChallengeAll() { return this.repo.getHighestChallengeAll(); }
+  public List<String> getHighestChallengeAllWithId() { return this.repo.getHighestChallengeAllWithId(); }
 
   public Map<String, Integer> getC20Wins() {
     return getIntegers(this.repo.getC20Wins());
@@ -75,6 +86,10 @@ public class RunLogService {
     return getIntegers(this.repo.getHighestChallenge());
   }
 
+  public Map<String, List<Integer>> getHighestChallengeWithId() {
+    return getIdWithDeck(this.repo.getHighestChallengeWithId());
+  }
+
   public Map<String, Integer> getA20Runs() {
     return getIntegers(this.repo.getA20Runs());
   }
@@ -90,6 +105,23 @@ public class RunLogService {
       String deck = splice[0];
       int val = Integer.parseInt(splice[1]);
       output.compute(deck, (k,v) -> (v==null) ? val : v+val);
+    }
+    return output;
+  }
+
+  private Map<String, List<Integer>> getIdWithDeck(List<String> a20WinsByDeck) {
+    Map<String, List<Integer>> output = new HashMap<>();
+    for (String s : a20WinsByDeck) {
+      String[] splice = s.split(",");
+      Integer id = Integer.parseInt(splice[0]);
+      String deck = splice[1];
+      if (!output.containsKey(deck)) {
+        ArrayList<Integer> tempList = new ArrayList<>();
+        tempList.add(id);
+        output.put(deck, tempList);
+      } else {
+        output.get(deck).add(id);
+      }
     }
     return output;
   }

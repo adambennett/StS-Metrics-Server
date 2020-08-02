@@ -18,9 +18,13 @@ public class ModInfoBundle {
     private String modID;
     private String name;
     private String modName;
+    private String displayName;
     private String version;
     private Boolean isDuelist;
     private Boolean isBaseGame;
+
+    @ElementCollection
+    private List<String> authors;
 
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "info", targetEntity = InfoCard.class)
     @JsonIgnoreProperties("info")
@@ -143,6 +147,22 @@ public class ModInfoBundle {
 
     public void setKeywords(List<InfoKeyword> keywords) {
         this.keywords = keywords;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+
+    public List<String> getAuthors() {
+        return authors;
+    }
+
+    public void setAuthors(List<String> authors) {
+        this.authors = authors;
     }
 
     @Override

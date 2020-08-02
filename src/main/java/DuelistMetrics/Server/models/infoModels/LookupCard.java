@@ -1,20 +1,9 @@
 package DuelistMetrics.Server.models.infoModels;
 
-import com.fasterxml.jackson.annotation.*;
-
-import javax.persistence.*;
 import java.util.*;
 
-@Entity
-public class InfoCard {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long info_card_id;
-
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JsonIgnoreProperties("cards")
-    private ModInfoBundle info;
+public class LookupCard {
 
     private String card_id;
     private String name;
@@ -23,13 +12,8 @@ public class InfoCard {
     private String type;
     private String duelistType = "";
     private String cost;
-
-    @Column(length = 4028)
     private String text;
-
-    @Column(length = 4028)
     private String newLineText;
-
     private Integer block;
     private Integer damage;
     private Integer magicNumber;
@@ -38,28 +22,29 @@ public class InfoCard {
     private Integer tributes;
     private Integer summons;
     private Integer entomb;
-
     private Boolean isDuelistCard;
-
-    @ElementCollection
     private List<String> pools;
 
-    public InfoCard() {}
-
-    public Long getInfo_card_id() {
-        return info_card_id;
-    }
-
-    public void setInfo_card_id(Long info_card_id) {
-        this.info_card_id = info_card_id;
-    }
-
-    public ModInfoBundle getInfo() {
-        return info;
-    }
-
-    public void setInfo(ModInfoBundle info) {
-        this.info = info;
+    public LookupCard(String card_id, String name, String color, String rarity, String type, String duelistType, String cost, String text, String newLineText, Integer block, Integer damage, Integer magicNumber, Integer secondMag, Integer thirdMag, Integer tributes, Integer summons, Integer entomb, Boolean isDuelistCard, List<String> pools) {
+        this.card_id = card_id;
+        this.name = name;
+        this.color = color;
+        this.rarity = rarity;
+        this.type = type;
+        this.duelistType = duelistType;
+        this.cost = cost;
+        this.text = text;
+        this.newLineText = newLineText;
+        this.block = block;
+        this.damage = damage;
+        this.magicNumber = magicNumber;
+        this.secondMag = secondMag;
+        this.thirdMag = thirdMag;
+        this.tributes = tributes;
+        this.summons = summons;
+        this.entomb = entomb;
+        this.isDuelistCard = isDuelistCard;
+        this.pools = pools;
     }
 
     public String getCard_id() {
@@ -190,11 +175,11 @@ public class InfoCard {
         this.entomb = entomb;
     }
 
-    public Boolean getIsDuelistCard() {
+    public Boolean getDuelistCard() {
         return isDuelistCard;
     }
 
-    public void setIsDuelistCard(Boolean duelistCard) {
+    public void setDuelistCard(Boolean duelistCard) {
         isDuelistCard = duelistCard;
     }
 
@@ -206,21 +191,11 @@ public class InfoCard {
         this.pools = pools;
     }
 
-    public String getNewLineText() { return newLineText; }
-
-    public void setNewLineText(String newLineText) { this.newLineText = newLineText; }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof InfoCard)) return false;
-        InfoCard infoCard = (InfoCard) o;
-        return Objects.equals(getInfo(), infoCard.getInfo()) &&
-                Objects.equals(getCard_id(), infoCard.getCard_id());
+    public String getNewLineText() {
+        return newLineText;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(getInfo(), getCard_id());
+    public void setNewLineText(String newLineText) {
+        this.newLineText = newLineText;
     }
 }

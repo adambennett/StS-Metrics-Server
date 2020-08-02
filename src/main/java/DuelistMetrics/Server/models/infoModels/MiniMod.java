@@ -21,6 +21,9 @@ public class MiniMod {
     private String modVersion;
     private String name;
 
+    @ElementCollection
+    private List<String> authors;
+
     public MiniMod() {}
 
     public String getName() {
@@ -63,7 +66,13 @@ public class MiniMod {
         this.modVersion = modVersion;
     }
 
+    public List<String> getAuthors() {
+        return authors;
+    }
 
+    public void setAuthors(List<String> authors) {
+        this.authors = authors;
+    }
 
     @Override
     public boolean equals(Object o) {

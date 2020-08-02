@@ -41,6 +41,9 @@ public interface RunLogRepo extends JpaRepository<RunLog, Long> {
   @Query(value = "SELECT rl.deck, MAX(rl.challenge) FROM run_log rl  WHERE rl.victory = 1 GROUP BY rl.deck", nativeQuery = true)
   List<String> getHighestChallenge();
 
+  @Query(value = "SELECT tt.run_id, tt.deck, tt.challenge FROM run_log tt INNER JOIN (SELECT deck, MAX(challenge) AS MaxChallenge FROM run_log WHERE victory = 1 AND challenge > -1 GROUP BY deck) groupedtt ON tt.deck = groupedtt.deck AND tt.challenge = groupedtt.MaxChallenge AND tt.victory = 1 AND tt.challenge > -1", nativeQuery = true)
+  List<String> getHighestChallengeWithId();
+
   @Query(value = "SELECT SUM(rl.victory = 1) FROM run_log rl WHERE rl.ascension = 20", nativeQuery = true)
   Optional<Long> getA20WinsAll();
 
@@ -65,13 +68,24 @@ public interface RunLogRepo extends JpaRepository<RunLog, Long> {
   @Query(value = "SELECT killed_by, COUNT(*) FROM run_log WHERE killed_by != 'Self'", nativeQuery = true)
   List<String> getMostKilledByAll();
 
+  List<RunLog> getRunLogsByFilterDateBetween(String timeStart, String timeEnd);
+
   @Query(value = "SELECT COUNT(*) FROM run_log rl WHERE rl.kaiba = 1", nativeQuery = true)
   Long getKaibaRunsAll();
 
   @Query(value = "SELECT MAX(rl.challenge) FROM run_log rl WHERE rl.victory = 1", nativeQuery = true)
   Optional<Long> getHighestChallengeAll();
 
+  @Query(value = "SELECT tt.run_id, tt.challenge FROM run_log tt INNER JOIN (SELECT MAX(challenge) AS MaxChallenge FROM run_log WHERE victory = 1 AND challenge > 0) groupedtt ON tt.challenge = groupedtt.MaxChallenge AND tt.victory = 1 AND tt.challenge > 0\n", nativeQuery = true)
+  List<String> getHighestChallengeAllWithId();
+
   List<RunLog> getAllByCharacterNameEquals(String characterName);
+
+  List<RunLog> getAllByCharacterNameIsNot(String characterName);
+
+  List<RunLog> getAllByCountry(String country);
+
+  List<RunLog> getAllByHost(String host);
 
   @Query(value = "SELECT DISTINCT rl.character_name FROM run_log rl", nativeQuery = true)
   List<String> getAllCharacters();

@@ -14,6 +14,9 @@ public class RunLog {
   private String host;
   private String deck;
   private String killedBy;
+  private String country;
+  private String language;
+  private String filterDate;
   private Integer ascension;
   private Integer challenge;
   private Integer floor;
@@ -22,7 +25,7 @@ public class RunLog {
 
   public RunLog() {}
 
-  public RunLog(String time, String host, String deck, String killedBy, Integer ascension, Integer challenge, Integer floor, Boolean kaiba, Boolean victory, String characterName) {
+  public RunLog(String time, String host, String deck, String killedBy, Integer ascension, Integer challenge, Integer floor, Boolean kaiba, Boolean victory, String characterName, String country, String language, String filterDate) {
     this.time = time;
     this.host = host;
     this.deck = deck;
@@ -33,6 +36,9 @@ public class RunLog {
     this.kaiba = kaiba;
     this.victory = victory;
     this.characterName = characterName;
+    this.country = country;
+    this.language = language;
+    this.filterDate = filterDate;
   }
 
   public String getCharacterName() {
@@ -121,5 +127,25 @@ public class RunLog {
 
   public void setVictory(Boolean victory) {
     this.victory = victory;
+  }
+
+  public String getCountry() { return country; }
+
+  public void setCountry(String country) { this.country = country; }
+
+  public String getLanguage() {
+    return language;
+  }
+
+  public void setLanguage(String language) {
+    this.language = language;
+  }
+
+  public String getFilterDate() {
+    return filterDate;
+  }
+
+  public void setFilterDate(String filterDate) {
+    this.filterDate = filterDate;
   }
 }
