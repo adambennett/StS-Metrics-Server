@@ -9,4 +9,7 @@ import java.util.*;
 @Repository
 public interface MiniModRepo extends JpaRepository<MiniMod, Long> {
 
+    @Query(value = "SELECT * FROM mini_mod WHERE bundle_top_id = :id", nativeQuery = true)
+    List<MiniMod> getByBundleId(Long id);
+
 }

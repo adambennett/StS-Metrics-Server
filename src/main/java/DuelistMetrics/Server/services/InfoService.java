@@ -4,7 +4,6 @@ import DuelistMetrics.Server.models.*;
 import DuelistMetrics.Server.models.infoModels.*;
 import DuelistMetrics.Server.repositories.*;
 import org.springframework.beans.factory.annotation.*;
-import org.springframework.data.domain.*;
 import org.springframework.stereotype.*;
 
 import java.util.*;
@@ -32,6 +31,32 @@ public class InfoService {
     this.miniModRepo = miniModRepo;
   }
 
+  public List<String> getCardNameFromId(String card_id, boolean duelist) {
+    if (duelist) {
+      Long id = getMostRecentDuelistVersion();
+      List<String> out = this.cardRepo.getCardDataDuelist(card_id, id);
+      out.addAll(getPoolsFromDuelistCardId(card_id));
+      out.add("TEXT");
+      out.add(cardRepo.getCardTextByIdDuelist(card_id, id));
+      out.add("NEWLINETEXT");
+      out.add(cardRepo.getCardNewLineTextByIdDuelist(card_id, id));
+      return out;
+    }
+    return this.cardRepo.getCardData(card_id);
+  }
+
+  public List<String> getPoolsFromDuelistCardId(String card_id) {
+    Long duelistModId = getMostRecentDuelistVersion();
+    Long infoCardId = cardRepo.getInfoCardIdForPools(card_id, duelistModId);
+    return cardRepo.getPoolsFromDuelistCard(infoCardId);
+  }
+
+  public Long getMostRecentDuelistVersion() {
+    List<ModInfoBundle> duelistMods = bundleRepo.getModInfoBundlesByModNameEquals("Duelist Mod");
+    return duelistMods.get(duelistMods.size() - 1).getInfo_bundle_id();
+  }
+
+  public List<MiniMod> getModListFromBundleId(Long id) { return this.miniModRepo.getByBundleId(id); }
 
   public List<ModInfoBundle> getAllMods() { return this.bundleRepo.findAll(); }
 

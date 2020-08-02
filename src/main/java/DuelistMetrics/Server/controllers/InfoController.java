@@ -2,6 +2,7 @@ package DuelistMetrics.Server.controllers;
 
 
 import DuelistMetrics.Server.models.*;
+import DuelistMetrics.Server.models.builders.*;
 import DuelistMetrics.Server.models.infoModels.*;
 import DuelistMetrics.Server.services.*;
 import com.vdurmont.semver4j.*;
@@ -30,6 +31,98 @@ public class InfoController {
     }
 
     public static InfoService getService() { return bundles; }
+
+    @GetMapping("/cardLookup/{card}")
+    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    public ResponseEntity<?> cardLookup(@PathVariable String card) {
+        boolean duelist = card.startsWith("theDuelist:");
+        List<String> toParse = bundles.getCardNameFromId(card, duelist);
+        List<String> cardProps;
+        String[] splice = toParse.get(0).split(",");
+        cardProps = new ArrayList<>(Arrays.asList(splice));
+        if (duelist) {
+            for (int i = 1; i < toParse.size(); i++) {
+                cardProps.add(toParse.get(i));
+            }
+        }
+        if (cardProps.size() > 16) {
+            LookupCardBuilder lookupCard = new LookupCardBuilder()
+                    .setBlock(Integer.parseInt(cardProps.get(0)))
+                    .setCard_id(cardProps.get(1))
+                    .setColor(cardProps.get(2))
+                    .setCost(cardProps.get(3))
+                    .setDamage(Integer.parseInt(cardProps.get(4)))
+                    .setDuelistType(cardProps.get(5))
+                    .setEntomb(Integer.parseInt(cardProps.get(6)))
+                    .setIsDuelistCard(Boolean.parseBoolean(cardProps.get(7)))
+                    .setMagicNumber(Integer.parseInt(cardProps.get(8)))
+                    .setName(cardProps.get(9))
+                    .setRarity(cardProps.get(10))
+                    .setSecondMag(Integer.parseInt(cardProps.get(11)))
+                    .setSummons(Integer.parseInt(cardProps.get(12)))
+                    .setThirdMag(Integer.parseInt(cardProps.get(13)))
+                    .setTributes(Integer.parseInt(cardProps.get(14)))
+                    .setType(cardProps.get(15));
+            StringBuilder allText = new StringBuilder();
+            StringBuilder nlText = new StringBuilder();
+            if (duelist) {
+                List<String> pools = new ArrayList<>();
+                int i = 16;
+                for (;!cardProps.get(i).equals("TEXT"); i++) {
+                    pools.add(cardProps.get(i));
+                }
+                i++;
+                lookupCard.setPools(pools);
+
+                for (;!cardProps.get(i).equals("NEWLINETEXT");i++) {
+                    allText.append(cardProps.get(i));
+                    if (i + 1 < cardProps.size()) {
+                        allText.append(",");
+                    }
+                }
+                i++;
+                for (;i<cardProps.size();i++) {
+                    nlText.append(cardProps.get(i));
+                    if (i + 1 < cardProps.size()) {
+                        nlText.append(",");
+                    }
+                }
+            } else {
+                for (int i = 16; i < cardProps.size(); i++) {
+                    allText.append(cardProps.get(i));
+                    if (i + 1 < cardProps.size()) {
+                        allText.append(",");
+                    }
+                }
+            }
+            lookupCard.setText(allText.toString());
+            lookupCard.setNewLineText(nlText.toString());
+            LookupCard lookup = lookupCard.createLookupCard();
+            return new ResponseEntity<>(lookup, HttpStatus.OK);
+        } else if (cardProps.size() == 16) {
+            LookupCard lookupCard = new LookupCardBuilder()
+                    .setBlock(Integer.parseInt(cardProps.get(0)))
+                    .setCard_id(cardProps.get(1))
+                    .setColor(cardProps.get(2))
+                    .setCost(cardProps.get(3))
+                    .setDamage(Integer.parseInt(cardProps.get(4)))
+                    .setDuelistType(cardProps.get(5))
+                    .setEntomb(Integer.parseInt(cardProps.get(6)))
+                    .setIsDuelistCard(Boolean.parseBoolean(cardProps.get(7)))
+                    .setMagicNumber(Integer.parseInt(cardProps.get(8)))
+                    .setName(cardProps.get(9))
+                    .setRarity(cardProps.get(10))
+                    .setSecondMag(Integer.parseInt(cardProps.get(11)))
+                    .setSummons(Integer.parseInt(cardProps.get(12)))
+                    .setThirdMag(Integer.parseInt(cardProps.get(13)))
+                    .setTributes(Integer.parseInt(cardProps.get(14)))
+                    .setType(cardProps.get(15))
+                    .setText("No text found.")
+                    .createLookupCard();
+            return new ResponseEntity<>(lookupCard, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(cardProps, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 
     @PostMapping("/dataupload")
     @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})

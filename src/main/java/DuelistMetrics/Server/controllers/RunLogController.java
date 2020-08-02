@@ -70,7 +70,14 @@ public class RunLogController {
     public static ResponseEntity<?> getRunDetails(@PathVariable Long id){
         Optional<TopBundle> top = realBundles.findById(id);
         if (top.isPresent()) {
-            return new ResponseEntity<>(top, HttpStatus.OK);
+            List<FloorInfo> floors = new ArrayList<>();
+            // fill floors off top bundle
+                // look for any same name events on same floor
+                // collect all player choices into list of choices for those events
+                    // collect all events with name='Nameless Tomb'
+                    // starting points, magic score, rewards received + levels, spent points
+            RunDetails run = new RunDetails(top.get(), floors);
+            return new ResponseEntity<>(run, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
         }

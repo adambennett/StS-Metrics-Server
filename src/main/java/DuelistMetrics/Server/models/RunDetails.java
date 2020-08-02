@@ -5,12 +5,10 @@ import java.util.*;
 public class RunDetails {
 
     public TopBundle top;
-    public Bundle bundle;
-    public List<ModViewer> modList;
+    public List<FloorInfo> floors;
 
-    public RunDetails(TopBundle top, Bundle bundle, List<ModViewer> modList) {
+    public RunDetails(TopBundle top, List<FloorInfo> floors) {
         this.top = top;
-        this.bundle = bundle;
-        this.modList = modList;
+        this.floors = floors;
     }
 }
