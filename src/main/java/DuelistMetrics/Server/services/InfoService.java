@@ -7,9 +7,12 @@ import org.springframework.beans.factory.annotation.*;
 import org.springframework.stereotype.*;
 
 import java.util.*;
+import java.util.logging.*;
 
 @Service
 public class InfoService {
+
+  private static final Logger logger = Logger.getLogger("DuelistMetrics.Server.InfoService");
 
   private final InfoRepo repo;
   private final TopInfoBundleRepo bundleRepo;
@@ -17,11 +20,12 @@ public class InfoService {
   private final InfoRelicRepo relicRepo;
   private final InfoPotionRepo potionRepo;
   private final InfoCreatureRepo creatureRepo;
+  private final EventRepo eventRepo;
   private final MiniModRepo miniModRepo;
   private static final ArrayList<String> decks;
 
   @Autowired
-  public InfoService(InfoRepo repo, TopInfoBundleRepo bundleRepo, InfoCardRepo cardRepo, InfoRelicRepo relicRepo, InfoPotionRepo potionRepo, InfoCreatureRepo creatureRepo, MiniModRepo miniModRepo) {
+  public InfoService(InfoRepo repo, TopInfoBundleRepo bundleRepo, InfoCardRepo cardRepo, InfoRelicRepo relicRepo, InfoPotionRepo potionRepo, InfoCreatureRepo creatureRepo, MiniModRepo miniModRepo, EventRepo eventRepo) {
     this.repo = repo;
     this.bundleRepo = bundleRepo;
     this.cardRepo = cardRepo;
@@ -29,6 +33,7 @@ public class InfoService {
     this.potionRepo = potionRepo;
     this.creatureRepo = creatureRepo;
     this.miniModRepo = miniModRepo;
+    this.eventRepo = eventRepo;
   }
 
   public List<String> getCardNameFromId(String card_id, boolean duelist) {
@@ -74,6 +79,29 @@ public class InfoService {
 
   public List<InfoRelic> findAllRelics() {
     return relicRepo.findAll();
+  }
+
+  public String getAnubisVisits() { return this.eventRepo.getNumberOfVisits(); }
+
+  public Map<Integer, Double> getAnubisData() {
+    Map<Integer, Double> out = new HashMap<>();
+    List<String> choices = this.eventRepo.getScoringChoices();
+    if (choices.size() > 0) {
+      double totalScore = 0;
+      double average = 0;
+      for (String s : choices) {
+        String[] splice = s.split("Scored: ");
+        try {
+          int score = Integer.parseInt(splice[1]);
+          totalScore += score;
+        } catch (NumberFormatException ex) {
+          logger.info("Caught bad score! String attempting to parse: " + s);
+        }
+      }
+      average = totalScore > 0 ? totalScore / choices.size() : 0;
+      out.put(choices.size(), average);
+    }
+    return out;
   }
 
   public PickInfo findInfo(String deck, int asc, int chal) {

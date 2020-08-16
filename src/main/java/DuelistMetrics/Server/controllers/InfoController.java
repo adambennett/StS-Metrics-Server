@@ -156,6 +156,26 @@ public class InfoController {
         return new ResponseEntity<>(versions, HttpStatus.OK);
     }
 
+    @GetMapping("/anbuisScoreAverage")
+    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    public ResponseEntity<?> getAnubisScoreAverage() {
+        String visits = bundles.getAnubisVisits();
+        Integer totalVisits = 0;
+        try {
+            totalVisits = Integer.parseInt(visits);
+        } catch (NumberFormatException ex) {
+            logger.info("Issue parsing totalVisits! Attempted to parse string: " + visits);
+        }
+        Map<Integer, Double> anubisData = bundles.getAnubisData();
+        Map<String, Number> response = new HashMap<>();
+        for (Map.Entry<Integer, Double> entry : anubisData.entrySet()) {
+            response.put("scoredVisits", entry.getKey());
+            response.put("totalVisits", totalVisits);
+            response.put("averageScore", entry.getValue());
+        }
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
     @GetMapping("/modlist")
     @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
     public ResponseEntity<?> getAllMods() {

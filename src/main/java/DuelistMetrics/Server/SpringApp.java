@@ -16,7 +16,6 @@ public class SpringApp {
 		SpringApplication.run(SpringApp.class, args);
 		logger.info("SpringApp running...");
 		//LocalProccesor.runInitCommands();
-		//RunLogController.updateAllRunLogsWithCountryAndTime();
 		//logger.info("SpringApp finished with local commands. Running...");
 	}
 }
