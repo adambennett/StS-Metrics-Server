@@ -36,7 +36,17 @@ public class InfoService {
     this.eventRepo = eventRepo;
   }
 
-  public List<String> getCardNameFromId(String card_id, boolean duelist) {
+  public String getCardName(String card_id, boolean duelist) {
+    if (duelist) {
+      Long id = getMostRecentDuelistVersion();
+      List<String> out = this.cardRepo.getCardNameDuelist(card_id, id);
+      return out.size() > 0 ? out.get(0) : card_id;
+    }
+    List<String> out = this.cardRepo.getCardName(card_id);
+    return out.size() > 0 ? out.get(0) : card_id;
+  }
+
+  public List<String> getCardDataFromId(String card_id, boolean duelist) {
     if (duelist) {
       Long id = getMostRecentDuelistVersion();
       List<String> out = this.cardRepo.getCardDataDuelist(card_id, id);
@@ -59,6 +69,12 @@ public class InfoService {
   public Long getMostRecentDuelistVersion() {
     List<ModInfoBundle> duelistMods = bundleRepo.getModInfoBundlesByModNameEquals("Duelist Mod");
     return duelistMods.get(duelistMods.size() - 1).getInfo_bundle_id();
+  }
+
+  public void updateAllDuelistEvents(List<String> names) {
+    for (String event : names) {
+      this.eventRepo.updateDuelistEvents(event);
+    }
   }
 
   public List<MiniMod> getModListFromBundleId(Long id) { return this.miniModRepo.getByBundleId(id); }

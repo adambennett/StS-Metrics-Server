@@ -38,6 +38,7 @@ public class InfoCard {
     private Integer tributes;
     private Integer summons;
     private Integer entomb;
+    private Integer maxUpgrades;
 
     private Boolean isDuelistCard;
 
@@ -209,6 +210,10 @@ public class InfoCard {
     public String getNewLineText() { return newLineText; }
 
     public void setNewLineText(String newLineText) { this.newLineText = newLineText; }
+
+    public Integer getMaxUpgrades() { return maxUpgrades; }
+
+    public void setMaxUpgrades(Integer maxUpgrades) { this.maxUpgrades = maxUpgrades; }
 
     @Override
     public boolean equals(Object o) {

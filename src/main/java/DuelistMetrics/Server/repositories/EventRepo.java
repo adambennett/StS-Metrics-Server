@@ -16,4 +16,7 @@ public interface EventRepo extends JpaRepository<Event, Long> {
   @Query(value = "SELECT COUNT(*) FROM event WHERE event_name = 'Visit From Anubis'", nativeQuery = true)
   String getNumberOfVisits();
 
+  @Query(value = "UPDATE event SET duelist = true WHERE event_name = :event", nativeQuery = true)
+  void updateDuelistEvents(String event);
+
 }

@@ -4,21 +4,19 @@ import DuelistMetrics.Server.models.*;
 import DuelistMetrics.Server.models.builders.*;
 import DuelistMetrics.Server.models.infoModels.*;
 import DuelistMetrics.Server.services.*;
-import com.sun.org.apache.xpath.internal.operations.*;
 import org.springframework.beans.factory.annotation.*;
-import org.springframework.data.domain.*;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.*;
 
-import javax.validation.*;
 import java.lang.*;
 import java.lang.String;
-import java.net.*;
 import java.util.*;
+import java.util.logging.*;
 
 @RestController
 public class RunLogController {
+
+    private static final Logger logger = Logger.getLogger("DuelistMetrics.RunLogController");
 
     private static RunLogService bundles;
     private static BundleService realBundles; // temp delete this

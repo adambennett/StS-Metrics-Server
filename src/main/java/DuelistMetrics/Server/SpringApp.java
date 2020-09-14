@@ -15,6 +15,7 @@ public class SpringApp {
 	public static void main(String[] args) {
 		SpringApplication.run(SpringApp.class, args);
 		logger.info("SpringApp running...");
+		//InfoController.updateDuelistEvents();
 		//LocalProccesor.runInitCommands();
 		//logger.info("SpringApp finished with local commands. Running...");
 	}
