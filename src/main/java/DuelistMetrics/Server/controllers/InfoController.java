@@ -33,20 +33,6 @@ public class InfoController {
 
     public static InfoService getService() { return bundles; }
 
-    public static void updateDuelistEvents() {
-        List<String> names = new ArrayList<>();
-        names.add("Millennium Items");
-        names.add("Relic Duplicator");
-        names.add("Card Trader");
-        names.add("Visit from Anubis");
-        names.add("Aknamkanon's Tomb");
-        names.add("Tomb of the Nameless");
-        names.add("Nameless Tomb");
-        names.add("Battle City");
-        names.add("Egyptian Village");
-        bundles.updateAllDuelistEvents(names);
-    }
-
     @GetMapping("/cardLookup/{card}")
     @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
     public ResponseEntity<?> cardLookup(@PathVariable String card) {

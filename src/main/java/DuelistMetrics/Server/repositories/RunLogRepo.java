@@ -90,5 +90,8 @@ public interface RunLogRepo extends JpaRepository<RunLog, Long> {
   @Query(value = "SELECT DISTINCT rl.character_name FROM run_log rl", nativeQuery = true)
   List<String> getAllCharacters();
 
+  @Query(value = "SELECT filter_date, deck, character_name FROM run_log", nativeQuery = true)
+  List<String> getDataForPopularity();
+
 
 }

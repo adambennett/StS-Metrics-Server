@@ -261,4 +261,60 @@ public class RunLogController {
       if (nonDuelist != null) { output.add(nonDuelist); }
       return output;
     }
+
+    @GetMapping("/deckPopularity")
+    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    public static ResponseEntity<?> getDeckPopularity(){
+        List<String> data = bundles.getDataForPopularity();
+        Map<String, Integer> amts = new HashMap<>();
+        Map<String, DeckPopularityBuilder> builders = new HashMap<>();
+        List<DeckPopularity> out = new ArrayList<>();
+        for (String s : data) {
+            String[] splice = s.split(",");
+            String date = splice[0];
+            String year = date.substring(0, 4);
+            int currentYear = Calendar.getInstance().get(Calendar.YEAR);
+            if (Integer.parseInt(year) <= currentYear + 1) {
+                String month = date.substring(4, 6);
+                String deck = splice[1];
+                String character = splice[2];
+                String deckKey = deck + "-" + month + "-" + year;
+                String charKey = character + "-" + month + "-" + year;
+                if (!(deck.equals("NotYugi")) && amts.containsKey(deckKey)) {
+                    amts.put(deckKey, amts.get(deckKey) + 1);
+                    DeckPopularityBuilder builder = builders.get(deckKey);
+                    builder.setAmount(builder.getAmount() + 1);
+                } else if (amts.containsKey(charKey)) {
+                    amts.put(charKey, amts.get(charKey) + 1);
+                    DeckPopularityBuilder builder = builders.get(charKey);
+                    builder.setAmount(builder.getAmount() + 1);
+                } else {
+                    if (deck.equals("NotYugi")) {
+                        amts.put(charKey, 1);
+                    } else {
+                        amts.put(deckKey, 1);
+                    }
+                    DeckPopularityBuilder pop = new DeckPopularityBuilder()
+                            .setCharacter(character)
+                            .setDeck(deck)
+                            .setMonth(Integer.parseInt(month))
+                            .setYear(Integer.parseInt(year))
+                            .setAmount(1);
+                    if (deck.equals("NotYugi")) {
+                        pop.setIsDuelist(false);
+                        builders.put(charKey, pop);
+                    } else {
+                        pop.setIsDuelist(true);
+                        builders.put(deckKey, pop);
+                    }
+                }
+            }
+        }
+
+        for (Map.Entry<String, DeckPopularityBuilder> entry : builders.entrySet()) {
+            out.add(entry.getValue().createDeckPopularity());
+        }
+        Collections.sort(out);
+        return new ResponseEntity<>(out, HttpStatus.OK);
+    }
 }
