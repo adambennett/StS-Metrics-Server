@@ -1,0 +1,748 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="BranchesTreeState">
+    <expand>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+    </expand>
+    <select />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="9af24f8c-45cb-4445-9116-870f5315a5f1" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ChangesViewManager">
+    <option name="groupingKeys">
+      <option value="directory" />
+    </option>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Interface" />
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="master" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitToolBoxStore">
+    <option name="projectConfigVersion" value="2" />
+    <option name="recentBranches">
+      <RecentBranches>
+        <option name="branchesForRepo">
+          <list>
+            <RecentBranchesForRepo>
+              <option name="branches">
+                <list>
+                  <RecentBranch>
+                    <option name="branchName" value="dev" />
+                    <option name="lastUsedInstant" value="1596343327" />
+                  </RecentBranch>
+                  <RecentBranch>
+                    <option name="branchName" value="master" />
+                    <option name="lastUsedInstant" value="1596343242" />
+                  </RecentBranch>
+                </list>
+              </option>
+              <option name="repositoryRootUrl" value="file://$PROJECT_DIR$" />
+            </RecentBranchesForRepo>
+          </list>
+        </option>
+      </RecentBranches>
+    </option>
+  </component>
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="mavenHome" value="C:\Users\eX_Di\.m2\wrapper\dists\apache-maven-3.6.3-bin\1iopthnavndlasol9gbrbg6bf2\apache-maven-3.6.3" />
+      </MavenGeneralSettings>
+    </option>
+  </component>
+  <component name="ProjectId" id="1aCGfHzTUEErqOqIlIElUh0JgXM" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
+    <property name="ASKED_SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="DatabaseDriversLRU" value="mysql" />
+    <property name="RequestMappingsPanelOrder0" value="0" />
+    <property name="RequestMappingsPanelOrder1" value="1" />
+    <property name="RequestMappingsPanelWidth0" value="75" />
+    <property name="RequestMappingsPanelWidth1" value="75" />
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="TERMINAL_CUSTOM_COMMANDS_GOT_IT" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="aspect.path.notification.shown" value="true" />
+    <property name="extract.method.default.visibility" value="private" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../fullStackBlog-site" />
+    <property name="node.js.detected.package.eslint" value="true" />
+    <property name="node.js.detected.package.tslint" value="true" />
+    <property name="node.js.path.for.package.eslint" value="project" />
+    <property name="node.js.path.for.package.tslint" value="project" />
+    <property name="node.js.selected.package.eslint" value="(autodetect)" />
+    <property name="node.js.selected.package.tslint" value="(autodetect)" />
+    <property name="nodejs.protractor.protractor_package" value="$PROJECT_DIR$/node_modules/protractor" />
+    <property name="nodejs_package_manager_path" value="npm" />
+    <property name="project.structure.last.edited" value="Facets" />
+    <property name="project.structure.proportion" value="0.0" />
+    <property name="project.structure.side.proportion" value="0.2" />
+    <property name="restartRequiresConfirmation" value="false" />
+    <property name="settings.editor.selected.configurable" value="configurable.group.tools" />
+    <property name="ts.external.directory.path" value="C:\Users\eX_Di\git\StS-Metrics-Server\node_modules\typescript\lib" />
+    <property name="vue.rearranger.settings.migration" value="true" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\eX_Di\git\StS-Metrics-Server\src\app\services\bundleservice" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\eX_Di\git\StS-Metrics-Server\src\main\resources\toBeProcessed" />
+      <recent name="C:\Users\eX_Di\git\StS-Metrics-Server\src\main\resources\runs" />
+      <recent name="C:\Users\eX_Di\git\StS-Metrics-Server\src\main\resources\processed" />
+      <recent name="C:\Users\eX_Di\git\StS-Metrics-Server\src\app\deckpages\relics" />
+      <recent name="C:\Users\eX_Di\git\StS-Metrics-Server\src\app\deckpages\potions" />
+    </key>
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="DuelistMetrics.Server.repositories" />
+      <recent name="DuelistMetrics.Server.models.infoModels" />
+      <recent name="DuelistMetrics.Server.models" />
+      <recent name="DuelistMetrics.Server.controllers" />
+      <recent name="DuelistMetrics.Server.services" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Spring Boot.Metrics Server">
+    <configuration name="BundleProcessor" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="DuelistMetrics.Server.models.BundleProcessor" />
+      <module name="StS-Metrics-Server" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="DuelistMetrics.Server.models.builders.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="tempMain" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="DuelistMetrics.Server.services.tempMain" />
+      <module name="StS-Metrics-Server" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="DuelistMetrics.Server.services.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="ArquillianJUnit" factoryName="" nameIsGenerated="true">
+      <option name="arquillianRunConfiguration">
+        <value>
+          <option name="containerStateName" value="" />
+        </value>
+      </option>
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Build" type="MavenRunConfiguration" factoryName="Maven">
+      <MavenSettings>
+        <option name="myGeneralSettings" />
+        <option name="myRunnerSettings" />
+        <option name="myRunnerParameters">
+          <MavenRunnerParameters>
+            <option name="profiles">
+              <set />
+            </option>
+            <option name="goals">
+              <list>
+                <option value="clean" />
+                <option value="install" />
+                <option value="-T" />
+                <option value="8C" />
+              </list>
+            </option>
+            <option name="pomFileName" />
+            <option name="profilesMap">
+              <map />
+            </option>
+            <option name="resolveToWorkspace" value="false" />
+            <option name="workingDirPath" value="$PROJECT_DIR$" />
+          </MavenRunnerParameters>
+        </option>
+      </MavenSettings>
+      <method v="2" />
+    </configuration>
+    <configuration name="Metrics Server" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+      <module name="StS-Metrics-Server" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="DuelistMetrics.Server.SpringApp" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="Application.BundleProcessor" />
+      <item itemvalue="Application.tempMain" />
+      <item itemvalue="Maven.Build" />
+      <item itemvalue="Spring Boot.Metrics Server" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Application.tempMain" />
+        <item itemvalue="Application.BundleProcessor" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="9af24f8c-45cb-4445-9116-870f5315a5f1" name="Default Changelist" comment="" />
+      <created>1586232263132</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1586232263132</updated>
+      <workItem from="1586232264338" duration="11038000" />
+      <workItem from="1586244512440" duration="534000" />
+      <workItem from="1586271562179" duration="33604000" />
+      <workItem from="1586323818100" duration="22407000" />
+      <workItem from="1586384529361" duration="2881000" />
+      <workItem from="1586387518924" duration="4466000" />
+      <workItem from="1586392916289" duration="925000" />
+      <workItem from="1586393926611" duration="3812000" />
+      <workItem from="1586402751845" duration="11264000" />
+      <workItem from="1586439952673" duration="12666000" />
+      <workItem from="1586467312907" duration="377000" />
+      <workItem from="1586467767870" duration="3852000" />
+      <workItem from="1586483505794" duration="30000" />
+      <workItem from="1586483686803" duration="3507000" />
+      <workItem from="1586489234713" duration="24000" />
+      <workItem from="1586489430643" duration="8972000" />
+      <workItem from="1586542026586" duration="10176000" />
+      <workItem from="1586552916045" duration="10446000" />
+      <workItem from="1586569925426" duration="3113000" />
+      <workItem from="1586575764654" duration="2541000" />
+      <workItem from="1586623812170" duration="2245000" />
+      <workItem from="1586628572087" duration="208000" />
+      <workItem from="1586635673223" duration="8035000" />
+      <workItem from="1586654882254" duration="12000" />
+      <workItem from="1586655137740" duration="209000" />
+      <workItem from="1586655519289" duration="41371000" />
+      <workItem from="1586899624221" duration="2655000" />
+      <workItem from="1586916826700" duration="778000" />
+      <workItem from="1586918120055" duration="25000" />
+      <workItem from="1586918234495" duration="686000" />
+      <workItem from="1586922791439" duration="1210000" />
+      <workItem from="1586964037578" duration="1330000" />
+      <workItem from="1587316108258" duration="1203000" />
+      <workItem from="1587833135003" duration="8166000" />
+      <workItem from="1587855517155" duration="1000" />
+      <workItem from="1587855771506" duration="11676000" />
+      <workItem from="1588127200320" duration="908000" />
+      <workItem from="1588274728284" duration="2538000" />
+      <workItem from="1588320148326" duration="680000" />
+      <workItem from="1588563568318" duration="544000" />
+      <workItem from="1589065191558" duration="160000" />
+      <workItem from="1589065961864" duration="16265000" />
+      <workItem from="1589131195571" duration="7340000" />
+      <workItem from="1589415931182" duration="42324000" />
+      <workItem from="1589735330156" duration="15899000" />
+      <workItem from="1589911524544" duration="9568000" />
+      <workItem from="1590094056820" duration="15073000" />
+      <workItem from="1590264658346" duration="25112000" />
+      <workItem from="1592368799656" duration="425000" />
+      <workItem from="1595212542149" duration="14299000" />
+      <workItem from="1595455997518" duration="2259000" />
+      <workItem from="1595547426156" duration="2483000" />
+      <workItem from="1595683138842" duration="29607000" />
+      <workItem from="1595767128328" duration="11644000" />
+      <workItem from="1595886998241" duration="16826000" />
+      <workItem from="1596063820559" duration="607000" />
+      <workItem from="1596146014391" duration="98000" />
+      <workItem from="1596146225036" duration="110000" />
+      <workItem from="1596146353584" duration="8560000" />
+      <workItem from="1596293718982" duration="21240000" />
+      <workItem from="1597520455664" duration="1679000" />
+      <workItem from="1597586678207" duration="601000" />
+      <workItem from="1597610613402" duration="1940000" />
+      <workItem from="1597631819355" duration="4348000" />
+      <workItem from="1597848777320" duration="84000" />
+      <workItem from="1598108520207" duration="3443000" />
+      <workItem from="1599014855982" duration="1329000" />
+      <workItem from="1599327813652" duration="3325000" />
+      <workItem from="1599406855042" duration="46000" />
+      <workItem from="1599407032373" duration="53815000" />
+      <workItem from="1600009219119" duration="3465000" />
+      <workItem from="1600210081765" duration="1201000" />
+      <workItem from="1600811596533" duration="628000" />
+      <workItem from="1601153086060" duration="23000" />
+      <workItem from="1601153324906" duration="2821000" />
+      <workItem from="1601420248090" duration="21148000" />
+      <workItem from="1601844661938" duration="8901000" />
+      <workItem from="1602423984963" duration="1655000" />
+      <workItem from="1602425682475" duration="77000" />
+      <workItem from="1602425785412" duration="7229000" />
+    </task>
+    <task id="LOCAL-00015" summary="whoops">
+      <created>1586824030500</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1586824030501</updated>
+    </task>
+    <task id="LOCAL-00016" summary="switched to https">
+      <created>1586824528896</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1586824528896</updated>
+    </task>
+    <task id="LOCAL-00017" summary="fixed ssl?">
+      <created>1586827455936</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1586827455936</updated>
+    </task>
+    <task id="LOCAL-00018" summary="implemented relic/potion/neow lists">
+      <created>1586901753291</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1586901753291</updated>
+    </task>
+    <task id="LOCAL-00019" summary="added time formatting logic for run list">
+      <created>1587854428725</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1587854428725</updated>
+    </task>
+    <task id="LOCAL-00020" summary="fixed 2 digit day in timestamp">
+      <created>1588320194344</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1588320194344</updated>
+    </task>
+    <task id="LOCAL-00021" summary="fixed all deck compare page not working">
+      <created>1588564092478</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1588564092478</updated>
+    </task>
+    <task id="LOCAL-00022" summary="fixed all deck compare page not working">
+      <created>1589093369014</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1589093369014</updated>
+    </task>
+    <task id="LOCAL-00023" summary="info uploads working properly for all game objects">
+      <created>1589496231641</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1589496231641</updated>
+    </task>
+    <task id="LOCAL-00024" summary="updated with name processing for all objects">
+      <created>1589497685409</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1589497685409</updated>
+    </task>
+    <task id="LOCAL-00025" summary="changed order of logging for easier readability">
+      <created>1589497936875</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1589497936875</updated>
+    </task>
+    <task id="LOCAL-00026" summary="some cleanup, supporting other mods and characters, tracking mods with runs">
+      <created>1589746580169</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1589746580169</updated>
+    </task>
+    <task id="LOCAL-00027" summary="fixes for new endpoints">
+      <created>1590092364673</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1590092364673</updated>
+    </task>
+    <task id="LOCAL-00028" summary="final master push fixes">
+      <created>1590093275606</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1590093275606</updated>
+    </task>
+    <task id="LOCAL-00029" summary="switched run endpoint back">
+      <created>1590093417547</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1590093417547</updated>
+    </task>
+    <task id="LOCAL-00030" summary="switched run endpoint back again">
+      <created>1590093611936</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1590093611936</updated>
+    </task>
+    <task id="LOCAL-00031" summary="removed LocalProcessor method call">
+      <created>1590093668319</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1590093668319</updated>
+    </task>
+    <task id="LOCAL-00032" summary="bandaid fix for deck-compare page">
+      <created>1590118632795</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1590118632796</updated>
+    </task>
+    <task id="LOCAL-00033" summary="fixed columns on compare page not init correctly">
+      <created>1590118882510</created>
+      <option name="number" value="00033" />
+      <option name="presentableId" value="LOCAL-00033" />
+      <option name="project" value="LOCAL" />
+      <updated>1590118882510</updated>
+    </task>
+    <task id="LOCAL-00034" summary="updated monster killed by column with proper names">
+      <created>1590119665438</created>
+      <option name="number" value="00034" />
+      <option name="presentableId" value="LOCAL-00034" />
+      <option name="project" value="LOCAL" />
+      <updated>1590119665438</updated>
+    </task>
+    <task id="LOCAL-00035" summary="rolled back creature changes">
+      <created>1590120296934</created>
+      <option name="number" value="00035" />
+      <option name="presentableId" value="LOCAL-00035" />
+      <option name="project" value="LOCAL" />
+      <updated>1590120296934</updated>
+    </task>
+    <task id="LOCAL-00036" summary="some more late night changes (new bugs!)">
+      <created>1590121096490</created>
+      <option name="number" value="00036" />
+      <option name="presentableId" value="LOCAL-00036" />
+      <option name="project" value="LOCAL" />
+      <updated>1590121096490</updated>
+    </task>
+    <task id="LOCAL-00037" summary="some fixes">
+      <created>1590175666313</created>
+      <option name="number" value="00037" />
+      <option name="presentableId" value="LOCAL-00037" />
+      <option name="project" value="LOCAL" />
+      <updated>1590175666313</updated>
+    </task>
+    <task id="LOCAL-00038" summary="reordered all-compare page data">
+      <created>1590177348439</created>
+      <option name="number" value="00038" />
+      <option name="presentableId" value="LOCAL-00038" />
+      <option name="project" value="LOCAL" />
+      <updated>1590177348439</updated>
+    </task>
+    <task id="LOCAL-00039" summary="removed creature info processing for now to prevent GC crashes">
+      <created>1590255893429</created>
+      <option name="number" value="00039" />
+      <option name="presentableId" value="LOCAL-00039" />
+      <option name="project" value="LOCAL" />
+      <updated>1590255893429</updated>
+    </task>
+    <task id="LOCAL-00040" summary="removed ALL info processing for now to prevent GC crashes">
+      <created>1590256164246</created>
+      <option name="number" value="00040" />
+      <option name="presentableId" value="LOCAL-00040" />
+      <option name="project" value="LOCAL" />
+      <updated>1590256164246</updated>
+    </task>
+    <task id="LOCAL-00041" summary="real bandaid fixes here">
+      <created>1590263113501</created>
+      <option name="number" value="00041" />
+      <option name="presentableId" value="LOCAL-00041" />
+      <option name="project" value="LOCAL" />
+      <updated>1590263113501</updated>
+    </task>
+    <task id="LOCAL-00042" summary="fixed multi version mods not tracking properly">
+      <created>1590264041643</created>
+      <option name="number" value="00042" />
+      <option name="presentableId" value="LOCAL-00042" />
+      <option name="project" value="LOCAL" />
+      <updated>1590264041643</updated>
+    </task>
+    <task id="LOCAL-00043" summary="fixed neow pages">
+      <created>1590299654713</created>
+      <option name="number" value="00043" />
+      <option name="presentableId" value="LOCAL-00043" />
+      <option name="project" value="LOCAL" />
+      <updated>1590299654713</updated>
+    </task>
+    <task id="LOCAL-00044" summary="added country/language tracking to bundles">
+      <created>1590347928630</created>
+      <option name="number" value="00044" />
+      <option name="presentableId" value="LOCAL-00044" />
+      <option name="project" value="LOCAL" />
+      <updated>1590347928630</updated>
+    </task>
+    <task id="LOCAL-00045" summary="added endpoint for # of runs by country">
+      <created>1590389290048</created>
+      <option name="number" value="00045" />
+      <option name="presentableId" value="LOCAL-00045" />
+      <option name="project" value="LOCAL" />
+      <updated>1590389290048</updated>
+    </task>
+    <task id="LOCAL-00046" summary="fixed new endpoint">
+      <created>1590389424939</created>
+      <option name="number" value="00046" />
+      <option name="presentableId" value="LOCAL-00046" />
+      <option name="project" value="LOCAL" />
+      <updated>1590389424939</updated>
+    </task>
+    <task id="LOCAL-00047" summary="switched to treemap">
+      <created>1590389596999</created>
+      <option name="number" value="00047" />
+      <option name="presentableId" value="LOCAL-00047" />
+      <option name="project" value="LOCAL" />
+      <updated>1590389596999</updated>
+    </task>
+    <task id="LOCAL-00048" summary="now sorted treemap by value instead">
+      <created>1590389949340</created>
+      <option name="number" value="00048" />
+      <option name="presentableId" value="LOCAL-00048" />
+      <option name="project" value="LOCAL" />
+      <updated>1590389949340</updated>
+    </task>
+    <task id="LOCAL-00049" summary="fixed country ordering again">
+      <created>1590390778873</created>
+      <option name="number" value="00049" />
+      <option name="presentableId" value="LOCAL-00049" />
+      <option name="project" value="LOCAL" />
+      <updated>1590390778873</updated>
+    </task>
+    <task id="LOCAL-00050" summary="switched final country output to list for now">
+      <created>1590391088816</created>
+      <option name="number" value="00050" />
+      <option name="presentableId" value="LOCAL-00050" />
+      <option name="project" value="LOCAL" />
+      <updated>1590391088817</updated>
+    </task>
+    <task id="LOCAL-00051" summary="nah nvm, hot revert">
+      <created>1590391237530</created>
+      <option name="number" value="00051" />
+      <option name="presentableId" value="LOCAL-00051" />
+      <option name="project" value="LOCAL" />
+      <updated>1590391237530</updated>
+    </task>
+    <task id="LOCAL-00052" summary="Add new endpoints for non-duelist character run list">
+      <created>1595218109786</created>
+      <option name="number" value="00052" />
+      <option name="presentableId" value="LOCAL-00052" />
+      <option name="project" value="LOCAL" />
+      <updated>1595218109786</updated>
+    </task>
+    <task id="LOCAL-00053" summary="Updates for frontend changes">
+      <created>1595769098466</created>
+      <option name="number" value="00053" />
+      <option name="presentableId" value="LOCAL-00053" />
+      <option name="project" value="LOCAL" />
+      <updated>1595769098466</updated>
+    </task>
+    <task id="LOCAL-00054" summary="Properly add authors field to mod tracking objects">
+      <created>1595811792746</created>
+      <option name="number" value="00054" />
+      <option name="presentableId" value="LOCAL-00054" />
+      <option name="project" value="LOCAL" />
+      <updated>1595811792746</updated>
+    </task>
+    <task id="LOCAL-00055" summary="Super query guy">
+      <created>1595908996761</created>
+      <option name="number" value="00055" />
+      <option name="presentableId" value="LOCAL-00055" />
+      <option name="project" value="LOCAL" />
+      <updated>1595908996762</updated>
+    </task>
+    <task id="LOCAL-00056" summary="Implement card lookups">
+      <created>1596341884100</created>
+      <option name="number" value="00056" />
+      <option name="presentableId" value="LOCAL-00056" />
+      <option name="project" value="LOCAL" />
+      <updated>1596341884100</updated>
+    </task>
+    <task id="LOCAL-00057" summary="Add 'Visit From Anubis' average score endpoint">
+      <created>1597612164488</created>
+      <option name="number" value="00057" />
+      <option name="presentableId" value="LOCAL-00057" />
+      <option name="project" value="LOCAL" />
+      <updated>1597612164488</updated>
+    </task>
+    <task id="LOCAL-00058" summary="Better event processing, track max upgrades for each duelist card">
+      <created>1600044955128</created>
+      <option name="number" value="00058" />
+      <option name="presentableId" value="LOCAL-00058" />
+      <option name="project" value="LOCAL" />
+      <updated>1600044955129</updated>
+    </task>
+    <task id="LOCAL-00059" summary="Attempt to secure heroku deploy with config vars">
+      <created>1601153797386</created>
+      <option name="number" value="00059" />
+      <option name="presentableId" value="LOCAL-00059" />
+      <option name="project" value="LOCAL" />
+      <updated>1601153797387</updated>
+    </task>
+    <task id="LOCAL-00060" summary="Attempt to secure heroku deploy with config vars">
+      <created>1601154722400</created>
+      <option name="number" value="00060" />
+      <option name="presentableId" value="LOCAL-00060" />
+      <option name="project" value="LOCAL" />
+      <updated>1601154722400</updated>
+    </task>
+    <task id="LOCAL-00061" summary="Add endpoints and logic for querying deck popularity">
+      <created>1602424389032</created>
+      <option name="number" value="00061" />
+      <option name="presentableId" value="LOCAL-00061" />
+      <option name="project" value="LOCAL" />
+      <updated>1602424389033</updated>
+    </task>
+    <task id="LOCAL-00062" summary="Fix environment details">
+      <created>1602424419332</created>
+      <option name="number" value="00062" />
+      <option name="presentableId" value="LOCAL-00062" />
+      <option name="project" value="LOCAL" />
+      <updated>1602424419332</updated>
+    </task>
+    <task id="LOCAL-00063" summary="Fix clone-ability">
+      <created>1602542217817</created>
+      <option name="number" value="00063" />
+      <option name="presentableId" value="LOCAL-00063" />
+      <option name="project" value="LOCAL" />
+      <updated>1602542217818</updated>
+    </task>
+    <option name="localTasksCounter" value="64" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
+    <option name="CHECK_NEW_TODO" value="false" />
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+    <MESSAGE value="reordered all-compare page data" />
+    <MESSAGE value="removed creature info processing for now to prevent GC crashes" />
+    <MESSAGE value="removed ALL info processing for now to prevent GC crashes" />
+    <MESSAGE value="real bandaid fixes here" />
+    <MESSAGE value="fixed multi version mods not tracking properly" />
+    <MESSAGE value="fixed neow pages" />
+    <MESSAGE value="added country/language tracking to bundles" />
+    <MESSAGE value="added endpoint for # of runs by country" />
+    <MESSAGE value="fixed new endpoint" />
+    <MESSAGE value="switched to treemap" />
+    <MESSAGE value="now sorted treemap by value instead" />
+    <MESSAGE value="fixed country ordering again" />
+    <MESSAGE value="switched final country output to list for now" />
+    <MESSAGE value="nah nvm, hot revert" />
+    <MESSAGE value="Add new endpoints for non-duelist character run list" />
+    <MESSAGE value="Updates for frontend changes" />
+    <MESSAGE value="Properly add authors field to mod tracking objects" />
+    <MESSAGE value="Super query guy" />
+    <MESSAGE value="Implement card lookups" />
+    <MESSAGE value="Add 'Visit From Anubis' average score endpoint" />
+    <MESSAGE value="Better event processing, track max upgrades for each duelist card" />
+    <MESSAGE value="Attempt to secure heroku deploy with config vars" />
+    <MESSAGE value="Add endpoints and logic for querying deck popularity" />
+    <MESSAGE value="Fix environment details" />
+    <MESSAGE value="Fix clone-ability" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fix clone-ability" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/InfoController.java</url>
+          <line>42</line>
+          <option name="timeStamp" value="13" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/InfoController.java</url>
+          <line>49</line>
+          <option name="timeStamp" value="14" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/InfoController.java</url>
+          <line>109</line>
+          <option name="timeStamp" value="15" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/InfoController.java</url>
+          <line>133</line>
+          <option name="timeStamp" value="16" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+    <watches-manager>
+      <configuration name="SpringBootApplicationConfigurationType">
+        <watch expression="deckToKilledBy.get(deckName)" language="JAVA" />
+      </configuration>
+    </watches-manager>
+  </component>
+</project>
