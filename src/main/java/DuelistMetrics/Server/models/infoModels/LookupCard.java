@@ -22,10 +22,11 @@ public class LookupCard {
     private Integer tributes;
     private Integer summons;
     private Integer entomb;
+    private Integer maxUpgrades;
     private Boolean isDuelistCard;
     private List<String> pools;
 
-    public LookupCard(String card_id, String name, String color, String rarity, String type, String duelistType, String cost, String text, String newLineText, Integer block, Integer damage, Integer magicNumber, Integer secondMag, Integer thirdMag, Integer tributes, Integer summons, Integer entomb, Boolean isDuelistCard, List<String> pools) {
+    public LookupCard(String card_id, String name, String color, String rarity, String type, String duelistType, String cost, String text, String newLineText, Integer block, Integer damage, Integer magicNumber, Integer secondMag, Integer thirdMag, Integer tributes, Integer summons, Integer entomb, Boolean isDuelistCard, List<String> pools, Integer maxUpgrades) {
         this.card_id = card_id;
         this.name = name;
         this.color = color;
@@ -45,6 +46,7 @@ public class LookupCard {
         this.entomb = entomb;
         this.isDuelistCard = isDuelistCard;
         this.pools = pools;
+        this.maxUpgrades = maxUpgrades;
     }
 
     public String getCard_id() {
@@ -197,5 +199,13 @@ public class LookupCard {
 
     public void setNewLineText(String newLineText) {
         this.newLineText = newLineText;
+    }
+
+    public Integer getMaxUpgrades() {
+        return maxUpgrades;
+    }
+
+    public void setMaxUpgrades(Integer maxUpgrades) {
+        this.maxUpgrades = maxUpgrades;
     }
 }

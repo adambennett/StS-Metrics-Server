@@ -8,6 +8,7 @@ import DuelistMetrics.Server.services.*;
 import com.vdurmont.semver4j.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
+import org.springframework.scheduling.annotation.*;
 import org.springframework.web.bind.annotation.*;
 import java.util.*;
 import java.util.logging.*;
@@ -36,7 +37,8 @@ public class InfoController {
     @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
     public ResponseEntity<?> cardLookup(@PathVariable String card) {
         boolean duelist = card.startsWith("theDuelist:");
-        List<String> toParse = bundles.getCardNameFromId(card, duelist);
+        int magic = 17;
+        List<String> toParse = bundles.getCardDataFromId(card, duelist);
         List<String> cardProps;
         String[] splice = toParse.get(0).split(",");
         cardProps = new ArrayList<>(Arrays.asList(splice));
@@ -45,7 +47,7 @@ public class InfoController {
                 cardProps.add(toParse.get(i));
             }
         }
-        if (cardProps.size() > 16) {
+        if (cardProps.size() > magic) {
             LookupCardBuilder lookupCard = new LookupCardBuilder()
                     .setBlock(Integer.parseInt(cardProps.get(0)))
                     .setCard_id(cardProps.get(1))
@@ -63,11 +65,17 @@ public class InfoController {
                     .setThirdMag(Integer.parseInt(cardProps.get(13)))
                     .setTributes(Integer.parseInt(cardProps.get(14)))
                     .setType(cardProps.get(15));
+            try {
+                lookupCard.setMaxUpgrades(Integer.parseInt(cardProps.get(16)));
+            } catch (Exception ex) {
+                lookupCard.setMaxUpgrades(-1);
+                magic = cardProps.get(16).equals("null") ? 17 : 16;
+            }
             StringBuilder allText = new StringBuilder();
             StringBuilder nlText = new StringBuilder();
             if (duelist) {
                 List<String> pools = new ArrayList<>();
-                int i = 16;
+                int i = magic;
                 for (;!cardProps.get(i).equals("TEXT"); i++) {
                     pools.add(cardProps.get(i));
                 }
@@ -88,7 +96,7 @@ public class InfoController {
                     }
                 }
             } else {
-                for (int i = 16; i < cardProps.size(); i++) {
+                for (int i = magic; i < cardProps.size(); i++) {
                     allText.append(cardProps.get(i));
                     if (i + 1 < cardProps.size()) {
                         allText.append(",");
@@ -99,8 +107,8 @@ public class InfoController {
             lookupCard.setNewLineText(nlText.toString());
             LookupCard lookup = lookupCard.createLookupCard();
             return new ResponseEntity<>(lookup, HttpStatus.OK);
-        } else if (cardProps.size() == 16) {
-            LookupCard lookupCard = new LookupCardBuilder()
+        } else if (cardProps.size() == magic) {
+            LookupCardBuilder lookupCard = new LookupCardBuilder()
                     .setBlock(Integer.parseInt(cardProps.get(0)))
                     .setCard_id(cardProps.get(1))
                     .setColor(cardProps.get(2))
@@ -117,9 +125,13 @@ public class InfoController {
                     .setThirdMag(Integer.parseInt(cardProps.get(13)))
                     .setTributes(Integer.parseInt(cardProps.get(14)))
                     .setType(cardProps.get(15))
-                    .setText("No text found.")
-                    .createLookupCard();
-            return new ResponseEntity<>(lookupCard, HttpStatus.OK);
+                    .setText("No text found.");
+            try {
+                lookupCard.setMaxUpgrades(Integer.parseInt(cardProps.get(16)));
+            } catch (Exception ex) {
+                lookupCard.setMaxUpgrades(-1);
+            }
+            return new ResponseEntity<>(lookupCard.createLookupCard(), HttpStatus.OK);
         }
         return new ResponseEntity<>(cardProps, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -154,6 +166,26 @@ public class InfoController {
     public ResponseEntity<?> getTrackedVersions() {
         List<String> versions = bundles.getAllModuleVersions();
         return new ResponseEntity<>(versions, HttpStatus.OK);
+    }
+
+    @GetMapping("/anubisScoreAverage")
+    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    public ResponseEntity<?> getAnubisScoreAverage() {
+        String visits = bundles.getAnubisVisits();
+        Integer totalVisits = 0;
+        try {
+            totalVisits = Integer.parseInt(visits);
+        } catch (NumberFormatException ex) {
+            logger.info("Issue parsing totalVisits! Attempted to parse string: " + visits);
+        }
+        Map<Integer, Double> anubisData = bundles.getAnubisData();
+        Map<String, Number> response = new HashMap<>();
+        for (Map.Entry<Integer, Double> entry : anubisData.entrySet()) {
+            response.put("scoredVisits", entry.getKey());
+            response.put("totalVisits", totalVisits);
+            response.put("averageScore", entry.getValue());
+        }
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/modlist")

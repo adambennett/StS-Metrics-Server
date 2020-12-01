@@ -50,4 +50,14 @@ public class TopBundle {
     public void setTime(BigInteger time) {
       this.time = time;
     }
+
+    @Override
+    public String toString() {
+        return "TopBundle{" +
+                "top_id=" + top_id +
+                ", host='" + host + '\'' +
+                ", time=" + time +
+                ", event=" + event +
+                '}';
+    }
 }

@@ -7,15 +7,9 @@ import DuelistMetrics.Server.repositories.*;
 import DuelistMetrics.Server.services.*;
 import DuelistMetrics.Server.util.*;
 import org.springframework.beans.factory.annotation.*;
-import org.springframework.data.domain.*;
-import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.*;
 
-import javax.validation.*;
-import java.net.*;
 import java.util.*;
-import java.util.logging.*;
 
 @RestController
 public class CardController {
@@ -76,6 +70,7 @@ public class CardController {
       double power = 0.0;
       if (pick - pickV > 0) { power = (double)pickV/(pick - pickV); }
       DisplayCard ca = new DisplayCardBuilder()
+        .setCardID(name)
         .setUuid(name)
         .setOffered(off)
         .setPicked(pick)

@@ -38,6 +38,8 @@ public class RunLogService {
 
   public Optional<RunLog> findById(long infoID) { return this.repo.findById(infoID); }
 
+  public List<String> getDataForPopularity() { return this.repo.getDataForPopularity(); }
+
   public Optional<Long> getA20WinsAll() { return this.repo.getA20WinsAll(); }
   public Long getA20RunsAll() { return this.repo.getA20RunsAll(); }
   public Long getC20WinsAll() { return this.repo.getC20WinsAll(); }

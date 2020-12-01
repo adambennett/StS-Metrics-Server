@@ -22,6 +22,7 @@ public class LookupCardBuilder {
     private Integer tributes;
     private Integer summons;
     private Integer entomb;
+    private Integer maxUpgrades;
     private Boolean isDuelistCard;
     private List<String> pools;
 
@@ -120,7 +121,12 @@ public class LookupCardBuilder {
         return this;
     }
 
+    public LookupCardBuilder setMaxUpgrades(int maxUpgrades) {
+        this.maxUpgrades = maxUpgrades;
+        return this;
+    }
+
     public LookupCard createLookupCard() {
-        return new LookupCard(card_id, name, color, rarity, type, duelistType, cost, text, newLineText, block, damage, magicNumber, secondMag, thirdMag, tributes, summons, entomb, isDuelistCard, pools);
+        return new LookupCard(card_id, name, color, rarity, type, duelistType, cost, text, newLineText, block, damage, magicNumber, secondMag, thirdMag, tributes, summons, entomb, isDuelistCard, pools, maxUpgrades);
     }
 }

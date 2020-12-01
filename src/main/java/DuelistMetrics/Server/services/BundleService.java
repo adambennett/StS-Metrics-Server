@@ -34,6 +34,8 @@ public class BundleService {
     return innerRepo.getCountries();
   }
 
+  public List<TopBundle> getMostRecentRuns(int amt) { return repo.getMostRecentRuns(amt); }
+
   public TreeMap<String, Integer> getCountryCounts() {
     List<String> query = innerRepo.getCountryCounts();
     TreeMap<String, Integer> out = new TreeMap<>();

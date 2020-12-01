@@ -4,21 +4,19 @@ import DuelistMetrics.Server.models.*;
 import DuelistMetrics.Server.models.builders.*;
 import DuelistMetrics.Server.models.infoModels.*;
 import DuelistMetrics.Server.services.*;
-import com.sun.org.apache.xpath.internal.operations.*;
 import org.springframework.beans.factory.annotation.*;
-import org.springframework.data.domain.*;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.*;
 
-import javax.validation.*;
 import java.lang.*;
 import java.lang.String;
-import java.net.*;
 import java.util.*;
+import java.util.logging.*;
 
 @RestController
 public class RunLogController {
+
+    private static final Logger logger = Logger.getLogger("DuelistMetrics.RunLogController");
 
     private static RunLogService bundles;
     private static BundleService realBundles; // temp delete this
@@ -262,5 +260,61 @@ public class RunLogController {
       output.add(0, allDeck);
       if (nonDuelist != null) { output.add(nonDuelist); }
       return output;
+    }
+
+    @GetMapping("/deckPopularity")
+    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    public static ResponseEntity<?> getDeckPopularity(){
+        List<String> data = bundles.getDataForPopularity();
+        Map<String, Integer> amts = new HashMap<>();
+        Map<String, DeckPopularityBuilder> builders = new HashMap<>();
+        List<DeckPopularity> out = new ArrayList<>();
+        for (String s : data) {
+            String[] splice = s.split(",");
+            String date = splice[0];
+            String year = date.substring(0, 4);
+            int currentYear = Calendar.getInstance().get(Calendar.YEAR);
+            if (Integer.parseInt(year) <= currentYear + 1) {
+                String month = date.substring(4, 6);
+                String deck = splice[1];
+                String character = splice[2];
+                String deckKey = deck + "-" + month + "-" + year;
+                String charKey = character + "-" + month + "-" + year;
+                if (!(deck.equals("NotYugi")) && amts.containsKey(deckKey)) {
+                    amts.put(deckKey, amts.get(deckKey) + 1);
+                    DeckPopularityBuilder builder = builders.get(deckKey);
+                    builder.setAmount(builder.getAmount() + 1);
+                } else if (amts.containsKey(charKey)) {
+                    amts.put(charKey, amts.get(charKey) + 1);
+                    DeckPopularityBuilder builder = builders.get(charKey);
+                    builder.setAmount(builder.getAmount() + 1);
+                } else {
+                    if (deck.equals("NotYugi")) {
+                        amts.put(charKey, 1);
+                    } else {
+                        amts.put(deckKey, 1);
+                    }
+                    DeckPopularityBuilder pop = new DeckPopularityBuilder()
+                            .setCharacter(character)
+                            .setDeck(deck)
+                            .setMonth(Integer.parseInt(month))
+                            .setYear(Integer.parseInt(year))
+                            .setAmount(1);
+                    if (deck.equals("NotYugi")) {
+                        pop.setIsDuelist(false);
+                        builders.put(charKey, pop);
+                    } else {
+                        pop.setIsDuelist(true);
+                        builders.put(deckKey, pop);
+                    }
+                }
+            }
+        }
+
+        for (Map.Entry<String, DeckPopularityBuilder> entry : builders.entrySet()) {
+            out.add(entry.getValue().createDeckPopularity());
+        }
+        Collections.sort(out);
+        return new ResponseEntity<>(out, HttpStatus.OK);
     }
 }

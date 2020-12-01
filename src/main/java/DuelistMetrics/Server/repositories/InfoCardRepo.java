@@ -9,11 +9,17 @@ import java.util.*;
 @Repository
 public interface InfoCardRepo extends JpaRepository<InfoCard, Long> {
 
-    @Query(value = "SELECT DISTINCT block,card_id,color,cost,damage,duelist_type,entomb,is_duelist_card,magic_number,name,rarity,second_mag,summons,third_mag,tributes,type,text FROM info_card WHERE card_id = :id", nativeQuery = true)
+    @Query(value = "SELECT DISTINCT block,card_id,color,cost,damage,duelist_type,entomb,is_duelist_card,magic_number,name,rarity,second_mag,summons,third_mag,tributes,type,max_upgrades, text FROM info_card WHERE card_id = :id", nativeQuery = true)
     List<String> getCardData(String id);
 
-    @Query(value = "SELECT DISTINCT block,card_id,color,cost,damage,duelist_type,entomb,is_duelist_card,magic_number,name,rarity,second_mag,summons,third_mag,tributes,type FROM info_card WHERE card_id = :id AND info_info_bundle_id = :bundle_id", nativeQuery = true)
+    @Query(value = "SELECT DISTINCT block,card_id,color,cost,damage,duelist_type,entomb,is_duelist_card,magic_number,name,rarity,second_mag,summons,third_mag,tributes,type,max_upgrades FROM info_card WHERE card_id = :id AND info_info_bundle_id = :bundle_id", nativeQuery = true)
     List<String> getCardDataDuelist(String id, Long bundle_id);
+
+    @Query(value = "SELECT name FROM info_card WHERE card_id = :id", nativeQuery = true)
+    List<String> getCardName(String id);
+
+    @Query(value = "SELECT name FROM info_card WHERE card_id = :id AND info_info_bundle_id = :bundle_id", nativeQuery = true)
+    List<String> getCardNameDuelist(String id, Long bundle_id);
 
     @Query(value = "SELECT DISTINCT text FROM info_card WHERE card_id = :id AND info_info_bundle_id = :bundle_id LIMIT 1", nativeQuery = true)
     String getCardTextByIdDuelist(String id, Long bundle_id);

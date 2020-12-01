@@ -925,6 +925,89 @@ public class Bundle {
     this.challenge_level = challenge_level;
   }
 
-
-
+  @Override
+  public String toString() {
+    return "Bundle{" +
+            "top_id=" + top_id +
+            ", top=" + top +
+            ", build_version='" + build_version + '\'' +
+            ", character_chosen='" + character_chosen + '\'' +
+            ", duelistmod_version='" + duelistmod_version + '\'' +
+            ", killed_by='" + killed_by + '\'' +
+            ", local_time='" + local_time + '\'' +
+            ", neow_bonus='" + neow_bonus + '\'' +
+            ", neow_cost='" + neow_cost + '\'' +
+            ", play_id='" + play_id + '\'' +
+            ", pool_fill='" + pool_fill + '\'' +
+            ", seed_played='" + seed_played + '\'' +
+            ", starting_deck='" + starting_deck + '\'' +
+            ", country='" + country + '\'' +
+            ", lang='" + lang + '\'' +
+            ", add_base_game_cards=" + add_base_game_cards +
+            ", allow_boosters=" + allow_boosters +
+            ", always_boosters=" + always_boosters +
+            ", bonus_puzzle_summons=" + bonus_puzzle_summons +
+            ", challenge_mode=" + challenge_mode +
+            ", chose_seed=" + chose_seed +
+            ", customized_card_pool=" + customized_card_pool +
+            ", duelist_curses=" + duelist_curses +
+            ", encounter_duelist_enemies=" + encounter_duelist_enemies +
+            ", is_ascension_mode=" + is_ascension_mode +
+            ", is_beta=" + is_beta +
+            ", is_daily=" + is_daily +
+            ", is_endless=" + is_endless +
+            ", is_prod=" + is_prod +
+            ", is_trial=" + is_trial +
+            ", playing_as_kaiba=" + playing_as_kaiba +
+            ", reduced_basic=" + reduced_basic +
+            ", remove_card_rewards=" + remove_card_rewards +
+            ", remove_creator=" + remove_creator +
+            ", remove_exodia=" + remove_exodia +
+            ", remove_ojama=" + remove_ojama +
+            ", remove_toons=" + remove_toons +
+            ", unlock_all_decks=" + unlock_all_decks +
+            ", victory=" + victory +
+            ", ascension_level=" + ascension_level +
+            ", campfire_rested=" + campfire_rested +
+            ", campfire_upgraded=" + campfire_upgraded +
+            ", challenge_level=" + challenge_level +
+            ", circlet_count=" + circlet_count +
+            ", floor_reached=" + floor_reached +
+            ", gold=" + gold +
+            ", highest_max_summons=" + highest_max_summons +
+            ", number_of_monsters=" + number_of_monsters +
+            ", number_of_resummons=" + number_of_resummons +
+            ", number_of_spells=" + number_of_spells +
+            ", number_of_traps=" + number_of_traps +
+            ", playtime=" + playtime +
+            ", purchased_purges=" + purchased_purges +
+            ", score=" + score +
+            ", total_synergy_tributes=" + total_synergy_tributes +
+            ", win_rate=" + win_rate +
+            ", player_experience=" + player_experience +
+            ", seed_source_timestamp=" + seed_source_timestamp +
+            ", timestamp=" + timestamp +
+            ", current_hp_per_floor=" + current_hp_per_floor +
+            ", gold_per_floor=" + gold_per_floor +
+            ", item_purchase_floors=" + item_purchase_floors +
+            ", items_purged_floors=" + items_purged_floors +
+            ", max_hp_per_floor=" + max_hp_per_floor +
+            ", potions_floor_spawned=" + potions_floor_spawned +
+            ", potions_floor_usage=" + potions_floor_usage +
+            ", items_purchased=" + items_purchased +
+            ", items_purged=" + items_purged +
+            ", master_deck=" + master_deck +
+            ", path_per_floor=" + path_per_floor +
+            ", path_taken=" + path_taken +
+            ", relics=" + relics +
+            ", modList=" + modList +
+            ", boss_relics=" + boss_relics +
+            ", event_choices=" + event_choices +
+            ", card_choices=" + card_choices +
+            ", potions_obtained=" + potions_obtained +
+            ", relics_obtained=" + relics_obtained +
+            ", campfire_choices=" + campfire_choices +
+            ", damage_taken=" + damage_taken +
+            '}';
+  }
 }
