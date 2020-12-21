@@ -1,13 +1,12 @@
 package DuelistMetrics.Server;
 
-import DuelistMetrics.Server.controllers.*;
-import DuelistMetrics.Server.util.*;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-
+import org.springframework.scheduling.annotation.*;
 import java.util.logging.*;
 
 @SpringBootApplication
+@EnableScheduling
 public class SpringApp {
 
 	private static final Logger logger = Logger.getLogger("DuelistMetrics.Server.SpringApp");

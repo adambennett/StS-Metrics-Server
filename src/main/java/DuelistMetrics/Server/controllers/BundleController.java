@@ -3,17 +3,23 @@ package DuelistMetrics.Server.controllers;
 import DuelistMetrics.Server.models.*;
 import DuelistMetrics.Server.models.infoModels.*;
 import DuelistMetrics.Server.services.*;
+import DuelistMetrics.Server.util.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
+import org.springframework.scheduling.annotation.*;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.*;
 import java.util.*;
+import java.util.logging.*;
 
 @RestController
 public class BundleController {
 
     private static BundleService bundles;
     private static InfoService info;
+
+    private static final Logger logger = Logger.getLogger("DuelistMetrics.Server.BundleController");
 
     @Autowired
     public BundleController(BundleService service, InfoService inf) { bundles = service; info = inf; }

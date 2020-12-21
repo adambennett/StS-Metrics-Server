@@ -15,4 +15,7 @@ public interface BundleRepo extends JpaRepository<Bundle, Long> {
     @Query(value = "SELECT country FROM bundle WHERE country IS NOT NULL GROUP BY country", nativeQuery = true)
     List<String> getCountries();
 
+    @Query(value = "SELECT top_id, victory, sc.picked, sc.floor, starting_deck FROM bundle JOIN spire_card sc on bundle.top_id = sc.bundle_top_id WHERE starting_deck = :deck AND sc.floor < 51", nativeQuery = true)
+    List<String> getBundlesForTierScores(String deck);
+
 }

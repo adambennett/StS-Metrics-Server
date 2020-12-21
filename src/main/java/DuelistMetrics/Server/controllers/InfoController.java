@@ -4,12 +4,16 @@ package DuelistMetrics.Server.controllers;
 import DuelistMetrics.Server.models.*;
 import DuelistMetrics.Server.models.builders.*;
 import DuelistMetrics.Server.models.infoModels.*;
+import DuelistMetrics.Server.models.tierScore.*;
 import DuelistMetrics.Server.services.*;
+import DuelistMetrics.Server.util.*;
 import com.vdurmont.semver4j.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
 import org.springframework.scheduling.annotation.*;
 import org.springframework.web.bind.annotation.*;
+
+import java.text.*;
 import java.util.*;
 import java.util.logging.*;
 
@@ -19,6 +23,7 @@ public class InfoController {
     private static final Logger logger = Logger.getLogger("DuelistMetrics.Server.InfoController");
 
     private static InfoService bundles;
+    private static BundleService bundleService;
     private static Map<String, InfoCard> cardData;
     private static Map<String, InfoRelic> relicData;
     private static Map<String, InfoPotion> potionData;
@@ -26,8 +31,9 @@ public class InfoController {
 
 
     @Autowired
-    public InfoController(InfoService service) {
+    public InfoController(InfoService service, BundleService bnd) {
         bundles = service;
+        bundleService = bnd;
         fillAllData();
     }
 
@@ -323,5 +329,150 @@ public class InfoController {
             } catch (SemverException ignored) {}
         }
         return inMap;
+    }
+
+    public Map<String,Map<String, String>> getTrackedCardsForTierScores() {
+        return bundles.getTrackedCardsForTierScores();
+    }
+
+   // @Scheduled(fixedDelay = 1000, initialDelay = 3000)
+    @GetMapping("/testTierScoreBundles")
+    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    public ResponseEntity<?> testScheduling() {
+        try {
+            // this is for output (right before formatting)
+            //  (Pool)     (CardId)    (Floor)
+            Map<String, Map<String, Map<Integer, TierDataHolder>>> dataMap = new HashMap<>();
+
+            // this is formatted output
+            //  (Deck)
+            Map<String, List<TierDataHolder>> output = new HashMap<>();
+
+            // scored output?
+            //  (Pool)
+            Map<String, List<ScoredCard>> scoredOutput = new HashMap<>();
+
+            // which cards we care about scoring
+            //  (Pool)      (CardId)
+            Map<String, Map<String, String>> cardsMap = getTrackedCardsForTierScores();
+
+            // holds list of all deck names of decks we're tracking
+            //  (Pool)
+            List<String> startingDecks = new ArrayList<>();
+
+            // Holds a conversion map to convert back and forth between ex: "Standard Deck" and "Standard Pool"
+            //  (Deck)  (Pool)
+            Map<String, String> poolToDeckConvert = new HashMap<>();
+
+            // Reformat strings in startingDecks list to match suffix found in bundle table ("Deck" instead of "Pool")
+            for (String key : cardsMap.keySet()) {
+                String[] splice = key.split(" ");
+                String deck = key.startsWith("Ascended") ? splice[0] + " " + splice[1] : splice[0] + " Deck";
+                startingDecks.add(deck);
+                poolToDeckConvert.put(deck, key);
+                Map<String, Map<Integer, TierDataHolder>> setup = new HashMap<>();
+                Map<Integer, TierDataHolder> innerSetup = new HashMap<>();
+                setup.put(deck, innerSetup);
+                dataMap.put(deck, setup);
+                scoredOutput.put(key, new ArrayList<>());
+            }
+
+            // sort runs by starting deck and filter runs we dont care about for scoring
+            //  (Pool)
+            Map<String, List<TierBundle>> bundlesMap = bundleService.getBundlesForTierScores(startingDecks);
+
+            // Use data to construct win rates for all tracked cards (by deck)
+            for (Map.Entry<String, List<TierBundle>> entry : bundlesMap.entrySet()) {
+                String deck = entry.getKey();
+                String pool = poolToDeckConvert.getOrDefault(deck, "Unknown");
+                if (!pool.equals("Unknown")) {
+                    for (TierBundle bundle : entry.getValue()) {
+                        for (Map.Entry<Integer, List<String>> choice : bundle.card_choices.entrySet()) {
+                            Map<String, String> inner = cardsMap.getOrDefault(pool, new HashMap<>());
+                            if (inner.size() > 0) {
+                                for (String chc : choice.getValue()) {
+                                    int act = SpireUtils.getActFromFloor(choice.getKey());
+                                    if (inner.containsKey(chc)) {
+                                        TierDataHolder localDataHolder;
+                                        Map<String, Map<Integer, TierDataHolder>> innerDataMap = dataMap.get(deck);
+                                        if (innerDataMap.containsKey(chc)) {
+                                            Map<Integer, TierDataHolder> actMap = innerDataMap.get(chc);
+                                            if (!actMap.containsKey(act)) {
+                                                actMap.put(act, new TierDataHolder(chc, act));
+                                            }
+                                            localDataHolder = actMap.get(act);
+                                        } else {
+                                            innerDataMap.put(chc, new HashMap<>());
+                                            Map<Integer, TierDataHolder> actMap = innerDataMap.get(chc);
+                                            actMap.put(act, new TierDataHolder(chc, act));
+                                            localDataHolder = actMap.get(act);
+                                        }
+
+                                        if (localDataHolder != null) {
+                                            if (bundle.victory) {
+                                                localDataHolder.wins++;
+                                            } else {
+                                                localDataHolder.losses++;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            for (Map.Entry<String, Map<String, Map<Integer, TierDataHolder>>> entry : dataMap.entrySet()) {
+                String pool = entry.getKey();
+                for (Map.Entry<String, Map<Integer, TierDataHolder>> innerEntry : entry.getValue().entrySet()) {
+                    for (Map.Entry<Integer, TierDataHolder> innerInnerEntry : innerEntry.getValue().entrySet()) {
+                        TierDataHolder tierBundle = innerInnerEntry.getValue();
+                        if (!output.containsKey(pool)) {
+                            output.put(pool, new ArrayList<>());
+                        }
+                        output.get(pool).add(tierBundle);
+                    }
+                }
+            }
+            for (Map.Entry<String, List<TierDataHolder>> entry : output.entrySet()) {
+                String deck = entry.getKey();
+                String pool = poolToDeckConvert.get(deck);
+                Map<String, ScoredCard> toAddToCards = new HashMap<>();
+                for (TierDataHolder data : entry.getValue()) {
+                    ScoredCard card = toAddToCards.getOrDefault(data.cardId, new ScoredCard(data.cardId));
+                    switch (data.act) {
+                        case 0:
+                            card.act0_losses += data.losses;
+                            card.act0_wins += data.wins;
+                            break;
+                        case 1:
+                            card.act1_losses += data.losses;
+                            card.act1_wins += data.wins;
+                            break;
+                        case 2:
+                            card.act2_losses += data.losses;
+                            card.act2_wins += data.wins;
+                            break;
+                        case 3:
+                            card.act3_losses += data.losses;
+                            card.act3_wins += data.wins;
+                            break;
+                    }
+                    toAddToCards.put(data.cardId, card);
+                }
+                List<ScoredCard> cards = new ArrayList<>(toAddToCards.values());
+                if (!scoredOutput.containsKey(pool)) {
+                    scoredOutput.put(pool, cards);
+                } else {
+                    scoredOutput.get(pool).addAll(cards);
+                }
+            }
+            return new ResponseEntity<>(scoredOutput, HttpStatus.OK);
+        } catch (Exception ex) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        // Overall score:
+        // (Act0 score * .15) + (Act1 score * 1.5) + (Act2 score) + (Act3 score * 0.5)
     }
 }

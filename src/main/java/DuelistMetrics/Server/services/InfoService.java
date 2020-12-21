@@ -71,6 +71,19 @@ public class InfoService {
     return duelistMods.get(duelistMods.size() - 1).getInfo_bundle_id();
   }
 
+  public Map<String, Map<String, String>> getTrackedCardsForTierScores() {
+    List<String> cards = cardRepo.getTrackedCardsForTierScores(getMostRecentDuelistVersion());
+    Map<String, Map<String, String>> out = new HashMap<>();
+    for (String s : cards) {
+      String[] splice = s.split(",");
+      if (!out.containsKey(splice[1])) {
+        out.put(splice[1], new HashMap<>());
+      }
+      out.get(splice[1]).put(splice[0], splice[2]);
+    }
+    return out;
+  }
+
   public void updateAllDuelistEvents(List<String> names) {
     for (String event : names) {
       this.eventRepo.updateDuelistEvents(event);

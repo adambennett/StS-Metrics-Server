@@ -23,7 +23,20 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9af24f8c-45cb-4445-9116-870f5315a5f1" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/models/tierScore/ScoredCard.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/models/tierScore/TierBundle.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/models/tierScore/TierDataHolder.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/util/SpireUtils.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/StS-Metrics-Server.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/StS-Metrics-Server.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/SpringApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/SpringApp.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/BundleController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/BundleController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/InfoController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/InfoController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/repositories/BundleRepo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/repositories/BundleRepo.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/repositories/InfoCardRepo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/repositories/InfoCardRepo.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/services/BundleService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/services/BundleService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/services/InfoService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/services/InfoService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -62,11 +75,11 @@
                 <list>
                   <RecentBranch>
                     <option name="branchName" value="dev" />
-                    <option name="lastUsedInstant" value="1596343327" />
+                    <option name="lastUsedInstant" value="1606838978" />
                   </RecentBranch>
                   <RecentBranch>
                     <option name="branchName" value="master" />
-                    <option name="lastUsedInstant" value="1596343242" />
+                    <option name="lastUsedInstant" value="1606838963" />
                   </RecentBranch>
                 </list>
               </option>
@@ -91,6 +104,7 @@
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
+    <option name="showMembers" value="true" />
   </component>
   <component name="PropertiesComponent">
     <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
@@ -120,7 +134,7 @@
     <property name="project.structure.proportion" value="0.0" />
     <property name="project.structure.side.proportion" value="0.2" />
     <property name="restartRequiresConfirmation" value="false" />
-    <property name="settings.editor.selected.configurable" value="configurable.group.tools" />
+    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
     <property name="ts.external.directory.path" value="C:\Users\eX_Di\git\StS-Metrics-Server\node_modules\typescript\lib" />
     <property name="vue.rearranger.settings.migration" value="true" />
   </component>
@@ -320,14 +334,12 @@
       <workItem from="1601844661938" duration="8901000" />
       <workItem from="1602423984963" duration="1655000" />
       <workItem from="1602425682475" duration="77000" />
-      <workItem from="1602425785412" duration="7229000" />
-    </task>
-    <task id="LOCAL-00015" summary="whoops">
-      <created>1586824030500</created>
-      <option name="number" value="00015" />
-      <option name="presentableId" value="LOCAL-00015" />
-      <option name="project" value="LOCAL" />
-      <updated>1586824030501</updated>
+      <workItem from="1602425785412" duration="8632000" />
+      <workItem from="1606835530169" duration="46000" />
+      <workItem from="1606837550979" duration="451000" />
+      <workItem from="1606838016471" duration="3596000" />
+      <workItem from="1607111101220" duration="4707000" />
+      <workItem from="1608480504733" duration="19144000" />
     </task>
     <task id="LOCAL-00016" summary="switched to https">
       <created>1586824528896</created>
@@ -665,7 +677,14 @@
       <option name="project" value="LOCAL" />
       <updated>1602542217818</updated>
     </task>
-    <option name="localTasksCounter" value="64" />
+    <task id="LOCAL-00064" summary="Fix clone-ability">
+      <created>1602543411492</created>
+      <option name="number" value="00064" />
+      <option name="presentableId" value="LOCAL-00064" />
+      <option name="project" value="LOCAL" />
+      <updated>1602543411492</updated>
+    </task>
+    <option name="localTasksCounter" value="65" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -719,22 +738,22 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/InfoController.java</url>
-          <line>42</line>
+          <line>48</line>
           <option name="timeStamp" value="13" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/InfoController.java</url>
-          <line>49</line>
+          <line>55</line>
           <option name="timeStamp" value="14" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/InfoController.java</url>
-          <line>109</line>
+          <line>115</line>
           <option name="timeStamp" value="15" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/InfoController.java</url>
-          <line>133</line>
+          <line>139</line>
           <option name="timeStamp" value="16" />
         </line-breakpoint>
       </breakpoints>
@@ -742,6 +761,8 @@
     <watches-manager>
       <configuration name="SpringBootApplicationConfigurationType">
         <watch expression="deckToKilledBy.get(deckName)" language="JAVA" />
+        <watch expression="((HashMap)((HashMap.Node)((HashMap)dataMap).entrySet().toArray()[10]).getValue()).entrySet().toArray()[0]" custom="java.util.HashMap.Node,java.util.HashMap" />
+        <watch expression="((HashMap.Node)((HashMap)dataMap).entrySet().toArray()[12]).getValue()" custom="java.util.HashMap.Node,java.util.HashMap" />
       </configuration>
     </watches-manager>
   </component>

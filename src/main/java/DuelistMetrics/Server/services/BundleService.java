@@ -2,6 +2,7 @@ package DuelistMetrics.Server.services;
 
 import DuelistMetrics.Server.controllers.*;
 import DuelistMetrics.Server.models.*;
+import DuelistMetrics.Server.models.tierScore.*;
 import DuelistMetrics.Server.repositories.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.data.domain.*;
@@ -35,6 +36,51 @@ public class BundleService {
   }
 
   public List<TopBundle> getMostRecentRuns(int amt) { return repo.getMostRecentRuns(amt); }
+
+  public Map<String, List<TierBundle>> getBundlesForTierScores(List<String> decks) {
+    Map<String, List<TierBundle>> out = new HashMap<>();
+    for (String deck : decks) {
+      List<String> data = innerRepo.getBundlesForTierScores(deck);
+      for (String s : data) {
+        String[] splice = s.split(",");
+        int id = -1;
+        int floor = -1;
+        try { id = Integer.parseInt(splice[0]); floor = Integer.parseInt(splice[3]); } catch (NumberFormatException ignored) {}
+        if (id > -1 && floor > -1) {
+          boolean victory = splice[1].equals("true");
+          String choiceId = splice[2];
+          String startDeck = splice[4];
+          TierBundle bundle = new TierBundle(id, victory);
+          if (!out.containsKey(startDeck)) {
+            out.put(startDeck, new ArrayList<>());
+            List<String> newChoices = new ArrayList<>();
+            newChoices.add(choiceId);
+            bundle.card_choices.put(floor, newChoices);
+            out.get(startDeck).add(bundle);
+          } else {
+            List<TierBundle> bndles = out.get(startDeck);
+            boolean updated = false;
+            for (TierBundle bnd : bndles) {
+              if (bnd.equals(bundle)) {
+                updated = true;
+                if (!bnd.card_choices.containsKey(floor)) {
+                  bnd.card_choices.put(floor, new ArrayList<>());
+                }
+                bnd.card_choices.get(floor).add(choiceId);
+              }
+            }
+            if (!updated) {
+              List<String> newChoices = new ArrayList<>();
+              newChoices.add(choiceId);
+              bundle.card_choices.put(floor, newChoices);
+              bndles.add(bundle);
+            }
+          }
+        }
+      }
+    }
+    return out;
+  }
 
   public TreeMap<String, Integer> getCountryCounts() {
     List<String> query = innerRepo.getCountryCounts();
