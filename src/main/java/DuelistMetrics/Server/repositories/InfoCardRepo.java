@@ -33,6 +33,9 @@ public interface InfoCardRepo extends JpaRepository<InfoCard, Long> {
     @Query(value = "SELECT pools FROM info_card_pools INNER JOIN info_card ON info_card_pools.info_card_info_card_id = info_card.info_card_id WHERE info_card.info_card_id = :info_card_id", nativeQuery = true)
     List<String> getPoolsFromDuelistCard(Long info_card_id);
 
-    @Query(value = "SELECT ic.card_id, icp.pools, ic.name FROM info_card ic JOIN info_card_pools icp on ic.info_card_id = icp.info_card_info_card_id WHERE ic.info_info_bundle_id = :duelist_version AND ic.card_id LIKE '%theDuelist:%' AND icp.pools IN ('Standard Pool', 'Dragon Pool', 'Naturia Pool', 'Spellcaster Pool', 'Toon Pool', 'Zombie Pool', 'Aqua Pool', 'Fiend Pool', 'Machine Pool', 'Warrior Pool', 'Insect Pool', 'Plant Pool','Megatype Pool', 'Increment Pool', 'Creator Pool', 'Ojama Pool','Ascended I Pool', 'Ascended II Pool', 'Metronome Pool')", nativeQuery = true)
-    List<String> getTrackedCardsForTierScores(Long duelist_version);
+    @Query(value = "SELECT ic.card_id, icp.pools FROM info_card ic JOIN info_card_pools icp on ic.info_card_id = icp.info_card_info_card_id WHERE (ic.info_info_bundle_id IN (:duelist_version)) AND ic.card_id LIKE '%theDuelist:%' AND icp.pools IN ('Standard Pool', 'Dragon Pool', 'Naturia Pool', 'Spellcaster Pool', 'Toon Pool', 'Zombie Pool', 'Aqua Pool', 'Fiend Pool', 'Machine Pool', 'Warrior Pool', 'Insect Pool', 'Plant Pool','Megatype Pool', 'Increment Pool', 'Creator Pool', 'Ojama Pool','Ascended I Pool', 'Ascended II Pool', 'Metronome Pool')", nativeQuery = true)
+    List<String> getTrackedCardsForTierScores(List<Long> duelist_version);
+
+    @Query(value = "SELECT ic.card_id, icp.pools FROM info_card ic JOIN info_card_pools icp on ic.info_card_id = icp.info_card_info_card_id WHERE (ic.info_info_bundle_id IN (:duelist_version)) AND ic.card_id LIKE '%theDuelist:%' AND icp.pools IN (:poolName)", nativeQuery = true)
+    List<String> getTrackedCardsForTierScores(String poolName, List<Long> duelist_version);
 }

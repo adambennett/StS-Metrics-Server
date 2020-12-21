@@ -15,6 +15,9 @@ public interface TopInfoBundleRepo extends JpaRepository<ModInfoBundle, Long> {
     @Query(value = "SELECT DISTINCT modid, display_name FROM mod_info_bundle ORDER BY modid", nativeQuery = true)
     List<String> getMods();
 
+    @Query(value = "SELECT info_bundle_id FROM duelistmetrics.mod_info_bundle WHERE is_duelist = true ORDER BY modid", nativeQuery = true)
+    List<Long> getModInfoBundleIdsForAllDuelistVersions();
+
     List<ModInfoBundle> getModInfoBundlesByModNameEquals(String modName);
 
     Optional<ModInfoBundle> findByModIDAndVersion(String modID, String version);
