@@ -5,7 +5,7 @@ import java.util.*;
 public class PopsCard implements Comparable<PopsCard> {
     public String cardId;
     public int numberOfPicks;
-    public int popularityPosition;
+    public int position;
     public float percentile;
     public boolean aboveFortyPercentile = false;
 
@@ -28,4 +28,5 @@ public class PopsCard implements Comparable<PopsCard> {
     public int compareTo(PopsCard o) {
         return Integer.compare(this.numberOfPicks, o.numberOfPicks);
     }
+
 }

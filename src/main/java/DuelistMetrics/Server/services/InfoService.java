@@ -2,6 +2,7 @@ package DuelistMetrics.Server.services;
 
 import DuelistMetrics.Server.models.*;
 import DuelistMetrics.Server.models.infoModels.*;
+import DuelistMetrics.Server.models.tierScore.*;
 import DuelistMetrics.Server.repositories.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.stereotype.*;
@@ -22,10 +23,11 @@ public class InfoService {
   private final InfoCreatureRepo creatureRepo;
   private final EventRepo eventRepo;
   private final MiniModRepo miniModRepo;
+  private final TierScoreRepo tierRepo;
   private static final ArrayList<String> decks;
 
   @Autowired
-  public InfoService(InfoRepo repo, TopInfoBundleRepo bundleRepo, InfoCardRepo cardRepo, InfoRelicRepo relicRepo, InfoPotionRepo potionRepo, InfoCreatureRepo creatureRepo, MiniModRepo miniModRepo, EventRepo eventRepo) {
+  public InfoService(InfoRepo repo, TopInfoBundleRepo bundleRepo, InfoCardRepo cardRepo, InfoRelicRepo relicRepo, InfoPotionRepo potionRepo, InfoCreatureRepo creatureRepo, MiniModRepo miniModRepo, EventRepo eventRepo, TierScoreRepo scoreRepo) {
     this.repo = repo;
     this.bundleRepo = bundleRepo;
     this.cardRepo = cardRepo;
@@ -34,6 +36,7 @@ public class InfoService {
     this.creatureRepo = creatureRepo;
     this.miniModRepo = miniModRepo;
     this.eventRepo = eventRepo;
+    this.tierRepo = scoreRepo;
   }
 
   public String getCardName(String card_id, boolean duelist) {
@@ -159,6 +162,14 @@ public class InfoService {
   }
 
   public void create(PickInfo run) { this.repo.save(run); }
+
+  public void createTierScore(ScoredCard scoredCard) { this.tierRepo.save(scoredCard); }
+
+  public List<ScoredCard> getTierDetails(String pool) { return this.tierRepo.getDetails(pool); }
+
+  public List<Map<String, Object>> getTierScores(String pool) { return this.tierRepo.getScores(pool); }
+
+  public List<Map<String, Object>> getTierScores(String cardId, String pool) { return this.tierRepo.getScores(cardId, pool); }
 
   public List<String> getAllModuleVersions() { return this.bundleRepo.getAllModuleVersions(); }
 
