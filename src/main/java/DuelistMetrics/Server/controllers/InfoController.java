@@ -43,6 +43,9 @@ public class InfoController {
         boolean duelist = card.startsWith("theDuelist:");
         int magic = 17;
         List<String> toParse = bundles.getCardDataFromId(card, duelist);
+        if (toParse == null || toParse.size() < 1) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
         List<String> cardProps;
         String[] splice = toParse.get(0).split(",");
         cardProps = new ArrayList<>(Arrays.asList(splice));

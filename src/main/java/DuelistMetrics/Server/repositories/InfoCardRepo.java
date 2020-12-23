@@ -38,4 +38,10 @@ public interface InfoCardRepo extends JpaRepository<InfoCard, Long> {
 
     @Query(value = "SELECT ic.card_id, icp.pools FROM info_card ic JOIN info_card_pools icp on ic.info_card_id = icp.info_card_info_card_id WHERE (ic.info_info_bundle_id IN (:duelist_version)) AND ic.card_id LIKE '%theDuelist:%' AND icp.pools IN (:poolName)", nativeQuery = true)
     List<String> getTrackedCardsForTierScores(String poolName, List<Long> duelist_version);
+
+    @Query(value = "SELECT DISTINCT card_id, name FROM info_card WHERE info_info_bundle_id IN (:info_bundle_ids) GROUP BY card_id", nativeQuery = true)
+    List<String> cardIdMappingArchive(List<Long> info_bundle_ids);
+
+    @Query(value = "SELECT card_id, name FROM info_card WHERE info_info_bundle_id = :duelist_version AND card_id IN (:card_ids)", nativeQuery = true)
+    Map<String, String> lookupDuelistCardNames(List<String> card_ids, Long duelist_version);
 }

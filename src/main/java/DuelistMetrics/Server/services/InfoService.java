@@ -49,6 +49,35 @@ public class InfoService {
     return out.size() > 0 ? out.get(0) : card_id;
   }
 
+  public Map<String, String> duelistCardNames(List<String> cardIds) {
+    return this.cardRepo.lookupDuelistCardNames(cardIds, getMostRecentDuelistVersion());
+  }
+
+  public Map<String, String> cardIdMappingArchive(List<Long> infoBundleIds) {
+    return getStringStringMap(this.cardRepo.cardIdMappingArchive(infoBundleIds));
+  }
+
+  public Map<String, String> relicIdMappingArchive(List<Long> infoBundleIds) {
+    return getStringStringMap(this.relicRepo.relicIdMappingArchive(infoBundleIds));
+  }
+
+  public Map<String, String> potionIdMappingArchive(List<Long> infoBundleIds) {
+    return getStringStringMap(this.potionRepo.potionIdMappingArchive(infoBundleIds));
+  }
+
+  private Map<String, String> getStringStringMap(List<String> strings) {
+    Map<String, String> out = new HashMap<>();
+    for (String s : strings) {
+      String[] splice = s.split(",");
+      if (!out.containsKey(splice[0])) {
+        out.put(splice[0], splice[1]);
+      } else {
+        logger.info("Duplicate id while getting map of names - ID: " + splice[0]);
+      }
+    }
+    return out;
+  }
+
   public List<String> getCardDataFromId(String card_id, boolean duelist) {
     if (duelist) {
       Long id = getMostRecentDuelistVersion();
@@ -101,6 +130,8 @@ public class InfoService {
   }
 
   public List<MiniMod> getModListFromBundleId(Long id) { return this.miniModRepo.getByBundleId(id); }
+
+  public Long getModInfoBundleFromMiniMod(String modid, String version) { return this.miniModRepo.getBundleId(modid, version); }
 
   public List<ModInfoBundle> getAllMods() { return this.bundleRepo.findAll(); }
 

@@ -3,7 +3,10 @@ package DuelistMetrics.Server.controllers;
 import DuelistMetrics.Server.models.*;
 import DuelistMetrics.Server.models.builders.*;
 import DuelistMetrics.Server.models.infoModels.*;
+import DuelistMetrics.Server.models.runDetails.*;
 import DuelistMetrics.Server.services.*;
+import DuelistMetrics.Server.util.*;
+import com.fasterxml.jackson.databind.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
@@ -74,7 +77,56 @@ public class RunLogController {
                 // collect all player choices into list of choices for those events
                     // collect all events with name='Nameless Tomb'
                     // starting points, magic score, rewards received + levels, spent points
-            RunDetails run = new RunDetails(top.get(), floors);
+            RunDetails run = new RunDetails(new RunTop(top.get()), floors);
+            List<Long> modsToCheck = new ArrayList<>();
+            for (DetailsMiniMod mod : run.top.getEvent().getModList()) {
+                modsToCheck.add(infos.getModInfoBundleFromMiniMod(mod.getModID(), mod.getModVersion()));
+            }
+            Map<String, String> cardMap = infos.cardIdMappingArchive(modsToCheck);
+            Map<String, String> relicMap = infos.relicIdMappingArchive(modsToCheck);
+            Map<String, String> potionMap = infos.potionIdMappingArchive(modsToCheck);
+
+            for (int i = 0; i < run.top.getEvent().getMaster_deck().size(); i++) {
+                String localId = run.top.getEvent().getMaster_deck().get(i).getId();
+                String localName = SpireUtils.parseBaseId(localId, cardMap, relicMap, potionMap);
+                run.top.getEvent().getMaster_deck().get(i).setName(localName);
+            }
+            for (int i = 0; i < run.top.getEvent().getItems_purchased().size(); i++) {
+                run.top.getEvent().getItems_purchased().set(i, SpireUtils.parseBaseIdToSimpleCard(run.top.getEvent().getItems_purchased().get(i).getId(), cardMap, relicMap, potionMap));
+            }
+            for (int i = 0; i < run.top.getEvent().getItems_purged().size(); i++) {
+                run.top.getEvent().getItems_purged().set(i, SpireUtils.parseBaseIdToSimpleCard(run.top.getEvent().getItems_purged().get(i).getId(), cardMap, relicMap, potionMap));
+            }
+            for (int i = 0; i < run.top.getEvent().getRelics().size(); i++) {
+                run.top.getEvent().getRelics().set(i, SpireUtils.parseBaseIdToSimpleCard(run.top.getEvent().getRelics().get(i).getId(), cardMap, relicMap, potionMap));
+            }
+            for (DetailsBossRelic relic : run.top.getEvent().getBoss_relics()) {
+                relic.setRelicName(SpireUtils.parseBaseId(relic.getRelicId(), cardMap, relicMap, potionMap));
+                for (int i = 0; i < relic.getNot_picked().size(); i++) {
+                    relic.getNot_picked().set(i, SpireUtils.parseBaseIdToSimpleCard(relic.getNot_picked().get(i).getId(), cardMap, relicMap, potionMap));
+                }
+            }
+            for (DetailsEvent event : run.top.getEvent().getEvent_choices()) {
+                for (int i = 0; i < event.getCards_obtained().size(); i++) {
+                    event.getCards_obtained().set(i, SpireUtils.parseBaseIdToSimpleCard(event.getCards_obtained().get(i).getId(), cardMap, relicMap, potionMap));
+                }
+                for (int i = 0; i < event.getRelics_obtained().size(); i++) {
+                    event.getRelics_obtained().set(i, SpireUtils.parseBaseIdToSimpleCard(event.getRelics_obtained().get(i).getId(), cardMap, relicMap, potionMap));
+                }
+            }
+            for (DetailsCard card : run.top.getEvent().getCard_choices()) {
+                String cardId = card.getCardId();
+                card.setCardName(SpireUtils.parseBaseId(cardId, cardMap, relicMap, potionMap));
+                for (int i = 0; i < card.getNot_picked().size(); i++) {
+                    card.getNot_picked().set(i, SpireUtils.parseBaseIdToSimpleCard(card.getNot_picked().get(i).getId(), cardMap, relicMap, potionMap));
+                }
+            }
+            for (DetailsPotion potion : run.top.getEvent().getPotions_obtained()) {
+                potion.setName(SpireUtils.parseBaseId(potion.getId(), cardMap, relicMap, potionMap));
+            }
+            for (DetailsCampfireChoice choice : run.top.getEvent().getCampfire_choices()) {
+                choice.setName(SpireUtils.parseBaseId(choice.getId(), cardMap, relicMap, potionMap));
+            }
             return new ResponseEntity<>(run, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
