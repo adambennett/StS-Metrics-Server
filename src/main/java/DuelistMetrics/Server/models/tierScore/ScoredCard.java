@@ -13,6 +13,8 @@ public class ScoredCard {
     @Id
     public String pool_name;
 
+    public String card_name;
+
     private float act0_delta;
     private float act1_delta;
     private float act2_delta;
@@ -327,6 +329,14 @@ public class ScoredCard {
 
     public void setA3_percentile(float a3_percentile) {
         this.a3_percentile = a3_percentile;
+    }
+
+    public String getCard_name() {
+        return card_name;
+    }
+
+    public void setCard_name(String card_name) {
+        this.card_name = card_name;
     }
 
     public void multOverall(float multi) {

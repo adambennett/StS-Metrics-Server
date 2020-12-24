@@ -78,6 +78,51 @@ public class InfoService {
     return out;
   }
 
+  public List<List<String>> globalCardListData() {
+    List<String> poolsWithGlobalCardLists = new ArrayList<>();
+    List<String> globalCardList = cardRepo.getGlobalListOfTrackedCardsForTierScores(getMostRecentDuelistVersion());
+    poolsWithGlobalCardLists.add("Random Pool (Small)");
+    poolsWithGlobalCardLists.add("Random Pool (Big)");
+    poolsWithGlobalCardLists.add("Upgrade Pool");
+    List<List<String>> output = new ArrayList<>();
+    output.add(poolsWithGlobalCardLists);
+    output.add(globalCardList);
+    return output;
+  }
+
+  public List<String> getModDataFromId(String card_id, boolean duelist) {
+    if (duelist) {
+      List<String> duelistOut = new ArrayList<>();
+      duelistOut.add("Duelist Mod");
+      duelistOut.add("Nyoxide");
+      return duelistOut;
+    }
+    Long modId = cardRepo.getAnyBundleIdByCardId(card_id);
+    List<String> modInfo = bundleRepo.getModInfoFromInfoId(modId);
+    if (modInfo.size() < 1) {
+      List<String> unknownOut = new ArrayList<>();
+      unknownOut.add("Unknown");
+      unknownOut.add("Unknown");
+      return unknownOut;
+    }
+    String modName = modInfo.get(0).split(",")[0];
+    StringBuilder authors = new StringBuilder();
+    Set<String> uniqueAuthors = new HashSet<>();
+    for (int i = 0; i < modInfo.size(); i++) {
+      String[] splice = modInfo.get(i).split(",");
+      uniqueAuthors.add(splice[1]);
+    }
+    int counter = 0;
+    for (String s : uniqueAuthors) {
+      authors.append((counter + 1 < uniqueAuthors.size()) ? s + ", " : s);
+      counter++;
+    }
+    List<String> out = new ArrayList<>();
+    out.add(modName);
+    out.add(authors.toString());
+    return out;
+  }
+
   public List<String> getCardDataFromId(String card_id, boolean duelist) {
     if (duelist) {
       Long id = getMostRecentDuelistVersion();
@@ -119,6 +164,17 @@ public class InfoService {
         out.put(splice[1], new ArrayList<>());
       }
       out.get(splice[1]).add(splice[0]);
+    }
+    List<List<String>> globals = globalCardListData();
+    List<String> poolsWithGlobalCardLists = globals.get(0);
+    List<String> globalCardList = globals.get(1);
+    for (String globalPool : poolsWithGlobalCardLists) {
+      for (String s : globalCardList) {
+        if (!out.containsKey(globalPool)) {
+          out.put(globalPool, new ArrayList<>());
+        }
+        out.get(globalPool).add(s);
+      }
     }
     return out;
   }
@@ -199,6 +255,68 @@ public class InfoService {
   public List<ScoredCard> getTierDetails(String pool) { return this.tierRepo.getDetails(pool); }
 
   public List<Map<String, Object>> getTierScores(String pool) { return this.tierRepo.getScores(pool); }
+
+  public Map<String, Map<String, Map<Integer, Integer>>> getAllTierScores() {
+    List<Map<String, Object>> data = this.tierRepo.getScores();
+    Map<String, Map<String, Object>> toAdd = new HashMap<>();
+    Map<String, Map<String, Map<Integer, Integer>>> finalOut = new HashMap<>();
+    for (Map<String, Object> map : data) {
+      String pool = map.get("pool_name").toString();
+      String card_id = map.get("card_id").toString();
+      Map<String, Object> nonPoolData = new HashMap<>();
+      for (Map.Entry<String, Object> entry : map.entrySet()) {
+        if (!entry.getKey().equals("pool_name") && !entry.getKey().equals("card_id")) {
+          nonPoolData.put(entry.getKey(), entry.getValue());
+        }
+      }
+      if (toAdd.containsKey(pool)) {
+        Map<String, Object> toAddTo = toAdd.get(pool);
+        toAddTo.put(card_id, nonPoolData);
+      } else {
+        Map<String, Object> toAddTo = new HashMap<>();
+        toAddTo.put(card_id, nonPoolData);
+        toAdd.put(pool, toAddTo);
+      }
+    }
+    for (Map.Entry<String, Map<String, Object>> entry : toAdd.entrySet()) {
+      String pool = entry.getKey();
+      if (!finalOut.containsKey(pool)) {
+        finalOut.put(pool, new HashMap<>());
+      }
+      Map<String, Map<Integer, Integer>> poolMap = finalOut.get(pool);
+      for (Map.Entry<String, Object> innerEntry : entry.getValue().entrySet()) {
+        String card_Id = innerEntry.getKey();
+        Map<String, Object> innerMap = (Map<String, Object>)innerEntry.getValue();
+        int act0 = (int) innerMap.get("act0_score");
+        int act1 = (int) innerMap.get("act1_score");
+        int act2 = (int) innerMap.get("act2_score");
+        int act3 = (int) innerMap.get("act3_score");
+        int overall = (int) innerMap.get("overall_score");
+        Map<Integer, Integer> scores = new HashMap<>();
+        scores.put(-1, overall);
+        scores.put(0, act0);
+        scores.put(1, act1);
+        scores.put(2, act2);
+        scores.put(3, act3);
+        poolMap.put(card_Id, scores);
+      }
+    }
+    return finalOut;
+  }
+
+  public Map<String, String> getCardNamesByPool(String pool) {
+    Map<String, String> output = new HashMap<>();
+    List<String> names = this.cardRepo.getDuelistCardsFromPool(pool);
+    for (String s : names) {
+      String[] splice = s.split(",");
+      String id = splice[0];
+      String name = splice[1];
+      if (!output.containsKey(id)) {
+        output.put(id, name);
+      }
+    }
+    return output;
+  }
 
   public List<Map<String, Object>> getTierScores(String cardId, String pool) { return this.tierRepo.getScores(cardId, pool); }
 

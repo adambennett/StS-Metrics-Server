@@ -23,26 +23,18 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9af24f8c-45cb-4445-9116-870f5315a5f1" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/models/runDetails/DetailsBossRelic.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/models/runDetails/DetailsBundle.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/models/runDetails/DetailsCampfireChoice.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/models/runDetails/DetailsCard.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/models/runDetails/DetailsEvent.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/models/runDetails/DetailsMiniMod.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/models/runDetails/DetailsPotion.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/models/runDetails/DetailsRelic.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/models/runDetails/RunTop.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/models/runDetails/SimpleCard.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/a994520c-0389-4923-b635-7be96204c7e2.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/a994520c-0389-4923-b635-7be96204c7e2.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/SpringApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/SpringApp.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/InfoController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/InfoController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/RunLogController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/RunLogController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/models/RunDetails.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/models/RunDetails.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/ScheduledUpdater.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/ScheduledUpdater.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/models/builders/LookupCardBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/models/builders/LookupCardBuilder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/models/infoModels/LookupCard.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/models/infoModels/LookupCard.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/models/tierScore/ScoredCard.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/models/tierScore/ScoredCard.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/repositories/InfoCardRepo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/repositories/InfoCardRepo.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/repositories/InfoPotionRepo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/repositories/InfoPotionRepo.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/repositories/InfoRelicRepo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/repositories/InfoRelicRepo.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/repositories/MiniModRepo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/repositories/MiniModRepo.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/repositories/TierScoreRepo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/repositories/TierScoreRepo.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/repositories/TopInfoBundleRepo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/repositories/TopInfoBundleRepo.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/services/InfoService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/services/InfoService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/util/SpireUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/util/SpireUtils.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -136,7 +128,7 @@
     <property name="aspect.path.notification.shown" value="true" />
     <property name="extract.method.default.visibility" value="private" />
     <property name="last.edited.regexp" value="Sample Text" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../fullStackBlog-site" />
+    <property name="last_opened_file_path" value="O:/Mechdrive Documents/Gaming/Modding/StS Modding/Internet Mods/The Animator" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -358,21 +350,7 @@
       <workItem from="1608651442602" duration="15045000" />
       <workItem from="1608684172369" duration="356000" />
       <workItem from="1608685227553" duration="129000" />
-      <workItem from="1608685614932" duration="16508000" />
-    </task>
-    <task id="LOCAL-00018" summary="implemented relic/potion/neow lists">
-      <created>1586901753291</created>
-      <option name="number" value="00018" />
-      <option name="presentableId" value="LOCAL-00018" />
-      <option name="project" value="LOCAL" />
-      <updated>1586901753291</updated>
-    </task>
-    <task id="LOCAL-00019" summary="added time formatting logic for run list">
-      <created>1587854428725</created>
-      <option name="number" value="00019" />
-      <option name="presentableId" value="LOCAL-00019" />
-      <option name="project" value="LOCAL" />
-      <updated>1587854428725</updated>
+      <workItem from="1608685614932" duration="39029000" />
     </task>
     <task id="LOCAL-00020" summary="fixed 2 digit day in timestamp">
       <created>1588320194344</created>
@@ -703,7 +681,21 @@
       <option name="project" value="LOCAL" />
       <updated>1608594698915</updated>
     </task>
-    <option name="localTasksCounter" value="67" />
+    <task id="LOCAL-00067" summary="Fix up return data on run details, improve scoring further">
+      <created>1608709149128</created>
+      <option name="number" value="00067" />
+      <option name="presentableId" value="LOCAL-00067" />
+      <option name="project" value="LOCAL" />
+      <updated>1608709149129</updated>
+    </task>
+    <task id="LOCAL-00068" summary="Fix index tree">
+      <created>1608709224813</created>
+      <option name="number" value="00068" />
+      <option name="presentableId" value="LOCAL-00068" />
+      <option name="project" value="LOCAL" />
+      <updated>1608709224813</updated>
+    </task>
+    <option name="localTasksCounter" value="69" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -725,8 +717,6 @@
     <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="CHECK_NEW_TODO" value="false" />
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
-    <MESSAGE value="removed ALL info processing for now to prevent GC crashes" />
-    <MESSAGE value="real bandaid fixes here" />
     <MESSAGE value="fixed multi version mods not tracking properly" />
     <MESSAGE value="fixed neow pages" />
     <MESSAGE value="added country/language tracking to bundles" />
@@ -750,59 +740,54 @@
     <MESSAGE value="Fix clone-ability" />
     <MESSAGE value="tier score start" />
     <MESSAGE value="Finish initial card tier scoring implementation" />
-    <option name="LAST_COMMIT_MESSAGE" value="Finish initial card tier scoring implementation" />
+    <MESSAGE value="Fix up return data on run details, improve scoring further" />
+    <MESSAGE value="Fix index tree" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fix index tree" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/InfoController.java</url>
-          <line>49</line>
-          <option name="timeStamp" value="13" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/InfoController.java</url>
-          <line>56</line>
-          <option name="timeStamp" value="14" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/InfoController.java</url>
-          <line>116</line>
+          <line>119</line>
           <option name="timeStamp" value="15" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/InfoController.java</url>
-          <line>140</line>
+          <line>143</line>
           <option name="timeStamp" value="16" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/InfoController.java</url>
-          <line>682</line>
-          <option name="timeStamp" value="60" />
+          <line>556</line>
+          <option name="timeStamp" value="73" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/RunLogController.java</url>
-          <line>93</line>
-          <option name="timeStamp" value="71" />
+          <url>file://$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/InfoController.java</url>
+          <line>553</line>
+          <option name="timeStamp" value="74" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/InfoController.java</url>
+          <line>550</line>
+          <option name="timeStamp" value="75" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/InfoController.java</url>
+          <line>76</line>
+          <option name="timeStamp" value="76" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/InfoController.java</url>
+          <line>115</line>
+          <option name="timeStamp" value="79" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/services/InfoService.java</url>
+          <line>303</line>
+          <option name="timeStamp" value="87" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
-    <watches-manager>
-      <configuration name="SpringBootApplicationConfigurationType">
-        <watch expression="deckToKilledBy.get(deckName)" language="JAVA" />
-        <watch expression="((HashMap)((HashMap.Node)((HashMap)dataMap).entrySet().toArray()[10]).getValue()).entrySet().toArray()[0]" custom="java.util.HashMap.Node,java.util.HashMap" />
-        <watch expression="((HashMap.Node)((HashMap)dataMap).entrySet().toArray()[12]).getValue()" custom="java.util.HashMap.Node,java.util.HashMap" />
-        <watch expression="(float)0/(0 +3)" language="JAVA" />
-        <watch expression="card.overall_score" language="JAVA" />
-        <watch expression="Math.round((card.overall_score / (float)highestScore) * 100)" language="JAVA" />
-        <watch expression="Math.round(67.5)" language="JAVA" />
-        <watch expression="dataMap" />
-        <watch expression="run.top.event.campfire_choices" />
-        <watch expression="run.top.event.event_choices" />
-        <watch expression="run.top" language="JAVA" />
-        <watch expression="run.top" language="JAVA" />
-        <watch expression="relicMap.get(&quot;Tiny House&quot;)" language="JAVA" />
-      </configuration>
-    </watches-manager>
   </component>
 </project>

@@ -43,6 +43,7 @@ public class InfoController {
         boolean duelist = card.startsWith("theDuelist:");
         int magic = 17;
         List<String> toParse = bundles.getCardDataFromId(card, duelist);
+        List<String> modData = bundles.getModDataFromId(card, duelist);
         if (toParse == null || toParse.size() < 1) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -72,6 +73,8 @@ public class InfoController {
                     .setThirdMag(Integer.parseInt(cardProps.get(13)))
                     .setTributes(Integer.parseInt(cardProps.get(14)))
                     .setType(cardProps.get(15));
+            lookupCard.setModule(modData.get(0));
+            lookupCard.setAuthors(modData.get(1));
             try {
                 lookupCard.setMaxUpgrades(Integer.parseInt(cardProps.get(16)));
             } catch (Exception ex) {
@@ -208,6 +211,68 @@ public class InfoController {
         }
         Collections.sort(mods);
         return new ResponseEntity<>(mods, HttpStatus.OK);
+    }
+
+    @GetMapping(value={"/tierScores", "/tierScores/{pool}", "/tierScores/{pool}/{cardId}"})
+    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    public ResponseEntity<?> checkTierScores(@PathVariable(required = false) String pool, @PathVariable(required = false) String cardId) {
+        if (pool == null) {
+            return new ResponseEntity<>(bundles.getAllTierScores(), HttpStatus.OK);
+        }
+        String cardFilter = cardId != null && !cardId.equals("any") ? cardId : null;
+        if (cardFilter == null) {
+            String poolName;
+            if (pool.contains("Random")) {
+                poolName = pool.contains("Small") ? "Random Pool (Small)" : "Random Pool (Big)";
+            } else {
+                poolName = pool + " Pool";
+            }
+            return new ResponseEntity<>(bundles.getTierScores(poolName), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(bundles.getTierScores(cardFilter, pool + " Pool"), HttpStatus.OK);
+        }
+    }
+
+
+    @GetMapping(value={"/calculateTierScores", "/calculateTierScores/{ascension}", "/calculateTierScores/{ascension}/{challenge}", "/calculateTierScores/{ascension}/{challenge}/{deckName}"})
+    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    public ResponseEntity<?> getTierScores(@PathVariable(required = false) String challenge, @PathVariable(required = false)  String ascension,  @PathVariable(required = false) String deckName) {
+        try {
+            // Handle path variables
+            int ascensionFilter = -1;
+            int challengeFilter = -2;
+            String deckFilter;
+            try { if (ascension != null) { ascensionFilter = Integer.parseInt(ascension); }} catch (Exception ignored) {}
+            try { if (challenge != null) { challengeFilter = Integer.parseInt(challenge); }} catch (Exception ignored) {}
+            boolean filteringDeckName  = deckName != null && !deckName.equalsIgnoreCase("any");
+            deckFilter = filteringDeckName ? deckName : null;
+
+            // Calculate scores
+            Map<String, List<ScoredCard>> scoredOutput = calculateTierScores(challengeFilter, ascensionFilter, deckFilter);
+
+            // Format for readable response JSON
+            Map<String,  List<MinimalScoredCard>> justScores = new HashMap<>();
+            for (Map.Entry<String, List<ScoredCard>> entry : scoredOutput.entrySet()) {
+                String pool = entry.getKey();
+                justScores.put(pool, new ArrayList<>());
+                List<MinimalScoredCard> list = justScores.get(pool);
+                for (ScoredCard card : entry.getValue()) {
+                    MinimalScoredCard msc = new MinimalScoredCard(card.card_id);
+                    msc.overall_score = card.getOverall_score();
+                    msc.act0_score = card.getAct0_score();
+                    msc.act1_score = card.getAct1_score();
+                    msc.act2_score = card.getAct2_score();
+                    msc.act3_score = card.getAct3_score();
+                    list.add(msc);
+                }
+                Collections.sort(list);
+            }
+
+            return new ResponseEntity<>(justScores, HttpStatus.OK);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return new ResponseEntity<>(ex, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     private static Map<String, List<String>> recheckModules() {
@@ -353,6 +418,11 @@ public class InfoController {
         challengeFilter = filteringChallenge ? challengeFilter : null;
         deckFilter = filteringDeckName ? deckName : null;
 
+        /* Global card list for random/upgrade/exodia pools                                                           */
+        List<List<String>> globals = bundles.globalCardListData();
+        List<String> poolsWithGlobalCardLists = globals.get(0);
+        List<String> globalCardList = globals.get(1);
+
         /* Setup variables                                                                                            */
         // scored output
         //  (Pool)
@@ -401,8 +471,23 @@ public class InfoController {
 
         // Reformat strings in startingDecks list to match suffix found in bundle table ("Deck" instead of "Pool")
         for (String key : cardsMap.keySet()) {
+            if (key.contains("Basic/Colorless")) {
+                String[] basicSplice = key.split("\\[");
+                key = basicSplice[0].trim();
+            }
             String[] splice = key.split(" ");
-            String deck = key.startsWith("Ascended") ? splice[0] + " " + splice[1] : splice[0] + " Deck";
+            String deck;
+            if (key.startsWith("Ascended") || key.startsWith("Pharaoh")) {
+                deck = splice[0] + " " + splice[1];
+            } else if (key.startsWith("Random")) {
+                if (key.contains("Small")) {
+                    deck = "Random Deck (Small)";
+                } else {
+                    deck = "Random Deck (Big)";
+                }
+            } else {
+                deck = splice[0] + " Deck";
+            }
             startingDecks.add(deck);
             deckToPoolConvert.put(deck, key);
             poolToDeckConvert.put(key, deck);
@@ -812,61 +897,5 @@ public class InfoController {
         }
 
         return output;
-    }
-
-    @GetMapping(value={"/tierScores/{pool}", "/tierScores/{pool}/{cardId}"})
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
-    public ResponseEntity<?> checkTierScores(@PathVariable String pool, @PathVariable(required = false) String cardId) {
-        if (pool == null) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-        }
-        String cardFilter = cardId != null && !cardId.equals("any") ? cardId : null;
-        if (cardFilter == null) {
-            return new ResponseEntity<>(bundles.getTierScores(pool + " Pool"), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(bundles.getTierScores(cardFilter, pool + " Pool"), HttpStatus.OK);
-        }
-    }
-
-
-    @GetMapping(value={"/calculateTierScores", "/calculateTierScores/{ascension}", "/calculateTierScores/{ascension}/{challenge}", "/calculateTierScores/{ascension}/{challenge}/{deckName}"})
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
-    public ResponseEntity<?> getTierScores(@PathVariable(required = false) String challenge, @PathVariable(required = false)  String ascension,  @PathVariable(required = false) String deckName) {
-        try {
-            // Handle path variables
-            int ascensionFilter = -1;
-            int challengeFilter = -2;
-            String deckFilter;
-            try { if (ascension != null) { ascensionFilter = Integer.parseInt(ascension); }} catch (Exception ignored) {}
-            try { if (challenge != null) { challengeFilter = Integer.parseInt(challenge); }} catch (Exception ignored) {}
-            boolean filteringDeckName  = deckName != null && !deckName.equalsIgnoreCase("any");
-            deckFilter = filteringDeckName ? deckName : null;
-
-            // Calculate scores
-            Map<String, List<ScoredCard>> scoredOutput = calculateTierScores(challengeFilter, ascensionFilter, deckFilter);
-
-            // Format for readable response JSON
-            Map<String,  List<MinimalScoredCard>> justScores = new HashMap<>();
-            for (Map.Entry<String, List<ScoredCard>> entry : scoredOutput.entrySet()) {
-                String pool = entry.getKey();
-                justScores.put(pool, new ArrayList<>());
-                List<MinimalScoredCard> list = justScores.get(pool);
-                for (ScoredCard card : entry.getValue()) {
-                    MinimalScoredCard msc = new MinimalScoredCard(card.card_id);
-                    msc.overall_score = card.getOverall_score();
-                    msc.act0_score = card.getAct0_score();
-                    msc.act1_score = card.getAct1_score();
-                    msc.act2_score = card.getAct2_score();
-                    msc.act3_score = card.getAct3_score();
-                    list.add(msc);
-                }
-                Collections.sort(list);
-            }
-
-            return new ResponseEntity<>(justScores, HttpStatus.OK);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return new ResponseEntity<>(ex, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
     }
 }

@@ -2520,156 +2520,160 @@ SELECT|sys.sys_config
       <DataType>int(11)|0s</DataType>
       <NotNull>1</NotNull>
     </column>
-    <key id="673" parent="284" name="PRIMARY">
+    <column id="673" parent="284" name="card_name">
+      <Position>34</Position>
+      <DataType>varchar(255)|0s</DataType>
+    </column>
+    <key id="674" parent="284" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>card_id
 pool_name</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="674" parent="285" name="card_id">
+    <column id="675" parent="285" name="card_id">
       <Position>1</Position>
       <DataType>bigint(20)|0s</DataType>
       <NotNull>1</NotNull>
       <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="675" parent="285" name="floor">
+    <column id="676" parent="285" name="floor">
       <Position>2</Position>
       <DataType>int(11)|0s</DataType>
     </column>
-    <column id="676" parent="285" name="picked">
+    <column id="677" parent="285" name="picked">
       <Position>3</Position>
       <DataType>varchar(255)|0s</DataType>
     </column>
-    <column id="677" parent="285" name="bundle_top_id">
+    <column id="678" parent="285" name="bundle_top_id">
       <Position>4</Position>
       <DataType>bigint(20)|0s</DataType>
     </column>
-    <index id="678" parent="285" name="FKn0u33r8hexax8rweemqr3kr8j">
+    <index id="679" parent="285" name="FKn0u33r8hexax8rweemqr3kr8j">
       <ColNames>bundle_top_id</ColNames>
       <Type>btree</Type>
     </index>
-    <key id="679" parent="285" name="PRIMARY">
+    <key id="680" parent="285" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>card_id</ColNames>
       <Primary>1</Primary>
     </key>
-    <foreign-key id="680" parent="285" name="FKn0u33r8hexax8rweemqr3kr8j">
+    <foreign-key id="681" parent="285" name="FKn0u33r8hexax8rweemqr3kr8j">
       <ColNames>bundle_top_id</ColNames>
       <RefTableName>bundle</RefTableName>
       <RefColNames>top_id</RefColNames>
     </foreign-key>
-    <column id="681" parent="286" name="spire_card_card_id">
+    <column id="682" parent="286" name="spire_card_card_id">
       <Position>1</Position>
       <DataType>bigint(20)|0s</DataType>
       <NotNull>1</NotNull>
     </column>
-    <column id="682" parent="286" name="not_picked">
+    <column id="683" parent="286" name="not_picked">
       <Position>2</Position>
       <DataType>varchar(255)|0s</DataType>
     </column>
-    <index id="683" parent="286" name="FKd1l452pyqmndh4mmcownu34u">
+    <index id="684" parent="286" name="FKd1l452pyqmndh4mmcownu34u">
       <ColNames>spire_card_card_id</ColNames>
       <Type>btree</Type>
     </index>
-    <foreign-key id="684" parent="286" name="FKd1l452pyqmndh4mmcownu34u">
+    <foreign-key id="685" parent="286" name="FKd1l452pyqmndh4mmcownu34u">
       <ColNames>spire_card_card_id</ColNames>
       <RefTableName>spire_card</RefTableName>
       <RefColNames>card_id</RefColNames>
     </foreign-key>
-    <column id="685" parent="287" name="id">
+    <column id="686" parent="287" name="id">
       <Position>1</Position>
       <DataType>bigint(20)|0s</DataType>
       <NotNull>1</NotNull>
       <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="686" parent="287" name="abbreviation">
+    <column id="687" parent="287" name="abbreviation">
       <Position>2</Position>
       <DataType>varchar(255)|0s</DataType>
     </column>
-    <column id="687" parent="287" name="city">
+    <column id="688" parent="287" name="city">
       <Position>3</Position>
       <DataType>varchar(255)|0s</DataType>
     </column>
-    <column id="688" parent="287" name="conference">
+    <column id="689" parent="287" name="conference">
       <Position>4</Position>
       <DataType>varchar(255)|0s</DataType>
     </column>
-    <column id="689" parent="287" name="division">
+    <column id="690" parent="287" name="division">
       <Position>5</Position>
       <DataType>varchar(255)|0s</DataType>
     </column>
-    <column id="690" parent="287" name="full_name">
+    <column id="691" parent="287" name="full_name">
       <Position>6</Position>
       <DataType>varchar(255)|0s</DataType>
     </column>
-    <column id="691" parent="287" name="name">
+    <column id="692" parent="287" name="name">
       <Position>7</Position>
       <DataType>varchar(255)|0s</DataType>
     </column>
-    <key id="692" parent="287" name="PRIMARY">
+    <key id="693" parent="287" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="693" parent="288" name="tomb_event_id">
+    <column id="694" parent="288" name="tomb_event_id">
       <Position>1</Position>
       <DataType>bigint(20)|0s</DataType>
       <NotNull>1</NotNull>
       <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="694" parent="288" name="greed">
+    <column id="695" parent="288" name="greed">
       <Position>2</Position>
       <DataType>int(11)|0s</DataType>
     </column>
-    <column id="695" parent="288" name="hunger">
+    <column id="696" parent="288" name="hunger">
       <Position>3</Position>
       <DataType>int(11)|0s</DataType>
     </column>
-    <column id="696" parent="288" name="magic">
+    <column id="697" parent="288" name="magic">
       <Position>4</Position>
       <DataType>int(11)|0s</DataType>
     </column>
-    <column id="697" parent="288" name="power">
+    <column id="698" parent="288" name="power">
       <Position>5</Position>
       <DataType>int(11)|0s</DataType>
     </column>
-    <column id="698" parent="288" name="war">
+    <column id="699" parent="288" name="war">
       <Position>6</Position>
       <DataType>int(11)|0s</DataType>
     </column>
-    <key id="699" parent="288" name="PRIMARY">
+    <key id="700" parent="288" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>tomb_event_id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="700" parent="289" name="top_id">
+    <column id="701" parent="289" name="top_id">
       <Position>1</Position>
       <DataType>bigint(20)|0s</DataType>
       <NotNull>1</NotNull>
       <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="701" parent="289" name="host">
+    <column id="702" parent="289" name="host">
       <Position>2</Position>
       <DataType>varchar(255)|0s</DataType>
     </column>
-    <column id="702" parent="289" name="time">
+    <column id="703" parent="289" name="time">
       <Position>3</Position>
       <DataType>decimal(19,2 digit)|0s</DataType>
     </column>
-    <column id="703" parent="289" name="event_top_id">
+    <column id="704" parent="289" name="event_top_id">
       <Position>4</Position>
       <DataType>bigint(20)|0s</DataType>
     </column>
-    <index id="704" parent="289" name="FKona7q1imktxyg1kro787b9apa">
+    <index id="705" parent="289" name="FKona7q1imktxyg1kro787b9apa">
       <ColNames>event_top_id</ColNames>
       <Type>btree</Type>
     </index>
-    <key id="705" parent="289" name="PRIMARY">
+    <key id="706" parent="289" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>top_id</ColNames>
       <Primary>1</Primary>
     </key>
-    <foreign-key id="706" parent="289" name="FKona7q1imktxyg1kro787b9apa">
+    <foreign-key id="707" parent="289" name="FKona7q1imktxyg1kro787b9apa">
       <ColNames>event_top_id</ColNames>
       <RefTableName>bundle</RefTableName>
       <RefColNames>top_id</RefColNames>
