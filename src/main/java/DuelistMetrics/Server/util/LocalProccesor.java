@@ -42,4 +42,21 @@ public class LocalProccesor {
     }
   }
 
+  public static float calculatePercentile(int position, int sizeOfData) {
+    return calculatePercentile(position, sizeOfData, true);
+  }
+
+  public static float calculatePercentile(int position, int sizeOfData, boolean aboveForty) {
+     float y = aboveForty ? 1.00f : 0.40f;
+     float x = y * sizeOfData;
+     while (position < x) {
+      y -= 0.01;
+      if (y < 0.01) {
+        return 0.0f;
+      }
+      x = y * sizeOfData;
+     }
+     return y;
+  }
+
 }

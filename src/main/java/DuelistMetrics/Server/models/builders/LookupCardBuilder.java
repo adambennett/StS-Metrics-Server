@@ -14,6 +14,8 @@ public class LookupCardBuilder {
     private String cost;
     private String text;
     private String newLineText;
+    private String authors;
+    private String module;
     private Integer block;
     private Integer damage;
     private Integer magicNumber;
@@ -126,7 +128,17 @@ public class LookupCardBuilder {
         return this;
     }
 
+    public LookupCardBuilder setModule(String module) {
+        this.module = module;
+        return this;
+    }
+
+    public LookupCardBuilder setAuthors(String authors) {
+        this.authors = authors;
+        return this;
+    }
+
     public LookupCard createLookupCard() {
-        return new LookupCard(card_id, name, color, rarity, type, duelistType, cost, text, newLineText, block, damage, magicNumber, secondMag, thirdMag, tributes, summons, entomb, isDuelistCard, pools, maxUpgrades);
+        return new LookupCard(card_id, name, color, rarity, type, duelistType, cost, text, newLineText, block, damage, magicNumber, secondMag, thirdMag, tributes, summons, entomb, isDuelistCard, pools, maxUpgrades, authors, module);
     }
 }

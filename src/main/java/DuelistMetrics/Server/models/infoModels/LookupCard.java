@@ -14,6 +14,8 @@ public class LookupCard {
     private String cost;
     private String text;
     private String newLineText;
+    private String authors;
+    private String module;
     private Integer block;
     private Integer damage;
     private Integer magicNumber;
@@ -26,7 +28,7 @@ public class LookupCard {
     private Boolean isDuelistCard;
     private List<String> pools;
 
-    public LookupCard(String card_id, String name, String color, String rarity, String type, String duelistType, String cost, String text, String newLineText, Integer block, Integer damage, Integer magicNumber, Integer secondMag, Integer thirdMag, Integer tributes, Integer summons, Integer entomb, Boolean isDuelistCard, List<String> pools, Integer maxUpgrades) {
+    public LookupCard(String card_id, String name, String color, String rarity, String type, String duelistType, String cost, String text, String newLineText, Integer block, Integer damage, Integer magicNumber, Integer secondMag, Integer thirdMag, Integer tributes, Integer summons, Integer entomb, Boolean isDuelistCard, List<String> pools, Integer maxUpgrades, String authors, String module) {
         this.card_id = card_id;
         this.name = name;
         this.color = color;
@@ -47,6 +49,8 @@ public class LookupCard {
         this.isDuelistCard = isDuelistCard;
         this.pools = pools;
         this.maxUpgrades = maxUpgrades;
+        this.module = module;
+        this.authors = authors;
     }
 
     public String getCard_id() {
@@ -207,5 +211,21 @@ public class LookupCard {
 
     public void setMaxUpgrades(Integer maxUpgrades) {
         this.maxUpgrades = maxUpgrades;
+    }
+
+    public String getAuthors() {
+        return authors;
+    }
+
+    public void setAuthors(String authors) {
+        this.authors = authors;
+    }
+
+    public String getModule() {
+        return module;
+    }
+
+    public void setModule(String module) {
+        this.module = module;
     }
 }
