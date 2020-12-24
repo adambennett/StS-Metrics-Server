@@ -22,41 +22,8 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d6e5a4df-cf1d-450f-aae0-a5d6aef7ae87" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/ScheduledUpdater.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/models/runDetails/DetailsBossRelic.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/models/runDetails/DetailsBundle.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/models/runDetails/DetailsCampfireChoice.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/models/runDetails/DetailsCard.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/models/runDetails/DetailsEvent.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/models/runDetails/DetailsMiniMod.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/models/runDetails/DetailsPotion.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/models/runDetails/DetailsRelic.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/models/runDetails/RunTop.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/models/runDetails/SimpleCard.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/models/tierScore/MinimalScoredCard.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/models/tierScore/PoolTotals.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/models/tierScore/PopsCard.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/models/tierScore/ScoredCard.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/models/tierScore/ScoredCardKey.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/models/tierScore/TierBundle.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/models/tierScore/TierDataHolder.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/repositories/TierScoreRepo.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/util/ScoringUtils.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/util/SpireUtils.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/StS-Metrics-Server.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/StS-Metrics-Server.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/a313f15d-a832-4e92-a645-1ac4af936b2b.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/a313f15d-a832-4e92-a645-1ac4af936b2b.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/a994520c-0389-4923-b635-7be96204c7e2.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/a994520c-0389-4923-b635-7be96204c7e2.xml" afterDir="false" />
+    <list default="true" id="9af24f8c-45cb-4445-9116-870f5315a5f1" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/SpringApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/SpringApp.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/BundleController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/BundleController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/InfoController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/InfoController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/RunLogController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/RunLogController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/models/RunDetails.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/models/RunDetails.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/models/builders/LookupCardBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/models/builders/LookupCardBuilder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/models/infoModels/LookupCard.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/models/infoModels/LookupCard.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/repositories/BundleRepo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/repositories/BundleRepo.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/repositories/InfoCardRepo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/repositories/InfoCardRepo.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/repositories/InfoPotionRepo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/repositories/InfoPotionRepo.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/repositories/InfoRelicRepo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/repositories/InfoRelicRepo.java" afterDir="false" />
@@ -222,6 +189,17 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration default="true" type="ArquillianJUnit" factoryName="" nameIsGenerated="true">
+      <option name="arquillianRunConfiguration">
+        <value>
+          <option name="containerStateName" value="" />
+        </value>
+      </option>
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="Build" type="MavenRunConfiguration" factoryName="Maven">
       <MavenSettings>
         <option name="myGeneralSettings" />
@@ -370,14 +348,7 @@
       <workItem from="1608651442602" duration="15045000" />
       <workItem from="1608684172369" duration="356000" />
       <workItem from="1608685227553" duration="129000" />
-      <workItem from="1608685614932" duration="39448000" />
-    </task>
-    <task id="LOCAL-00021" summary="fixed all deck compare page not working">
-      <created>1588564092478</created>
-      <option name="number" value="00021" />
-      <option name="presentableId" value="LOCAL-00021" />
-      <option name="project" value="LOCAL" />
-      <updated>1588564092478</updated>
+      <workItem from="1608685614932" duration="39872000" />
     </task>
     <task id="LOCAL-00022" summary="fixed all deck compare page not working">
       <created>1589093369014</created>
@@ -715,7 +686,14 @@
       <option name="project" value="LOCAL" />
       <updated>1608836326178</updated>
     </task>
-    <option name="localTasksCounter" value="70" />
+    <task id="LOCAL-00070" summary="Fix update still ignoring basic/colorless pools">
+      <created>1608837124598</created>
+      <option name="number" value="00070" />
+      <option name="presentableId" value="LOCAL-00070" />
+      <option name="project" value="LOCAL" />
+      <updated>1608837124598</updated>
+    </task>
+    <option name="localTasksCounter" value="71" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -737,7 +715,6 @@
     <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="CHECK_NEW_TODO" value="false" />
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
-    <MESSAGE value="fixed neow pages" />
     <MESSAGE value="added country/language tracking to bundles" />
     <MESSAGE value="added endpoint for # of runs by country" />
     <MESSAGE value="fixed new endpoint" />
@@ -762,7 +739,8 @@
     <MESSAGE value="Fix up return data on run details, improve scoring further" />
     <MESSAGE value="Fix index tree" />
     <MESSAGE value="Fix some tier scoring issues, add endpoint for mod to grab scores" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fix some tier scoring issues, add endpoint for mod to grab scores" />
+    <MESSAGE value="Fix update still ignoring basic/colorless pools" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fix update still ignoring basic/colorless pools" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -806,11 +784,6 @@
           <url>file://$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/services/InfoService.java</url>
           <line>303</line>
           <option name="timeStamp" value="87" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/InfoController.java</url>
-          <line>461</line>
-          <option name="timeStamp" value="92" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
