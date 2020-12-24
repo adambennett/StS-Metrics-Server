@@ -153,7 +153,7 @@ public class InfoService {
     List<Long> duelistIds = bundleRepo.getModInfoBundleIdsForAllDuelistVersions();
     List<String> cards;
     if (filterPool) {
-      cards = cardRepo.getTrackedCardsForTierScores(poolName, duelistIds);
+      cards = cardRepo.getTrackedCardsForTierScores(poolName, duelistIds, poolName + " [Basic/Colorless]");
     } else {
       cards = cardRepo.getTrackedCardsForTierScores(duelistIds);
     }

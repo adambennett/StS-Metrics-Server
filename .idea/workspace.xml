@@ -23,17 +23,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9af24f8c-45cb-4445-9116-870f5315a5f1" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/a994520c-0389-4923-b635-7be96204c7e2.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/a994520c-0389-4923-b635-7be96204c7e2.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/SpringApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/SpringApp.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/InfoController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/InfoController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/ScheduledUpdater.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/ScheduledUpdater.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/models/builders/LookupCardBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/models/builders/LookupCardBuilder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/models/infoModels/LookupCard.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/models/infoModels/LookupCard.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/models/tierScore/ScoredCard.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/models/tierScore/ScoredCard.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/repositories/InfoCardRepo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/repositories/InfoCardRepo.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/repositories/TierScoreRepo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/repositories/TierScoreRepo.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/repositories/TopInfoBundleRepo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/repositories/TopInfoBundleRepo.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/services/InfoService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/services/InfoService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -350,14 +340,7 @@
       <workItem from="1608651442602" duration="15045000" />
       <workItem from="1608684172369" duration="356000" />
       <workItem from="1608685227553" duration="129000" />
-      <workItem from="1608685614932" duration="39029000" />
-    </task>
-    <task id="LOCAL-00020" summary="fixed 2 digit day in timestamp">
-      <created>1588320194344</created>
-      <option name="number" value="00020" />
-      <option name="presentableId" value="LOCAL-00020" />
-      <option name="project" value="LOCAL" />
-      <updated>1588320194344</updated>
+      <workItem from="1608685614932" duration="39448000" />
     </task>
     <task id="LOCAL-00021" summary="fixed all deck compare page not working">
       <created>1588564092478</created>
@@ -695,7 +678,14 @@
       <option name="project" value="LOCAL" />
       <updated>1608709224813</updated>
     </task>
-    <option name="localTasksCounter" value="69" />
+    <task id="LOCAL-00069" summary="Fix some tier scoring issues, add endpoint for mod to grab scores">
+      <created>1608836326178</created>
+      <option name="number" value="00069" />
+      <option name="presentableId" value="LOCAL-00069" />
+      <option name="project" value="LOCAL" />
+      <updated>1608836326178</updated>
+    </task>
+    <option name="localTasksCounter" value="70" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -717,7 +707,6 @@
     <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="CHECK_NEW_TODO" value="false" />
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
-    <MESSAGE value="fixed multi version mods not tracking properly" />
     <MESSAGE value="fixed neow pages" />
     <MESSAGE value="added country/language tracking to bundles" />
     <MESSAGE value="added endpoint for # of runs by country" />
@@ -742,7 +731,8 @@
     <MESSAGE value="Finish initial card tier scoring implementation" />
     <MESSAGE value="Fix up return data on run details, improve scoring further" />
     <MESSAGE value="Fix index tree" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fix index tree" />
+    <MESSAGE value="Fix some tier scoring issues, add endpoint for mod to grab scores" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fix some tier scoring issues, add endpoint for mod to grab scores" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -786,6 +776,11 @@
           <url>file://$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/services/InfoService.java</url>
           <line>303</line>
           <option name="timeStamp" value="87" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/InfoController.java</url>
+          <line>461</line>
+          <option name="timeStamp" value="92" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
