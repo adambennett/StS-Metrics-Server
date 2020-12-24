@@ -23,16 +23,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9af24f8c-45cb-4445-9116-870f5315a5f1" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/StS-Metrics-Server.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/StS-Metrics-Server.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/a994520c-0389-4923-b635-7be96204c7e2.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/a994520c-0389-4923-b635-7be96204c7e2.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/repositories/InfoCardRepo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/repositories/InfoCardRepo.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/repositories/InfoPotionRepo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/repositories/InfoPotionRepo.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/repositories/InfoRelicRepo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/repositories/InfoRelicRepo.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/repositories/MiniModRepo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/repositories/MiniModRepo.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/repositories/TopInfoBundleRepo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/repositories/TopInfoBundleRepo.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/services/BundleService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/services/BundleService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/services/InfoService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/services/InfoService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/util/LocalProccesor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/util/LocalProccesor.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -55,7 +50,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="master" />
+        <entry key="$PROJECT_DIR$" value="dev" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -78,6 +73,10 @@
               <option name="branches">
                 <list>
                   <RecentBranch>
+                    <option name="branchName" value="dev_laptop" />
+                    <option name="lastUsedInstant" value="1608848123" />
+                  </RecentBranch>
+                  <RecentBranch>
                     <option name="branchName" value="dev" />
                     <option name="lastUsedInstant" value="1606838978" />
                   </RecentBranch>
@@ -92,13 +91,6 @@
           </list>
         </option>
       </RecentBranches>
-    </option>
-  </component>
-  <component name="MavenImportPreferences">
-    <option name="generalSettings">
-      <MavenGeneralSettings>
-        <option name="mavenHome" value="C:\Users\eX_Di\.m2\wrapper\dists\apache-maven-3.6.3-bin\1iopthnavndlasol9gbrbg6bf2\apache-maven-3.6.3" />
-      </MavenGeneralSettings>
     </option>
   </component>
   <component name="ProjectId" id="1aCGfHzTUEErqOqIlIElUh0JgXM" />
@@ -136,7 +128,7 @@
     <property name="nodejs.protractor.protractor_package" value="$PROJECT_DIR$/node_modules/protractor" />
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="project.structure.last.edited" value="Modules" />
-    <property name="project.structure.proportion" value="0.0" />
+    <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.2" />
     <property name="restartRequiresConfirmation" value="false" />
     <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
@@ -161,6 +153,11 @@
       <recent name="DuelistMetrics.Server.models.infoModels" />
       <recent name="DuelistMetrics.Server.models" />
     </key>
+  </component>
+  <component name="RunAnythingCache">
+    <option name="myCommands">
+      <command value="mvn clean install" />
+    </option>
   </component>
   <component name="RunManager" selected="Spring Boot.Metrics Server">
     <configuration name="BundleProcessor" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
@@ -189,13 +186,15 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration default="true" type="ArquillianJUnit" factoryName="" nameIsGenerated="true">
+    <configuration default="true" type="ArquillianTestNG" factoryName="" nameIsGenerated="true">
       <option name="arquillianRunConfiguration">
         <value>
           <option name="containerStateName" value="" />
         </value>
       </option>
-      <option name="TEST_OBJECT" value="class" />
+      <option name="TEST_OBJECT" value="CLASS" />
+      <properties />
+      <listeners />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>

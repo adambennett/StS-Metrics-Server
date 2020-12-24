@@ -37,8 +37,6 @@ public class BundleService {
 
   public List<TopBundle> getMostRecentRuns(int amt) { return repo.getMostRecentRuns(amt); }
 
-  public List<TopBundle> getMostRecentRuns(int amt) { return repo.getMostRecentRuns(amt); }
-
   private void processTierBundles(List<String> data, Map<String, List<TierBundle>> out) {
     for (String s : data) {
       String[] splice = s.split(",");
