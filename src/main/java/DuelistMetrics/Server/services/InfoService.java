@@ -306,7 +306,7 @@ public class InfoService {
 
   public Map<String, String> getCardNamesByPool(String pool) {
     Map<String, String> output = new HashMap<>();
-    List<String> names = this.cardRepo.getDuelistCardsFromPool(pool);
+    List<String> names = this.cardRepo.getDuelistCardsFromPool(pool, pool + " [Basic/Colorless]");
     for (String s : names) {
       String[] splice = s.split(",");
       String id = splice[0];

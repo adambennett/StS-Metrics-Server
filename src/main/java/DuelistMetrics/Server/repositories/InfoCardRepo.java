@@ -51,6 +51,6 @@ public interface InfoCardRepo extends JpaRepository<InfoCard, Long> {
     @Query(value = "SELECT card_id, name FROM info_card WHERE info_info_bundle_id = :duelist_version AND card_id IN (:card_ids)", nativeQuery = true)
     Map<String, String> lookupDuelistCardNames(List<String> card_ids, Long duelist_version);
 
-    @Query(value = "SELECT DISTINCT card_id, name FROM info_card JOIN info_card_pools icp on info_card.info_card_id = icp.info_card_info_card_id WHERE icp.pools = :pool", nativeQuery = true)
-    List<String> getDuelistCardsFromPool(String pool);
+    @Query(value = "SELECT DISTINCT card_id, name FROM info_card JOIN info_card_pools icp on info_card.info_card_id = icp.info_card_info_card_id WHERE icp.pools = :pool OR icp.pools = :pool_basic", nativeQuery = true)
+    List<String> getDuelistCardsFromPool(String pool, String pool_basic);
 }

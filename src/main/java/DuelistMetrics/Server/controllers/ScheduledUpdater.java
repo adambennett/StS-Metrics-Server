@@ -51,7 +51,6 @@ public class ScheduledUpdater {
             logger.info("Done calculating tier scores. Updating database with new entries.");
             for (Map.Entry<String, List<ScoredCard>> entry : scores.entrySet()) {
                 String pool = entry.getKey();
-
                 int size = entry.getValue().size();
                 logger.info("Updating tier scores for pool: " + pool + " (" + size + ")");
                 Map<String, String> cardNames = null;
