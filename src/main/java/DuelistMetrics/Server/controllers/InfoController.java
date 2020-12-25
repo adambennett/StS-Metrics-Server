@@ -402,7 +402,24 @@ public class InfoController {
     }
 
     public static Map<String,List<String>> getTrackedCardsForTierScores(String poolName) {
-        return bundles.getTrackedCardsForTierScores(poolName);
+        Map<String,List<String>> data = bundles.getTrackedCardsForTierScores(poolName);
+        List<String> keysToRemove = new ArrayList<>();
+        for (Map.Entry<String, List<String>> entry : data.entrySet()) {
+            String pool = entry.getKey();
+            if (pool.contains("[Basic/Colorless]")) {
+                String[] splice = pool.split("\\[");
+                String basePool = splice[0].trim();
+                if (data.containsKey(basePool)) {
+                    List<String> cards = data.get(basePool);
+                    cards.addAll(entry.getValue());
+                    keysToRemove.add(pool);
+                }
+            }
+        }
+        for (String key : keysToRemove) {
+            data.remove(key);
+        }
+        return data;
     }
 
     public static Map<String, List<ScoredCard>> calculateTierScores(int challengeThreshold, int ascensionThreshold, String deckName) {
@@ -488,37 +505,36 @@ public class InfoController {
             } else {
                 deck = splice[0] + " Deck";
             }
-            startingDecks.add(deck);
-            deckToPoolConvert.put(deck, key);
-            poolToDeckConvert.put(key, deck);
-            Map<String, Map<Integer, TierDataHolder>> setup = new HashMap<>();
-            Map<Integer, TierDataHolder> innerSetup = new HashMap<>();
-            Map<String, PopsCard> innerPops = new HashMap<>();
-            Map<String, PopsCard> a0_innerPops = new HashMap<>();
-            Map<String, PopsCard> a1_innerPops = new HashMap<>();
-            Map<String, PopsCard> a2_innerPops = new HashMap<>();
-            Map<String, PopsCard> a3_innerPops = new HashMap<>();
-            List<PopsCard> innerPopsList = new ArrayList<>();
-            List<PopsCard> a0_innerPopsList = new ArrayList<>();
-            List<PopsCard> a1_innerPopsList = new ArrayList<>();
-            List<PopsCard> a2_innerPopsList = new ArrayList<>();
-            List<PopsCard> a3_innerPopsList = new ArrayList<>();
-            setup.put(deck, innerSetup);
-            dataMap.put(deck, setup);
-            output.put(key, new ArrayList<>());
-            sortedPopularity.put(deck, innerPopsList);
-            a0_sortedPopularity.put(deck, a0_innerPopsList);
-            a1_sortedPopularity.put(deck, a1_innerPopsList);
-            a2_sortedPopularity.put(deck, a2_innerPopsList);
-            a3_sortedPopularity.put(deck, a3_innerPopsList);
-            cardPopularity.put(key, innerPops);
-            a0_cardPopularity.put(key, a0_innerPops);
-            a1_cardPopularity.put(key, a1_innerPops);
-            a2_cardPopularity.put(key, a2_innerPops);
-            a3_cardPopularity.put(key, a3_innerPops);
-            PoolTotals totals = new PoolTotals(key);
-            totals.deck = deck;
-            poolTotalsMap.put(key, totals);
+            if (!startingDecks.contains(deck)) {
+                startingDecks.add(deck);
+                deckToPoolConvert.put(deck, key);
+                poolToDeckConvert.put(key, deck);
+                Map<String, PopsCard> innerPops = new HashMap<>();
+                Map<String, PopsCard> a0_innerPops = new HashMap<>();
+                Map<String, PopsCard> a1_innerPops = new HashMap<>();
+                Map<String, PopsCard> a2_innerPops = new HashMap<>();
+                Map<String, PopsCard> a3_innerPops = new HashMap<>();
+                List<PopsCard> innerPopsList = new ArrayList<>();
+                List<PopsCard> a0_innerPopsList = new ArrayList<>();
+                List<PopsCard> a1_innerPopsList = new ArrayList<>();
+                List<PopsCard> a2_innerPopsList = new ArrayList<>();
+                List<PopsCard> a3_innerPopsList = new ArrayList<>();
+                dataMap.put(deck, new HashMap<>());
+                output.put(key, new ArrayList<>());
+                sortedPopularity.put(deck, innerPopsList);
+                a0_sortedPopularity.put(deck, a0_innerPopsList);
+                a1_sortedPopularity.put(deck, a1_innerPopsList);
+                a2_sortedPopularity.put(deck, a2_innerPopsList);
+                a3_sortedPopularity.put(deck, a3_innerPopsList);
+                cardPopularity.put(key, innerPops);
+                a0_cardPopularity.put(key, a0_innerPops);
+                a1_cardPopularity.put(key, a1_innerPops);
+                a2_cardPopularity.put(key, a2_innerPops);
+                a3_cardPopularity.put(key, a3_innerPops);
+                PoolTotals totals = new PoolTotals(key);
+                totals.deck = deck;
+                poolTotalsMap.put(key, totals);
+            }
         }
 
         /* Fetch all runs needed for scoring                                                                          */

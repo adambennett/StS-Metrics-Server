@@ -24,8 +24,8 @@
   <component name="ChangeListManager">
     <list default="true" id="9af24f8c-45cb-4445-9116-870f5315a5f1" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/repositories/InfoCardRepo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/repositories/InfoCardRepo.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/services/InfoService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/services/InfoService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/InfoController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/InfoController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/ScheduledUpdater.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/ScheduledUpdater.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -341,14 +341,7 @@
       <workItem from="1608651442602" duration="15045000" />
       <workItem from="1608684172369" duration="356000" />
       <workItem from="1608685227553" duration="129000" />
-      <workItem from="1608685614932" duration="39872000" />
-    </task>
-    <task id="LOCAL-00022" summary="fixed all deck compare page not working">
-      <created>1589093369014</created>
-      <option name="number" value="00022" />
-      <option name="presentableId" value="LOCAL-00022" />
-      <option name="project" value="LOCAL" />
-      <updated>1589093369014</updated>
+      <workItem from="1608685614932" duration="46841000" />
     </task>
     <task id="LOCAL-00023" summary="info uploads working properly for all game objects">
       <created>1589496231641</created>
@@ -686,7 +679,14 @@
       <option name="project" value="LOCAL" />
       <updated>1608837124598</updated>
     </task>
-    <option name="localTasksCounter" value="71" />
+    <task id="LOCAL-00071" summary="Still ignoring basic/colorless during calculation">
+      <created>1608837547742</created>
+      <option name="number" value="00071" />
+      <option name="presentableId" value="LOCAL-00071" />
+      <option name="project" value="LOCAL" />
+      <updated>1608837547742</updated>
+    </task>
+    <option name="localTasksCounter" value="72" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -708,7 +708,6 @@
     <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="CHECK_NEW_TODO" value="false" />
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
-    <MESSAGE value="added country/language tracking to bundles" />
     <MESSAGE value="added endpoint for # of runs by country" />
     <MESSAGE value="fixed new endpoint" />
     <MESSAGE value="switched to treemap" />
@@ -733,52 +732,7 @@
     <MESSAGE value="Fix index tree" />
     <MESSAGE value="Fix some tier scoring issues, add endpoint for mod to grab scores" />
     <MESSAGE value="Fix update still ignoring basic/colorless pools" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fix update still ignoring basic/colorless pools" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/InfoController.java</url>
-          <line>119</line>
-          <option name="timeStamp" value="15" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/InfoController.java</url>
-          <line>143</line>
-          <option name="timeStamp" value="16" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/InfoController.java</url>
-          <line>556</line>
-          <option name="timeStamp" value="73" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/InfoController.java</url>
-          <line>553</line>
-          <option name="timeStamp" value="74" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/InfoController.java</url>
-          <line>550</line>
-          <option name="timeStamp" value="75" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/InfoController.java</url>
-          <line>76</line>
-          <option name="timeStamp" value="76" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/InfoController.java</url>
-          <line>115</line>
-          <option name="timeStamp" value="79" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/services/InfoService.java</url>
-          <line>303</line>
-          <option name="timeStamp" value="87" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
+    <MESSAGE value="Still ignoring basic/colorless during calculation" />
+    <option name="LAST_COMMIT_MESSAGE" value="Still ignoring basic/colorless during calculation" />
   </component>
 </project>
