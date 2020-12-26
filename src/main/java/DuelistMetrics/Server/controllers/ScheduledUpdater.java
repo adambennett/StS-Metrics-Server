@@ -97,7 +97,6 @@ public class ScheduledUpdater {
             double remainderSeconds = Math.floor(diff * 60);
             logger.info("Tier scores updated. Execution time: " + minutes + "m " + remainderSeconds + "s");
         } catch (Exception ex) {
-            ex.printStackTrace();
             logger.info("Error running scheduler!");
         }
     }

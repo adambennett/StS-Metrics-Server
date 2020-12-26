@@ -24,8 +24,6 @@
   <component name="ChangeListManager">
     <list default="true" id="9af24f8c-45cb-4445-9116-870f5315a5f1" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/InfoController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/InfoController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/ScheduledUpdater.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/ScheduledUpdater.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -341,21 +339,7 @@
       <workItem from="1608651442602" duration="15045000" />
       <workItem from="1608684172369" duration="356000" />
       <workItem from="1608685227553" duration="129000" />
-      <workItem from="1608685614932" duration="46841000" />
-    </task>
-    <task id="LOCAL-00023" summary="info uploads working properly for all game objects">
-      <created>1589496231641</created>
-      <option name="number" value="00023" />
-      <option name="presentableId" value="LOCAL-00023" />
-      <option name="project" value="LOCAL" />
-      <updated>1589496231641</updated>
-    </task>
-    <task id="LOCAL-00024" summary="updated with name processing for all objects">
-      <created>1589497685409</created>
-      <option name="number" value="00024" />
-      <option name="presentableId" value="LOCAL-00024" />
-      <option name="project" value="LOCAL" />
-      <updated>1589497685409</updated>
+      <workItem from="1608685614932" duration="52541000" />
     </task>
     <task id="LOCAL-00025" summary="changed order of logging for easier readability">
       <created>1589497936875</created>
@@ -686,7 +670,21 @@
       <option name="project" value="LOCAL" />
       <updated>1608837547742</updated>
     </task>
-    <option name="localTasksCounter" value="72" />
+    <task id="LOCAL-00072" summary="Fix basic/colorless ignore issues">
+      <created>1608907551197</created>
+      <option name="number" value="00072" />
+      <option name="presentableId" value="LOCAL-00072" />
+      <option name="project" value="LOCAL" />
+      <updated>1608907551197</updated>
+    </task>
+    <task id="LOCAL-00073" summary="Final changes before Heroku test of scheduled updates">
+      <created>1609006703487</created>
+      <option name="number" value="00073" />
+      <option name="presentableId" value="LOCAL-00073" />
+      <option name="project" value="LOCAL" />
+      <updated>1609006703487</updated>
+    </task>
+    <option name="localTasksCounter" value="74" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -708,8 +706,6 @@
     <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="CHECK_NEW_TODO" value="false" />
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
-    <MESSAGE value="added endpoint for # of runs by country" />
-    <MESSAGE value="fixed new endpoint" />
     <MESSAGE value="switched to treemap" />
     <MESSAGE value="now sorted treemap by value instead" />
     <MESSAGE value="fixed country ordering again" />
@@ -733,6 +729,8 @@
     <MESSAGE value="Fix some tier scoring issues, add endpoint for mod to grab scores" />
     <MESSAGE value="Fix update still ignoring basic/colorless pools" />
     <MESSAGE value="Still ignoring basic/colorless during calculation" />
-    <option name="LAST_COMMIT_MESSAGE" value="Still ignoring basic/colorless during calculation" />
+    <MESSAGE value="Fix basic/colorless ignore issues" />
+    <MESSAGE value="Final changes before Heroku test of scheduled updates" />
+    <option name="LAST_COMMIT_MESSAGE" value="Final changes before Heroku test of scheduled updates" />
   </component>
 </project>
