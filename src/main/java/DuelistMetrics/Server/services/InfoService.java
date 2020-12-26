@@ -144,8 +144,8 @@ public class InfoService {
   }
 
   public Long getMostRecentDuelistVersion() {
-    List<ModInfoBundle> duelistMods = bundleRepo.getModInfoBundlesByModNameEquals("Duelist Mod");
-    return duelistMods.get(duelistMods.size() - 1).getInfo_bundle_id();
+    List<Long> duelistMods = bundleRepo.getModInfoBundlesByModNameEquals("Duelist Mod");
+    return duelistMods.size() > 0 ? duelistMods.get(duelistMods.size() - 1) : null;
   }
 
   public Map<String, List<String>> getTrackedCardsForTierScores(String poolName) {
