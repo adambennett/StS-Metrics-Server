@@ -15,6 +15,8 @@ public class ScoredCard {
 
     public String card_name;
 
+    public Date lastUpdated;
+
     private float act0_delta;
     private float act1_delta;
     private float act2_delta;
@@ -337,6 +339,14 @@ public class ScoredCard {
 
     public void setCard_name(String card_name) {
         this.card_name = card_name;
+    }
+
+    public Date getLastUpdated() {
+        return lastUpdated;
+    }
+
+    public void setLastUpdated(Date lastUpdated) {
+        this.lastUpdated = lastUpdated;
     }
 
     public void multOverall(float multi) {

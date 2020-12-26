@@ -32,7 +32,6 @@ public class InfoController {
     public InfoController(InfoService service, BundleService bnd) {
         bundles = service;
         bundleService = bnd;
-        fillAllData();
     }
 
     public static InfoService getService() { return bundles; }
@@ -162,7 +161,6 @@ public class InfoController {
                 }
             }
             if (saved.size() > 0) {
-                fillAllData();
                 return new ResponseEntity<>(saved, HttpStatus.OK);
             } else {
                 return new ResponseEntity<>(list, HttpStatus.NO_CONTENT);
@@ -312,45 +310,6 @@ public class InfoController {
     public static Optional<InfoCreature> getCreature(String game_id) {
         if (creatureData.containsKey(game_id)) { return Optional.of(creatureData.get(game_id)); }
         return Optional.empty();
-    }
-
-    private static void fillAllData() {
-        String cardOut = fillCardData();
-        String relicOut = fillRelicData();
-        String potionOut = fillPotionData();
-        String creatureOut = fillCreatureData();
-        logger.info(cardOut);
-        logger.info(relicOut);
-        logger.info(potionOut);
-        logger.info(creatureOut);
-    }
-
-    private static String fillCardData() {
-        cardData = new HashMap<>();
-//        List<InfoCard> cards = bundles.findAllCards();
-//        cards.forEach(data -> cardData.compute(data.getCard_id(), (k, v) -> (v!=null) ? mostRecent(cardData.get(k), data) : data));
-        return "Card Info DB: " + cardData.size();
-    }
-
-    private static String fillRelicData() {
-        relicData = new HashMap<>();
-//        List<InfoRelic> relics = bundles.findAllRelics();
-//        relics.forEach(data -> relicData.compute(data.getRelic_id(), (k, v) -> (v!=null) ? mostRecent(relicData.get(k), data) : data));
-        return"Relic Info DB: " + relicData.size();
-    }
-
-    private static String fillPotionData() {
-        potionData = new HashMap<>();
-//        List<InfoPotion> potions = bundles.findAllPotions();
-//        potions.forEach(data -> potionData.compute(data.getPotion_id(), (k, v) -> (v!=null) ? mostRecent(potionData.get(k), data) : data));
-        return "Potion Info DB: " + potionData.size();
-    }
-
-    private static String fillCreatureData() {
-        creatureData = new HashMap<>();
-//        List<InfoCreature> potions = bundles.findAllCreatures();
-//        potions.forEach(data -> creatureData.compute(data.getCreature_id(), (k, v) -> (v!=null) ? mostRecent(creatureData.get(k), data) : data));
-        return "Creature Info DB: " + creatureData.size();
     }
 
     private static InfoCreature mostRecent(InfoCreature inMap, InfoCreature newEntry) {

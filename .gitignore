@@ -91,3 +91,4 @@ testem.log
 Thumbs.db
 /src/main/resources/
 !/src/main/resources/application.properties
+/.idea/libraries/
