@@ -40,7 +40,7 @@ public class ScheduledUpdater {
         return new ResponseEntity<>(isUpdating, HttpStatus.OK);
     }
 
-    @Scheduled(fixedDelay = ONE_DAY, initialDelay = ONE_DAY)
+    @Scheduled(fixedDelay = ONE_DAY, initialDelay = 1000)
     public void calculateTierScores() {
         isUpdating = true;
         logger.info("Updating tier scores. Calculating, please wait.");
