@@ -23,13 +23,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9af24f8c-45cb-4445-9116-870f5315a5f1" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/StS-Metrics-Server.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/StS-Metrics-Server.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/SpringApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/SpringApp.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/ScheduledUpdater.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DuelistMetrics/Server/controllers/ScheduledUpdater.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -52,7 +46,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="master" />
+        <entry key="$PROJECT_DIR$" value="windows-service" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -76,11 +70,11 @@
                 <list>
                   <RecentBranch>
                     <option name="branchName" value="dev" />
-                    <option name="lastUsedInstant" value="1609023516" />
+                    <option name="lastUsedInstant" value="1609254827" />
                   </RecentBranch>
                   <RecentBranch>
-                    <option name="branchName" value="master" />
-                    <option name="lastUsedInstant" value="1609023502" />
+                    <option name="branchName" value="windows-service" />
+                    <option name="lastUsedInstant" value="1609254783" />
                   </RecentBranch>
                 </list>
               </option>
@@ -275,6 +269,7 @@
         <item itemvalue="Application.BundleProcessor" />
         <item itemvalue="Application.tempMain" />
         <item itemvalue="Application.BundleProcessor" />
+        <item itemvalue="Application.tempMain" />
       </list>
     </recent_temporary>
   </component>
@@ -384,21 +379,7 @@
       <workItem from="1609022524158" duration="1661000" />
       <workItem from="1609028849629" duration="957000" />
       <workItem from="1609034465258" duration="20000" />
-      <workItem from="1609253374630" duration="1128000" />
-    </task>
-    <task id="LOCAL-00028" summary="final master push fixes">
-      <created>1590093275606</created>
-      <option name="number" value="00028" />
-      <option name="presentableId" value="LOCAL-00028" />
-      <option name="project" value="LOCAL" />
-      <updated>1590093275606</updated>
-    </task>
-    <task id="LOCAL-00029" summary="switched run endpoint back">
-      <created>1590093417547</created>
-      <option name="number" value="00029" />
-      <option name="presentableId" value="LOCAL-00029" />
-      <option name="project" value="LOCAL" />
-      <updated>1590093417547</updated>
+      <workItem from="1609253374630" duration="2959000" />
     </task>
     <task id="LOCAL-00030" summary="switched run endpoint back again">
       <created>1590093611936</created>
@@ -729,7 +710,21 @@
       <option name="project" value="LOCAL" />
       <updated>1609022819301</updated>
     </task>
-    <option name="localTasksCounter" value="77" />
+    <task id="LOCAL-00077" summary="Remove scheduled updater from heroku build">
+      <created>1609254761834</created>
+      <option name="number" value="00077" />
+      <option name="presentableId" value="LOCAL-00077" />
+      <option name="project" value="LOCAL" />
+      <updated>1609254761834</updated>
+    </task>
+    <task id="LOCAL-00078" summary="Save copy of windows service build">
+      <created>1609254815925</created>
+      <option name="number" value="00078" />
+      <option name="presentableId" value="LOCAL-00078" />
+      <option name="project" value="LOCAL" />
+      <updated>1609254815925</updated>
+    </task>
+    <option name="localTasksCounter" value="79" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -751,8 +746,6 @@
     <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="CHECK_NEW_TODO" value="false" />
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
-    <MESSAGE value="switched final country output to list for now" />
-    <MESSAGE value="nah nvm, hot revert" />
     <MESSAGE value="Add new endpoints for non-duelist character run list" />
     <MESSAGE value="Updates for frontend changes" />
     <MESSAGE value="Properly add authors field to mod tracking objects" />
@@ -776,7 +769,9 @@
     <MESSAGE value="Pre-release for v3.481.16" />
     <MESSAGE value="Improve some heroku problems" />
     <MESSAGE value="Reduce query data when looking for most recent duelistmod version" />
-    <option name="LAST_COMMIT_MESSAGE" value="Reduce query data when looking for most recent duelistmod version" />
+    <MESSAGE value="Remove scheduled updater from heroku build" />
+    <MESSAGE value="Save copy of windows service build" />
+    <option name="LAST_COMMIT_MESSAGE" value="Save copy of windows service build" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
