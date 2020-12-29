@@ -16,7 +16,7 @@ import java.util.logging.*;
 @RestController
 public class ScheduledUpdater {
 
-    /*private static final long TEN_MINUTES  =       360_000L;
+    private static final long TEN_MINUTES  =       360_000L;
     private static final long ONE_HOUR     =     3_600_000L;
     private static final long ONE_DAY      =    86_400_000L;
     private static final long ONE_MONTH    = 2_592_000_000L;
@@ -104,5 +104,5 @@ public class ScheduledUpdater {
                 logger.info("Error running scheduler!");
             }
         }
-    }*/
+    }
 }
