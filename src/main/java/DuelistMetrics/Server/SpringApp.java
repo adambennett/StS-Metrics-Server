@@ -6,7 +6,7 @@ import org.springframework.scheduling.annotation.*;
 import java.util.logging.*;
 
 @SpringBootApplication
-@EnableScheduling
+//@EnableScheduling
 public class SpringApp {
 
 	private static final Logger logger = Logger.getLogger("DuelistMetrics.Server.SpringApp");

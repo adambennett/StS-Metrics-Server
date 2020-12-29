@@ -16,7 +16,7 @@ import java.util.logging.*;
 @RestController
 public class ScheduledUpdater {
 
-    private static final long TEN_MINUTES  =       360_000L;
+    /*private static final long TEN_MINUTES  =       360_000L;
     private static final long ONE_HOUR     =     3_600_000L;
     private static final long ONE_DAY      =    86_400_000L;
     private static final long ONE_MONTH    = 2_592_000_000L;
@@ -26,6 +26,8 @@ public class ScheduledUpdater {
     private final CustomProperties env;
     private boolean isUpdating = false;
     private final boolean logProgress;
+
+    private static final Logger logger = Logger.getLogger("DuelistMetrics.Server.AutoUpdateScores");
 
     @Autowired
     public ScheduledUpdater(InfoService infoService, CustomProperties env) {
@@ -40,20 +42,20 @@ public class ScheduledUpdater {
         return new ResponseEntity<>(isUpdating, HttpStatus.OK);
     }
 
-    @Scheduled(fixedDelay = ONE_DAY * 7, initialDelay = 1000)
+    @Scheduled(fixedDelay = ONE_DAY, initialDelay = 1000)
     public void calculateTierScores() {
         if (env.enableAutomaticUpdates) {
             isUpdating = true;
-            Logger.getGlobal().info("Updating tier scores. Calculating, please wait.");
+            logger.info("Updating tier scores. Calculating, please wait.");
             long startTime = System.nanoTime();
             try {
                 Map<String, String> cache = new HashMap<>();
                 Map<String, List<ScoredCard>> scores = InfoController.calculateTierScores(-2, -1, "any");
-                Logger.getGlobal().info("Done calculating tier scores. Updating database with new entries.");
+                logger.info("Done calculating tier scores. Updating database with new entries.");
                 for (Map.Entry<String, List<ScoredCard>> entry : scores.entrySet()) {
                     String pool = entry.getKey();
                     int size = entry.getValue().size();
-                    Logger.getGlobal().info("Updating tier scores for pool: " + pool + " (" + size + ")");
+                    logger.info("Updating tier scores for pool: " + pool + " (" + size + ")");
                     Map<String, String> cardNames = null;
                     int counter = 1;
                     for (ScoredCard card : entry.getValue()) {
@@ -85,7 +87,7 @@ public class ScheduledUpdater {
                         card.setLastUpdated(new Date());
                         InfoController.saveTierScores(card);
                         if (logProgress) {
-                            Logger.getGlobal().info(pool + " Progress: [" + counter + " / " + size + "]");
+                            logger.info(pool + " Progress: [" + counter + " / " + size + "]");
                         }
                         counter++;
                     }
@@ -97,10 +99,10 @@ public class ScheduledUpdater {
                 double minutes = seconds / 60.0;
                 double diff = minutes - ((int) (seconds / 60));
                 double remainderSeconds = Math.floor(diff * 60);
-                Logger.getGlobal().info("Tier scores updated. Execution time: " + minutes + "m " + remainderSeconds + "s");
+                logger.info("Tier scores updated. Execution time: " + minutes + "m " + remainderSeconds + "s");
             } catch (Exception ex) {
-                Logger.getGlobal().info("Error running scheduler!");
+                logger.info("Error running scheduler!");
             }
         }
-    }
+    }*/
 }
