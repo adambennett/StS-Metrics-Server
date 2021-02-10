@@ -22,10 +22,6 @@ public class InfoController {
 
     private static InfoService bundles;
     private static BundleService bundleService;
-    private static Map<String, InfoCard> cardData;
-    private static Map<String, InfoRelic> relicData;
-    private static Map<String, InfoPotion> potionData;
-    private static Map<String, InfoCreature> creatureData;
 
 
     @Autowired
@@ -290,26 +286,6 @@ public class InfoController {
             output.put(mod, newArr);
         }
         return output;
-    }
-
-    public static Optional<InfoCard> getCard(String game_id) {
-        if (cardData.containsKey(game_id)) { return Optional.of(cardData.get(game_id)); }
-        return Optional.empty();
-    }
-
-    public static Optional<InfoRelic> getRelic(String game_id) {
-        if (relicData.containsKey(game_id)) { return Optional.of(relicData.get(game_id)); }
-        return Optional.empty();
-    }
-
-    public static Optional<InfoPotion> getPotion(String game_id) {
-        if (potionData.containsKey(game_id)) { return Optional.of(potionData.get(game_id)); }
-        return Optional.empty();
-    }
-
-    public static Optional<InfoCreature> getCreature(String game_id) {
-        if (creatureData.containsKey(game_id)) { return Optional.of(creatureData.get(game_id)); }
-        return Optional.empty();
     }
 
     private static InfoCreature mostRecent(InfoCreature inMap, InfoCreature newEntry) {
