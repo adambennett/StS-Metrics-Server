@@ -93,3 +93,7 @@ Thumbs.db
 !/src/main/resources/application.properties
 /.idea/libraries/
 /windows-service/
+/.idea/workspace.xml
+/.idea/dataSources/
+/.idea/dataSources.local.xml
+/.idea/dataSources.xml

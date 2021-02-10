@@ -45,9 +45,7 @@ public class CardController {
     Collection<DisplayCard> realOutput = new ArrayList<>();
     Collection<DisplayCard> endOutput = new ArrayList<>();
     for (DisplayCard c : output) {
-      Optional<InfoCard> dbCard = InfoController.getCard(c.getUuid());
-      if (dbCard.isPresent()) { c.setName(dbCard.get().getName()); }
-      else { c.setName(c.getUuid()); }
+      c.setName(c.getUuid());
       if (c.getUuid().length() > 10 && c.getUuid().startsWith("theDuelist")) {
         realOutput.add(c);
       } else {

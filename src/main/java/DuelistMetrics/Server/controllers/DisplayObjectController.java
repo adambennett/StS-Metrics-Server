@@ -89,13 +89,9 @@ public class DisplayObjectController {
     Collection<DisplayObject> endOutput = new ArrayList<>();
     for (DisplayObject c : output) {
       if (objType.equals("relics")) {
-        Optional<InfoRelic> dbRelic = InfoController.getRelic(c.getUuid());
-        if (dbRelic.isPresent()) { c.setName(dbRelic.get().getName()); }
-        else { c.setName(c.getUuid()); }
+        c.setName(c.getUuid());
       } else if (objType.equals("potions")) {
-        Optional<InfoPotion> dbPotion = InfoController.getPotion(c.getUuid());
-        if (dbPotion.isPresent()) { c.setName(dbPotion.get().getName()); }
-        else { c.setName(c.getUuid()); }
+        c.setName(c.getUuid());
       } else {
         c.setName(c.getUuid());
       }
