@@ -18,7 +18,7 @@ public class RunLogService {
 
   public List<RunLog> getAllById(List<Long> id) { return this.repo.findAllById(id); }
 
-  public List<RunLog> getAllByChar(String chararacter) { return this.repo.getAllByCharacterNameEquals(chararacter); }
+  public List<RunLog> getAllByChar(String character) { return this.repo.getAllByCharacterNameEquals(character); }
 
   public List<RunLog> getAllByCountry(String country) { return this.repo.getAllByCountry(country); }
 
@@ -33,6 +33,61 @@ public class RunLogService {
   public RunLog create(RunLog run) { return this.repo.save(run); }
 
   public Collection<RunLog> findAll() { return repo.findAll(); }
+
+  public Long countRuns(RunCountParams params) {
+    if (params.type == null) {
+      return this.repo.count();
+    }
+    switch (params.type) {
+      case "Character":
+        return this.repo.countAllWithParamsChar(params.secondType);
+      case "Country":
+        return this.repo.countAllWithParamsCountry(params.secondType);
+      case "Time":
+        String[] split = params.secondType.split("~~");
+        return this.repo.countAllWithParamsTime(split[0], split[1]);
+      case "Duelist":
+        return this.repo.countAllWithParamsChar("THE_DUELIST");
+      case "Non-Duelist":
+        return this.repo.countAllWithParamsNonDuelist();
+      case "Host":
+        return this.repo.countAllWithParamsHost(params.secondType);
+      default:
+        return this.repo.count();
+    }
+  }
+
+  public Collection<RunLog> findAll(Integer pageNumber, Integer pageSize, RunLogCriteria options) {
+    int offset = pageNumber * pageSize;
+
+    if (options.filter.isNonDuelist) {
+      return this.repo.findAllWithParamsNonDuelist(offset, pageSize);
+    }
+
+    else if (!options.filter.host.equals("")) {
+      return this.repo.findAllWithParamsHost(offset, pageSize, options.filter.host);
+    }
+
+    else if (!options.filter.character.equals("")) {
+      return this.repo.findAllWithParamsChar(offset, pageSize, options.filter.character);
+    }
+
+    else if (!options.filter.country.equals("")) {
+      return this.repo.findAllWithParamsCountry(offset, pageSize, options.filter.country);
+    }
+
+    else if (!options.filter.timeStart.equals("") && !options.filter.timeEnd.equals("")) {
+      return this.repo.findAllWithParamsTime(offset, pageSize, options.filter.timeStart, options.filter.timeEnd);
+    }
+
+    else if (!options.filter.ids.isEmpty()) {
+      return this.repo.findAllWithParamsIds(offset, pageSize, options.filter.ids);
+    }
+
+    else {
+      return this.repo.findAllWithParams(offset, pageSize);
+    }
+  }
 
   public Page<RunLog> findAllPages(Pageable pageable) { return repo.findAll(pageable); }
 

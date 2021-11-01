@@ -133,10 +133,27 @@ public class RunLogController {
         }
     }
 
-    @GetMapping("/runs")
+    @PostMapping("/count-runs")
     @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
-    public static Collection<RunLog> getBundles(){
-        return bundles.findAll();
+    public static ResponseEntity<?> getBundles(@RequestBody RunCountParams params) {
+        try {
+            Long runs = bundles.countRuns(params);
+            return new ResponseEntity<>(runs, HttpStatus.OK);
+        } catch (Exception ex) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/runs")
+    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    public Collection<RunLog> getBundlesNew(@RequestBody RunLogCriteria options) {
+        try {
+            Integer pageNum = Integer.parseInt(options.pageNumber);
+            Integer pages = Integer.parseInt(options.pageSize);
+            return bundles.findAll(pageNum, pages, options);
+        } catch (Exception ex) {
+            return new ArrayList<>();
+        }
     }
 
     @GetMapping("/runs/{character}")

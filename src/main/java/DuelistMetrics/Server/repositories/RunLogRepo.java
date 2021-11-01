@@ -1,15 +1,52 @@
 package DuelistMetrics.Server.repositories;
 
 import DuelistMetrics.Server.models.*;
-import org.springframework.data.domain.*;
 import org.springframework.data.jpa.repository.*;
-import org.springframework.data.repository.query.*;
 import org.springframework.stereotype.*;
 
 import java.util.*;
 
 @Repository
 public interface RunLogRepo extends JpaRepository<RunLog, Long> {
+
+  @Query(value = "SELECT * FROM run_log rl ORDER BY rl.run_id DESC LIMIT :offset, :pageSize", nativeQuery = true)
+  Collection<RunLog> findAllWithParams(Integer offset, Integer pageSize);
+
+  @Query(value = "SELECT * FROM run_log rl WHERE host = :host ORDER BY rl.run_id DESC LIMIT :offset, :pageSize", nativeQuery = true)
+  Collection<RunLog> findAllWithParamsHost(Integer offset, Integer pageSize, String host);
+
+  @Query(value = "SELECT COUNT(*) FROM run_log rl WHERE host = :host", nativeQuery = true)
+  Long countAllWithParamsHost(String host);
+
+  @Query(value = "SELECT * FROM run_log rl WHERE filter_date BETWEEN :timeStart AND :timeEnd ORDER BY rl.run_id DESC LIMIT :offset, :pageSize", nativeQuery = true)
+  Collection<RunLog> findAllWithParamsTime(Integer offset, Integer pageSize, String timeStart, String timeEnd);
+
+  @Query(value = "SELECT COUNT(*) FROM run_log rl WHERE filter_date BETWEEN :timeStart AND :timeEnd", nativeQuery = true)
+  Long countAllWithParamsTime(String timeStart, String timeEnd);
+
+  @Query(value = "SELECT * FROM run_log rl WHERE character_name = :character ORDER BY rl.run_id DESC LIMIT :offset, :pageSize", nativeQuery = true)
+  Collection<RunLog> findAllWithParamsChar(Integer offset, Integer pageSize, String character);
+
+  @Query(value = "SELECT COUNT(*) FROM run_log rl WHERE character_name = :character", nativeQuery = true)
+  Long countAllWithParamsChar(String character);
+
+  @Query(value = "SELECT * FROM run_log rl WHERE country = :country ORDER BY rl.run_id DESC LIMIT :offset, :pageSize", nativeQuery = true)
+  Collection<RunLog> findAllWithParamsCountry(Integer offset, Integer pageSize, String country);
+
+  @Query(value = "SELECT COUNT(*) FROM run_log rl WHERE country = :country", nativeQuery = true)
+  Long countAllWithParamsCountry(String country);
+
+  @Query(value = "SELECT * FROM run_log rl WHERE character_name != 'THE_DUELIST' ORDER BY rl.run_id DESC LIMIT :offset, :pageSize", nativeQuery = true)
+  Collection<RunLog> findAllWithParamsNonDuelist(Integer offset, Integer pageSize);
+
+  @Query(value = "SELECT COUNT(*) FROM run_log rl WHERE character_name != 'THE_DUELIST'", nativeQuery = true)
+  Long countAllWithParamsNonDuelist();
+
+  @Query(value = "SELECT * FROM run_log rl WHERE run_id IN :ids ORDER BY rl.run_id DESC LIMIT :offset, :pageSize", nativeQuery = true)
+  Collection<RunLog> findAllWithParamsIds(Integer offset, Integer pageSize, List<Long> ids);
+
+  @Query(value = "SELECT COUNT(*) FROM run_log rl WHERE run_id IN :ids", nativeQuery = true)
+  Long countAllWithParamsIds(List<Long> ids);
 
   @Query(value = "SELECT rl.deck, SUM(rl.victory = 1) AS yes FROM run_log rl WHERE rl.ascension = 20 GROUP BY rl.deck", nativeQuery = true)
   List<String> getA20Wins();
