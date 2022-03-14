@@ -110,7 +110,7 @@ public class ScheduledUpdater {
                         }
                         if (act0Diff > 0 || act1Diff > 0 || act2Diff > 0 || act3Diff > 0 || overallDiff > 0) {
                             changedCards++;
-                            logger.info(new TierScoreCompare(act0Diff, act1Diff, act2Diff, act3Diff, overallDiff).print(card));
+                            logger.info(new TierScoreCompare(oldScores, card, act0Diff, act1Diff, act2Diff, act3Diff, overallDiff).print(card));
                         }
                         InfoController.saveTierScores(card);
                         if (logProgress) {
