@@ -320,6 +320,11 @@ public class InfoService {
 
   public List<Map<String, Object>> getTierScores(String cardId, String pool) { return this.tierRepo.getScores(cardId, pool); }
 
+  public TierScoreLookup getCardTierScores(String cardId, String pool) {
+    List<TierScoreLookup> scores = this.tierRepo.getScoresJPA(cardId, pool);
+    return scores == null || scores.size() < 1 ? null : scores.get(0);
+  }
+
   public List<String> getAllModuleVersions() { return this.bundleRepo.getAllModuleVersions(); }
 
   public List<String> getModList() { return this.bundleRepo.getMods(); }

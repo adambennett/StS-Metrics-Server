@@ -119,7 +119,14 @@
             <artifactId>semver4j</artifactId>
             <version>3.1.0</version>
         </dependency>
-    </dependencies>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-gateway</artifactId>
+			<version>3.1.1</version>
+			<type>pom</type>
+		</dependency>
+
+	</dependencies>
 
 	<build>
 		<plugins>
