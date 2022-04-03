@@ -52,6 +52,7 @@ public class ScheduledUpdater {
                 Map<String, List<ScoredCard>> scores = InfoController.calculateTierScores(-2, -1, "any");
                 logger.info("Done calculating tier scores. Updating database with new entries.");
                 int changedCards = 0;
+                int newlyScored = 0;
                 for (Map.Entry<String, List<ScoredCard>> entry : scores.entrySet()) {
                     String pool = entry.getKey();
                     int size = entry.getValue().size();
@@ -89,6 +90,7 @@ public class ScheduledUpdater {
                             TierScoreLookup oldScores = infoService.getCardTierScores(card.card_id, card.pool_name);
                             if (oldScores == null) {
                                 logger.info("New card scored for " + card.pool_name + " -- " + card.card_name + " (" + card.card_id + ")");
+                                newlyScored++;
                             } else {
                                 int act0Diff = 0;
                                 int act1Diff = 0;
@@ -131,7 +133,7 @@ public class ScheduledUpdater {
                 double diff = minutes - ((int) (seconds / 60));
                 double remainderSeconds = Math.floor(diff * 60);
                 var message = this.logUpdatedCards
-                        ? "Tier scores updated. " + changedCards + " card scores modified. Execution time: " + minutes + "m " + remainderSeconds + "s"
+                        ? "Tier scores updated. " + changedCards + " card scores modified. " + newlyScored + " new cards scored. Execution time: " + minutes + "m " + remainderSeconds + "s"
                         : "Tier scores updated. Execution time: " + minutes + "m " + remainderSeconds + "s";
                 logger.info(message);
             } catch (Exception ex) {
