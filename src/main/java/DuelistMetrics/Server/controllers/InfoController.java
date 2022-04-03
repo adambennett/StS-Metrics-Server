@@ -32,6 +32,11 @@ public class InfoController {
 
     public static InfoService getService() { return bundles; }
 
+    @GetMapping("/isAlive")
+    public HttpStatus isAlive() {
+        return HttpStatus.OK;
+    }
+
     @GetMapping("/cardLookup/{card}")
     @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
     public ResponseEntity<?> cardLookup(@PathVariable String card) {
@@ -370,11 +375,6 @@ public class InfoController {
         challengeFilter = filteringChallenge ? challengeFilter : null;
         deckFilter = filteringDeckName ? deckName : null;
 
-        /* Global card list for random/upgrade/exodia pools                                                           */
-        List<List<String>> globals = bundles.globalCardListData();
-        List<String> poolsWithGlobalCardLists = globals.get(0);
-        List<String> globalCardList = globals.get(1);
-
         /* Setup variables                                                                                            */
         // scored output
         //  (Pool)
@@ -538,34 +538,34 @@ public class InfoController {
                                         PopsCard toUpdate = popsCardMap.get(card_id);
                                         toUpdate.numberOfPicks++;
                                         switch (act) {
-                                            case 0:
+                                            case 0 -> {
                                                 if (!a0_popsCardMap.containsKey(card_id)) {
                                                     a0_popsCardMap.put(card_id, new PopsCard(card_id));
                                                 }
                                                 PopsCard a0_toUpdate = a0_popsCardMap.get(card_id);
                                                 a0_toUpdate.numberOfPicks++;
-                                                break;
-                                            case 1:
+                                            }
+                                            case 1 -> {
                                                 if (!a1_popsCardMap.containsKey(card_id)) {
                                                     a1_popsCardMap.put(card_id, new PopsCard(card_id));
                                                 }
                                                 PopsCard a1_toUpdate = a1_popsCardMap.get(card_id);
                                                 a1_toUpdate.numberOfPicks++;
-                                                break;
-                                            case 2:
+                                            }
+                                            case 2 -> {
                                                 if (!a2_popsCardMap.containsKey(card_id)) {
                                                     a2_popsCardMap.put(card_id, new PopsCard(card_id));
                                                 }
                                                 PopsCard a2_toUpdate = a2_popsCardMap.get(card_id);
                                                 a2_toUpdate.numberOfPicks++;
-                                                break;
-                                            case 3:
+                                            }
+                                            case 3 -> {
                                                 if (!a3_popsCardMap.containsKey(card_id)) {
                                                     a3_popsCardMap.put(card_id, new PopsCard(card_id));
                                                 }
                                                 PopsCard a3_toUpdate = a3_popsCardMap.get(card_id);
                                                 a3_toUpdate.numberOfPicks++;
-                                                break;
+                                            }
                                         }
                                     }
 
@@ -578,26 +578,26 @@ public class InfoController {
                                         toCreate.numberOfPicks++;
                                         popsCardMap.put(card_id, toCreate);
                                         switch (act) {
-                                            case 0:
+                                            case 0 -> {
                                                 PopsCard a0_toCreate = new PopsCard(card_id);
                                                 a0_toCreate.numberOfPicks++;
                                                 a0_popsCardMap.put(card_id, a0_toCreate);
-                                                break;
-                                            case 1:
+                                            }
+                                            case 1 -> {
                                                 PopsCard a1_toCreate = new PopsCard(card_id);
                                                 a1_toCreate.numberOfPicks++;
                                                 a1_popsCardMap.put(card_id, a1_toCreate);
-                                                break;
-                                            case 2:
+                                            }
+                                            case 2 -> {
                                                 PopsCard a2_toCreate = new PopsCard(card_id);
                                                 a2_toCreate.numberOfPicks++;
                                                 a2_popsCardMap.put(card_id, a2_toCreate);
-                                                break;
-                                            case 3:
+                                            }
+                                            case 3 -> {
                                                 PopsCard a3_toCreate = new PopsCard(card_id);
                                                 a3_toCreate.numberOfPicks++;
                                                 a3_popsCardMap.put(card_id, a3_toCreate);
-                                                break;
+                                            }
                                         }
                                     }
 
@@ -658,22 +658,22 @@ public class InfoController {
             for (TierDataHolder data : entry.getValue()) {
                 ScoredCard card = toAddToCards.getOrDefault(data.cardId, new ScoredCard(data.cardId, pool));
                 switch (data.act) {
-                    case 0:
+                    case 0 -> {
                         card.setAct0_losses(card.getAct0_losses() + data.losses);
                         card.setAct0_wins(card.getAct0_wins() + data.wins);
-                        break;
-                    case 1:
+                    }
+                    case 1 -> {
                         card.setAct1_losses(card.getAct1_losses() + data.losses);
                         card.setAct1_wins(card.getAct1_wins() + data.wins);
-                        break;
-                    case 2:
+                    }
+                    case 2 -> {
                         card.setAct2_losses(card.getAct2_losses() + data.losses);
                         card.setAct2_wins(card.getAct2_wins() + data.wins);
-                        break;
-                    case 3:
+                    }
+                    case 3 -> {
                         card.setAct3_losses(card.getAct3_losses() + data.losses);
                         card.setAct3_wins(card.getAct3_wins() + data.wins);
-                        break;
+                    }
                 }
                 toAddToCards.put(data.cardId, card);
             }

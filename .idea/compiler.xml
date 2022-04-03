@@ -11,7 +11,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel target="8">
-      <module name="StS-Metrics-Server" target="1.8" />
+      <module name="StS-Metrics-Server" target="18" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
