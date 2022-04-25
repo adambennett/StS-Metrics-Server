@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.*;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.*;
 
+import java.math.*;
 import java.util.*;
 
 @Service
@@ -28,6 +29,14 @@ public class BundleService {
   public Page<TopBundle> findAllPages(Pageable pageable) { return repo.findAll(pageable); }
 
   public Optional<TopBundle> findById(long infoID) { return this.repo.findById(infoID); }
+
+  public TopBundle findByHostAndLocalTime(String host, BigDecimal localTime) {
+    var list = this.repo.findByHostAndLocalTime(host, localTime);
+    if (list != null && list.size() > 0) {
+      return list.get(0);
+    }
+    return null;
+  }
 
   public Optional<Bundle> findByIdInner(long ID) { return this.innerRepo.findById(ID); }
 

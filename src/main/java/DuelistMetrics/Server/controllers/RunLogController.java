@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.lang.*;
 import java.lang.String;
+import java.math.*;
 import java.util.*;
 import java.util.logging.*;
 
@@ -66,18 +67,143 @@ public class RunLogController {
         }
     }
 
-    @GetMapping("/run/{id}")
+    private record RunDetailsID(String host, BigDecimal localTime) {}
+    public record SimpleCardExtended(String name, String id, SimpleCardExtendedType type) {}
+    public enum SimpleCardExtendedType { Card, Relic, Potion, Unknown }
+
+    @PostMapping("/run/details")
     @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
-    public static ResponseEntity<?> getRunDetails(@PathVariable Long id){
-        Optional<TopBundle> top = realBundles.findById(id);
-        if (top.isPresent()) {
-            List<FloorInfo> floors = new ArrayList<>();
-            // fill floors off top bundle
-                // look for any same name events on same floor
-                // collect all player choices into list of choices for those events
-                    // collect all events with name='Nameless Tomb'
-                    // starting points, magic score, rewards received + levels, spent points
-            RunDetails run = new RunDetails(new RunTop(top.get()), floors);
+    public static ResponseEntity<?> getRunDetails(@RequestBody RunDetailsID runDetailsInfo) {
+        var host = runDetailsInfo.host;
+        var localTime = runDetailsInfo.localTime;
+        var canLookup = host != null && !host.equals("") && localTime != null;
+        if (canLookup) {
+            return runDetailsLogic(realBundles.findByHostAndLocalTime(host, localTime));
+        }
+        return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+    }
+
+    private static String roomKeyToRoom(String roomKey, int floor) {
+        var defaultOutput = "Unknown [ " + roomKey + " ]";
+        if (roomKey == null && floor == 0) return "Neow";
+        else if (roomKey == null && floor == 1) return "Combat";
+        else if (roomKey == null) return defaultOutput;
+        return switch (roomKey) {
+            case "R" -> "Campfire";
+            case "M" -> "Combat";
+            case "E" -> "Elite";
+            case "T" -> "Chest";
+            case "B" -> "Boss";
+            case "$" -> "Shop";
+            case "?" -> "Event";
+            default -> defaultOutput;
+        };
+    }
+
+    private static List<FloorInfo> getFloorInfo(RunDetails run, TopBundle top, Map<String, String> cardMap, Map<String, String> relicMap, Map<String, String> potionMap) {
+        var output = new ArrayList<FloorInfo>();
+        var damageMap = new HashMap<Integer, DamageInfo>();
+        var itemMap = new HashMap<Integer, List<SimpleCardExtended>>();
+        var cardsChosen = new HashMap<Integer, List<SimpleCardExtended>>();
+        var relicsChosen = new HashMap<Integer, List<SimpleCardExtended>>();
+        var potionsChosen = new HashMap<Integer, List<SimpleCardExtended>>();
+        var skipped = new HashMap<Integer, List<SimpleCardExtended>>();
+        var upgraded = new HashMap<Integer, List<SimpleCardExtended>>();
+        var events = new HashMap<Integer, List<Object>>();
+        var data = top.getEvent();
+        for (var campfire : run.getTop().getEvent().getCampfire_choices()) {
+            if (campfire.getKey().equals("SMITH")) {
+                var floor = campfire.getFloor();
+                var list = upgraded.getOrDefault(floor, new ArrayList<>());
+                var id = campfire.getId();
+                var card = SpireUtils.parseBaseIdToSimpleCard(id, cardMap, relicMap, potionMap);
+                list.add(new SimpleCardExtended(card.card().name, card.card().id, SimpleCardExtendedType.Card));
+                upgraded.put(floor, list);
+            }
+        }
+        for (var damage : data.getDamage_taken()) {
+            damageMap.put(damage.getFloor(), damage);
+        }
+        for (var i = 0; i < data.getItem_purchase_floors().size(); i++) {
+            var floor = data.getItem_purchase_floors().get(i);
+            var item = data.getItems_purchased().get(i);
+            var fullItem = SpireUtils.parseBaseIdToSimpleCard(item, cardMap, relicMap, potionMap);
+            var list = itemMap.getOrDefault(floor + 1, new ArrayList<>());
+            list.add(new SimpleCardExtended(fullItem.name(), fullItem.card().id, fullItem.type()));
+            itemMap.put(floor + 1, list);
+        }
+        for (var card : run.top.getEvent().getCard_choices()) {
+            var floor = card.getFloor();
+            var fullItem = SpireUtils.parseBaseIdToSimpleCard(card.getCardId(), cardMap, relicMap, potionMap);
+            for (var notPicked : card.getNot_picked()) {
+                var list = skipped.getOrDefault(floor, new ArrayList<>());
+                var fullSkipItem = SpireUtils.parseBaseIdToSimpleCard(notPicked.id, cardMap, relicMap, potionMap);
+                list.add(new SimpleCardExtended(fullSkipItem.name(), fullSkipItem.card().id, SimpleCardExtendedType.Card));
+                skipped.put(floor, list);
+            }
+            if (!fullItem.name().equals("SKIP")) {
+                var list = cardsChosen.getOrDefault(floor, new ArrayList<>());
+                list.add(new SimpleCardExtended(fullItem.name(), fullItem.card().id, SimpleCardExtendedType.Card));
+                cardsChosen.put(floor, list);
+            }
+        }
+        for (var card : run.top.getEvent().getRelics_obtained()) {
+            var floor = card.getFloor();
+            var fullItem = SpireUtils.parseBaseIdToSimpleCard(card.getId(), cardMap, relicMap, potionMap);
+            var list = cardsChosen.getOrDefault(floor, new ArrayList<>());
+            list.add(new SimpleCardExtended(fullItem.name(), fullItem.card().id, SimpleCardExtendedType.Relic));
+            relicsChosen.put(floor, list);
+        }
+        for (var card : run.top.getEvent().getPotions_obtained()) {
+            var floor = card.getFloor();
+            var fullItem = SpireUtils.parseBaseIdToSimpleCard(card.getId(), cardMap, relicMap, potionMap);
+            var list = cardsChosen.getOrDefault(floor, new ArrayList<>());
+            list.add(new SimpleCardExtended(fullItem.name(), fullItem.card().id, SimpleCardExtendedType.Potion));
+            potionsChosen.put(floor, list);
+        }
+        for (var event : run.top.getEvent().event_choices) {
+            var floor = event.getFloor();
+            var list = events.getOrDefault(floor, new ArrayList<>());
+            list.add(event);
+            events.put(floor, list);
+        }
+        var roomsSize = data.getPath_per_floor().size();
+        var lastGold = 0;
+        for (var i = 0; i < data.getGold_per_floor().size(); i++) {
+
+            var floorInfo = new FloorInfo();
+            var floor = i - 1;
+            var pathIndex = i - 2;
+            var damageRecord = damageMap.getOrDefault(floor, null);
+
+            floorInfo.floor = floor;
+            floorInfo.roomKey = pathIndex < roomsSize && pathIndex > -1 ? data.getPath_per_floor().get(pathIndex) : null;
+            floorInfo.roomKey = floorInfo.roomKey == null && i == 1 ? "M" : floorInfo.roomKey;
+            floorInfo.actualRoom = roomKeyToRoom(floorInfo.roomKey, i);
+            floorInfo.goldChange = data.getGold_per_floor().get(i) - lastGold;
+            floorInfo.currentGold = data.getGold_per_floor().get(i);
+            floorInfo.currentHP = data.getCurrent_hp_per_floor().get(i);
+            floorInfo.maxHP = data.getMax_hp_per_floor().get(i);
+            floorInfo.hp = floorInfo.currentHP + "/" + floorInfo.maxHP;
+            floorInfo.turns = damageRecord != null ? damageRecord.getTurns() : null;
+            floorInfo.damage = damageRecord != null ? damageRecord.getDamage() : null;
+            floorInfo.encounter = damageRecord != null ? damageRecord.getEnemies() : null;
+            floorInfo.purchased = new ArrayList<>(itemMap.getOrDefault(floor, new ArrayList<>()));
+            floorInfo.skipped = new ArrayList<>(skipped.getOrDefault(floor, new ArrayList<>()));
+            floorInfo.upgraded = new ArrayList<>(upgraded.getOrDefault(floor, new ArrayList<>()));
+            floorInfo.obtained = new ArrayList<>(cardsChosen.getOrDefault(floor, new ArrayList<>()));
+            floorInfo.obtained.addAll(potionsChosen.getOrDefault(floor, new ArrayList<>()));
+            floorInfo.obtained.addAll(relicsChosen.getOrDefault(floor, new ArrayList<>()));
+            floorInfo.events = new ArrayList<>(events.getOrDefault(floor, new ArrayList<>()));
+            lastGold = data.getGold_per_floor().get(i);
+            output.add(floorInfo);
+        }
+        return output;
+    }
+
+    private static ResponseEntity<?> runDetailsLogic(TopBundle top) {
+        if (top != null) {
+            RunDetails run = new RunDetails(new RunTop(top));
             List<Long> modsToCheck = new ArrayList<>();
             for (DetailsMiniMod mod : run.top.getEvent().getModList()) {
                 modsToCheck.add(infos.getModInfoBundleFromMiniMod(mod.getModID(), mod.getModVersion()));
@@ -86,51 +212,57 @@ public class RunLogController {
             Map<String, String> relicMap = infos.relicIdMappingArchive(modsToCheck);
             Map<String, String> potionMap = infos.potionIdMappingArchive(modsToCheck);
 
+            // fill floors off top bundle
+            // look for any same name events on same floor
+            // collect all player choices into list of choices for those events
+            // collect all events with name='Nameless Tomb'
+            // starting points, magic score, rewards received + levels, spent points
+            try {
+                List<FloorInfo> floors = getFloorInfo(run, top, cardMap, relicMap, potionMap);
+                run.setFloors(floors);
+            } catch (Exception ex) {
+                logger.info("Exception preparing floor info!" + ex);
+            }
+
             for (int i = 0; i < run.top.getEvent().getMaster_deck().size(); i++) {
                 String localId = run.top.getEvent().getMaster_deck().get(i).getId();
-                String localName = SpireUtils.parseBaseId(localId, cardMap, relicMap, potionMap);
+                String localName = SpireUtils.parseBaseId(localId, cardMap, relicMap, potionMap).name();
                 run.top.getEvent().getMaster_deck().get(i).setName(localName);
             }
-            for (int i = 0; i < run.top.getEvent().getItems_purchased().size(); i++) {
-                run.top.getEvent().getItems_purchased().set(i, SpireUtils.parseBaseIdToSimpleCard(run.top.getEvent().getItems_purchased().get(i).getId(), cardMap, relicMap, potionMap));
-            }
-            for (int i = 0; i < run.top.getEvent().getItems_purged().size(); i++) {
-                run.top.getEvent().getItems_purged().set(i, SpireUtils.parseBaseIdToSimpleCard(run.top.getEvent().getItems_purged().get(i).getId(), cardMap, relicMap, potionMap));
-            }
-            for (int i = 0; i < run.top.getEvent().getRelics().size(); i++) {
-                run.top.getEvent().getRelics().set(i, SpireUtils.parseBaseIdToSimpleCard(run.top.getEvent().getRelics().get(i).getId(), cardMap, relicMap, potionMap));
-            }
+            run.top.getEvent().getItems_purchased().replaceAll(simpleCard -> SpireUtils.parseBaseIdToSimpleCard(simpleCard.getId(), cardMap, relicMap, potionMap).card());
+            run.top.getEvent().getItems_purged().replaceAll(simpleCard -> SpireUtils.parseBaseIdToSimpleCard(simpleCard.getId(), cardMap, relicMap, potionMap).card());
+            run.top.getEvent().getRelics().replaceAll(simpleCard -> SpireUtils.parseBaseIdToSimpleCard(simpleCard.getId(), cardMap, relicMap, potionMap).card());
             for (DetailsBossRelic relic : run.top.getEvent().getBoss_relics()) {
-                relic.setRelicName(SpireUtils.parseBaseId(relic.getRelicId(), cardMap, relicMap, potionMap));
-                for (int i = 0; i < relic.getNot_picked().size(); i++) {
-                    relic.getNot_picked().set(i, SpireUtils.parseBaseIdToSimpleCard(relic.getNot_picked().get(i).getId(), cardMap, relicMap, potionMap));
-                }
+                relic.setRelicName(SpireUtils.parseBaseId(relic.getRelicId(), cardMap, relicMap, potionMap).name());
+                relic.getNot_picked().replaceAll(simpleCard -> SpireUtils.parseBaseIdToSimpleCard(simpleCard.getId(), cardMap, relicMap, potionMap).card());
             }
             for (DetailsEvent event : run.top.getEvent().getEvent_choices()) {
-                for (int i = 0; i < event.getCards_obtained().size(); i++) {
-                    event.getCards_obtained().set(i, SpireUtils.parseBaseIdToSimpleCard(event.getCards_obtained().get(i).getId(), cardMap, relicMap, potionMap));
-                }
-                for (int i = 0; i < event.getRelics_obtained().size(); i++) {
-                    event.getRelics_obtained().set(i, SpireUtils.parseBaseIdToSimpleCard(event.getRelics_obtained().get(i).getId(), cardMap, relicMap, potionMap));
-                }
+                event.getCards_obtained().replaceAll(simpleCard -> SpireUtils.parseBaseIdToSimpleCard(simpleCard.getId(), cardMap, relicMap, potionMap).card());
+                event.getRelics_obtained().replaceAll(simpleCard -> SpireUtils.parseBaseIdToSimpleCard(simpleCard.getId(), cardMap, relicMap, potionMap).card());
             }
             for (DetailsCard card : run.top.getEvent().getCard_choices()) {
                 String cardId = card.getCardId();
-                card.setCardName(SpireUtils.parseBaseId(cardId, cardMap, relicMap, potionMap));
-                for (int i = 0; i < card.getNot_picked().size(); i++) {
-                    card.getNot_picked().set(i, SpireUtils.parseBaseIdToSimpleCard(card.getNot_picked().get(i).getId(), cardMap, relicMap, potionMap));
-                }
+                card.setCardName(SpireUtils.parseBaseId(cardId, cardMap, relicMap, potionMap).name());
+                card.getNot_picked().replaceAll(simpleCard -> SpireUtils.parseBaseIdToSimpleCard(simpleCard.getId(), cardMap, relicMap, potionMap).card());
             }
             for (DetailsPotion potion : run.top.getEvent().getPotions_obtained()) {
-                potion.setName(SpireUtils.parseBaseId(potion.getId(), cardMap, relicMap, potionMap));
+                potion.setName(SpireUtils.parseBaseId(potion.getId(), cardMap, relicMap, potionMap).name());
             }
             for (DetailsCampfireChoice choice : run.top.getEvent().getCampfire_choices()) {
-                choice.setName(SpireUtils.parseBaseId(choice.getId(), cardMap, relicMap, potionMap));
+                if (choice.getId() != null) {
+                    choice.setName(SpireUtils.parseBaseId(choice.getId(), cardMap, relicMap, potionMap).name());
+                }
             }
             return new ResponseEntity<>(run, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
         }
+    }
+
+    @GetMapping("/run/{id}")
+    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    public static ResponseEntity<?> getRunDetails(@PathVariable Long id){
+        return runDetailsLogic(realBundles.findById(id).orElse(null));
     }
 
     @PostMapping("/count-runs")
@@ -146,11 +278,9 @@ public class RunLogController {
 
     @PostMapping("/runs")
     @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
-    public Collection<RunLog> getBundlesNew(@RequestBody RunLogCriteria options) {
+    public Collection<RunLog> getBundlesNew(@RequestBody RunCountParams options) {
         try {
-            Integer pageNum = Integer.parseInt(options.pageNumber);
-            Integer pages = Integer.parseInt(options.pageSize);
-            return bundles.findAll(pageNum, pages, options);
+            return bundles.findAll(options.pageNumber, options.pageSize, options);
         } catch (Exception ex) {
             return new ArrayList<>();
         }

@@ -1,8 +1,7 @@
 package DuelistMetrics.Server.util;
 
-import DuelistMetrics.Server.models.*;
+import DuelistMetrics.Server.controllers.RunLogController.*;
 import DuelistMetrics.Server.models.runDetails.*;
-import DuelistMetrics.Server.models.tierScore.*;
 
 import java.util.*;
 
@@ -12,7 +11,10 @@ public class SpireUtils {
         return floor > 55 ? 5 : floor > 50 ? 4 : floor > 33 ? 3 : floor > 16 ? 2 : floor > 0 ? 1 : 0;
     }
 
-    public static String parseBaseId(String cardId, Map<String, String> cardMapping, Map<String, String> relicMapping, Map<String, String> potionMapping) {
+    public record SpireParseInfo(String name, SimpleCardExtendedType type){}
+    public record SpireParseInfoFull(String name, SimpleCardExtendedType type, SimpleCard card){}
+
+    public static SpireParseInfo parseBaseId(String cardId, Map<String, String> cardMapping, Map<String, String> relicMapping, Map<String, String> potionMapping) {
         if (cardId == null) {
             return null;
         }
@@ -22,24 +24,24 @@ public class SpireUtils {
             String baseId = splice[0];
             if (cardMapping.containsKey(baseId)) {
                 String name = cardMapping.get(baseId);
-                return name + "+" + upgradeAmount;
+                return new SpireParseInfo(name + "+" + upgradeAmount, SimpleCardExtendedType.Card);
             }
         }
         if (cardMapping.containsKey(cardId)) {
-            return cardMapping.get(cardId);
+            return new SpireParseInfo(cardMapping.get(cardId), SimpleCardExtendedType.Card);
         } else if (relicMapping.containsKey(cardId)) {
-            return relicMapping.get(cardId);
+            return new SpireParseInfo(relicMapping.get(cardId), SimpleCardExtendedType.Relic);
         } else if (potionMapping.containsKey(cardId)) {
-            return potionMapping.get(cardId);
+            return new SpireParseInfo(potionMapping.get(cardId), SimpleCardExtendedType.Potion);
         }
-        return cardId;
+        return new SpireParseInfo(cardId, SimpleCardExtendedType.Unknown);
     }
 
-    public static SimpleCard parseBaseIdToSimpleCard(String cardId, Map<String, String> cardMapping, Map<String, String> relicMapping, Map<String, String> potionMapping) {
-        String name = parseBaseId(cardId, cardMapping, relicMapping, potionMapping);
+    public static SpireParseInfoFull parseBaseIdToSimpleCard(String cardId, Map<String, String> cardMapping, Map<String, String> relicMapping, Map<String, String> potionMapping) {
+        var info = parseBaseId(cardId, cardMapping, relicMapping, potionMapping);
         SimpleCard card = new SimpleCard(cardId);
-        card.name = name;
-        return card;
+        card.name = info.name;
+        return new SpireParseInfoFull(info.name, info.type, card);
     }
     
 }

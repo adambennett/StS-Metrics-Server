@@ -9,44 +9,55 @@ import java.util.*;
 @Repository
 public interface RunLogRepo extends JpaRepository<RunLog, Long> {
 
-  @Query(value = "SELECT * FROM run_log rl ORDER BY rl.run_id DESC LIMIT :offset, :pageSize", nativeQuery = true)
+  @Query(value = "SELECT * FROM run_log rl WHERE DATEDIFF(rl.filter_date, CURDATE()) < 14 ORDER BY rl.filter_date DESC LIMIT :offset, :pageSize", nativeQuery = true)
   Collection<RunLog> findAllWithParams(Integer offset, Integer pageSize);
 
-  @Query(value = "SELECT * FROM run_log rl WHERE host = :host ORDER BY rl.run_id DESC LIMIT :offset, :pageSize", nativeQuery = true)
-  Collection<RunLog> findAllWithParamsHost(Integer offset, Integer pageSize, String host);
+  @Query(value = "SELECT COUNT(*) FROM run_log rl WHERE DATEDIFF(rl.filter_date, CURDATE()) < 14", nativeQuery = true)
+  Long countWithoutFilter();
 
-  @Query(value = "SELECT COUNT(*) FROM run_log rl WHERE host = :host", nativeQuery = true)
-  Long countAllWithParamsHost(String host);
+  @Query(value = "SELECT " +
+          "COUNT(*) " +
+          "FROM run_log rl " +
+          "WHERE " +
+          "DATEDIFF(rl.filter_date, CURDATE()) < 14 and " +
+          "(character_name = :character or :character IS null) and " +
+          "(character_name = 'THE_DUELIST' or :isDuelist = false) and " +
+          "(character_name != 'THE_DUELIST' or :nonDuelist = false) and " +
+          "(rl.host = :host or :host IS null) and " +
+          "((ascension BETWEEN :ascensionStart AND :ascensionEnd) or :ascensionStart IS null) and " +
+          "((challenge BETWEEN :challengeStart AND :challengeEnd) or :challengeStart IS null) and " +
+          "((floor BETWEEN :floorStart AND :floorEnd) or :floorStart IS null) and " +
+          "(victory = :victory or :victory IS null) and " +
+          "(deck = :deck or :deck IS null) and " +
+          "(killed_by = :killedBy or :killedBy IS null) and" +
+          "((filter_date BETWEEN :timeStart AND :timeEnd) or (:timeStart IS null or :timeEnd IS null)) and " +
+          "(country = :country or :country IS null) ", nativeQuery = true)
+  Long countAllWithFilters(String character, boolean isDuelist, boolean nonDuelist, String timeStart, String timeEnd,
+                           String host, String country, Integer ascensionStart, Integer ascensionEnd,
+                           Integer challengeStart, Integer challengeEnd, Boolean victory, Integer floorStart,
+                           Integer floorEnd, String deck, String killedBy);
 
-  @Query(value = "SELECT * FROM run_log rl WHERE filter_date BETWEEN :timeStart AND :timeEnd ORDER BY rl.run_id DESC LIMIT :offset, :pageSize", nativeQuery = true)
-  Collection<RunLog> findAllWithParamsTime(Integer offset, Integer pageSize, String timeStart, String timeEnd);
-
-  @Query(value = "SELECT COUNT(*) FROM run_log rl WHERE filter_date BETWEEN :timeStart AND :timeEnd", nativeQuery = true)
-  Long countAllWithParamsTime(String timeStart, String timeEnd);
-
-  @Query(value = "SELECT * FROM run_log rl WHERE character_name = :character ORDER BY rl.run_id DESC LIMIT :offset, :pageSize", nativeQuery = true)
-  Collection<RunLog> findAllWithParamsChar(Integer offset, Integer pageSize, String character);
-
-  @Query(value = "SELECT COUNT(*) FROM run_log rl WHERE character_name = :character", nativeQuery = true)
-  Long countAllWithParamsChar(String character);
-
-  @Query(value = "SELECT * FROM run_log rl WHERE country = :country ORDER BY rl.run_id DESC LIMIT :offset, :pageSize", nativeQuery = true)
-  Collection<RunLog> findAllWithParamsCountry(Integer offset, Integer pageSize, String country);
-
-  @Query(value = "SELECT COUNT(*) FROM run_log rl WHERE country = :country", nativeQuery = true)
-  Long countAllWithParamsCountry(String country);
-
-  @Query(value = "SELECT * FROM run_log rl WHERE character_name != 'THE_DUELIST' ORDER BY rl.run_id DESC LIMIT :offset, :pageSize", nativeQuery = true)
-  Collection<RunLog> findAllWithParamsNonDuelist(Integer offset, Integer pageSize);
-
-  @Query(value = "SELECT COUNT(*) FROM run_log rl WHERE character_name != 'THE_DUELIST'", nativeQuery = true)
-  Long countAllWithParamsNonDuelist();
-
-  @Query(value = "SELECT * FROM run_log rl WHERE run_id IN :ids ORDER BY rl.run_id DESC LIMIT :offset, :pageSize", nativeQuery = true)
-  Collection<RunLog> findAllWithParamsIds(Integer offset, Integer pageSize, List<Long> ids);
-
-  @Query(value = "SELECT COUNT(*) FROM run_log rl WHERE run_id IN :ids", nativeQuery = true)
-  Long countAllWithParamsIds(List<Long> ids);
+  @Query(value = "SELECT * FROM run_log rl " +
+          "WHERE " +
+          "DATEDIFF(rl.filter_date, CURDATE()) < 14 and " +
+          "        (character_name = :character or :character IS null) and " +
+          "        (character_name = 'THE_DUELIST' or :isDuelist = false) and " +
+          "        (character_name != 'THE_DUELIST' or :nonDuelist = false) and " +
+          "        (rl.host = :host or :host IS null) and " +
+          "        ((ascension BETWEEN :ascensionStart AND :ascensionEnd) or :ascensionStart IS null) and " +
+          "        ((challenge BETWEEN :challengeStart AND :challengeEnd) or :challengeStart IS null) and " +
+          "        ((floor BETWEEN :floorStart AND :floorEnd) or :floorStart IS null) and " +
+          "        (victory = :victory or :victory IS null) and " +
+          "        (deck = :deck or :deck IS null) and " +
+          "        (killed_by = :killedBy or :killedBy IS null) and " +
+          "        ((filter_date BETWEEN :timeStart AND :timeEnd) or (:timeStart IS null or :timeEnd IS null)) and " +
+          "        (country = :country or :country IS null) " +
+          "ORDER BY rl.filter_date DESC LIMIT :offset, :pageSize", nativeQuery = true)
+  Collection<RunLog> findAllWithFilters(Integer offset, Integer pageSize,String character, boolean isDuelist,
+                                        boolean nonDuelist, String timeStart, String timeEnd, String host,
+                                        String country, Integer ascensionStart, Integer ascensionEnd,
+                                        Integer challengeStart, Integer challengeEnd, Boolean victory,
+                                        Integer floorStart, Integer floorEnd, String deck, String killedBy);
 
   @Query(value = "SELECT rl.deck, SUM(rl.victory = 1) AS yes FROM run_log rl WHERE rl.ascension = 20 GROUP BY rl.deck", nativeQuery = true)
   List<String> getA20Wins();
@@ -124,7 +135,7 @@ public interface RunLogRepo extends JpaRepository<RunLog, Long> {
 
   List<RunLog> getAllByHost(String host);
 
-  @Query(value = "SELECT DISTINCT rl.character_name FROM run_log rl", nativeQuery = true)
+  @Query(value = "SELECT DISTINCT rl.character_name FROM run_log rl WHERE rl.character_name NOT IN ('THE_DUELIST', 'IRONCLAD', 'DEFECT', 'THE_SILENT', 'WATCHER')", nativeQuery = true)
   List<String> getAllCharacters();
 
   @Query(value = "SELECT filter_date, deck, character_name FROM run_log", nativeQuery = true)

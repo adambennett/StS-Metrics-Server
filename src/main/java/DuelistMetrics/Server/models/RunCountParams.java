@@ -2,39 +2,64 @@ package DuelistMetrics.Server.models;
 
 public class RunCountParams {
 
-    public String type;
-    public String secondType;
-    public String hofType;
+    public RunCountParamType types;
+    public Boolean noTypes;
+    public Integer pageNumber;
+    public Integer pageSize;
+
+    public record RunCountParamType(String character, String country, String timeStart, String timeEnd, boolean duelist,
+                                    boolean nonDuelist, String host, Integer ascensionStart, Integer ascensionEnd,
+                                    Integer challengeStart, Integer challengeEnd, Boolean victory, Integer floorStart,
+                                    Integer floorEnd, String deck, String killedBy){}
 
     public RunCountParams() {}
 
-    public RunCountParams(String type, String secondType, String hofType) {
-        this.type = type;
-        this.secondType = secondType;
-        this.hofType = hofType;
+    public RunCountParams(RunCountParamType types, Boolean noTypes, int pageSize, int pageNum) {
+        this.pageNumber = pageNum;
+        this.pageSize = pageSize;
+        this.types = types;
+        this.noTypes = noTypes;
     }
 
-    public String getType() {
-        return type;
+    public RunCountParamType getTypes() {
+        return types;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setTypes(RunCountParamType types) {
+        this.types = types;
     }
 
-    public String getSecondType() {
-        return secondType;
+    public Boolean getNoTypes() {
+        return noTypes;
     }
 
-    public void setSecondType(String secondType) {
-        this.secondType = secondType;
+    public void setNoTypes(Boolean noTypes) {
+        this.noTypes = noTypes;
     }
 
-    public String getHofType() {
-        return hofType;
+    public Integer getPageNumber() {
+        return pageNumber;
     }
 
-    public void setHofType(String hofType) {
-        this.hofType = hofType;
+    public void setPageNumber(Integer pageNumber) {
+        this.pageNumber = pageNumber;
+    }
+
+    public Integer getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
+    }
+
+    @Override
+    public String toString() {
+        return "RunCountParams{" +
+                "types=" + types +
+                ", noTypes=" + noTypes +
+                ", pageNumber=" + pageNumber +
+                ", pageSize=" + pageSize +
+                '}';
     }
 }

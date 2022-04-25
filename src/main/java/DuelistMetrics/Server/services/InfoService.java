@@ -187,7 +187,14 @@ public class InfoService {
 
   public List<MiniMod> getModListFromBundleId(Long id) { return this.miniModRepo.getByBundleId(id); }
 
-  public Long getModInfoBundleFromMiniMod(String modid, String version) { return this.miniModRepo.getBundleId(modid, version); }
+  public Long getModInfoBundleFromMiniMod(String modid, String version) {
+    var longs = this.miniModRepo.getBundleId(modid, version);
+    if (longs.size() > 0) {
+      if (longs.size() > 1) logger.info("Got multiple results from miniModRepo by modid and version. ModId=" + modid + ", version=" + version + ", longs=" + longs);
+      return longs.get(0);
+    }
+    return null;
+  }
 
   public List<ModInfoBundle> getAllMods() { return this.bundleRepo.findAll(); }
 
@@ -356,6 +363,147 @@ public class InfoService {
       c.setInfo(mod);
     }
     return this.bundleRepo.save(mod);
+  }
+
+  public List<WebsiteDuelistCard> getDuelistCardsForWebview(String pool) {
+    return null;
+  }
+
+  public List<WebsiteDuelistCard> getAllCardsByDeckForWebview(List<String> pools) {
+    var duelistModId = getMostRecentDuelistVersion();
+    var repoCards = new ArrayList<Object[]>();
+    for (var pool : pools) {
+      repoCards.addAll(this.cardRepo.getDuelistCardsByPool(pool, duelistModId));
+    }
+    return getCardsForWebView(repoCards);
+  }
+
+  public List<WebsiteDuelistCard> getAllDuelistCardsForWebview() {
+    var duelistModId = getMostRecentDuelistVersion();
+    var repoCards = this.cardRepo.getAllDuelistCards(duelistModId);
+    return getCardsForWebView(repoCards);
+  }
+
+  private List<WebsiteDuelistCard> getCardsForWebView(List<Object[]> repoCards) {
+    var output = new ArrayList<WebsiteDuelistCard>();
+    var cardIds = new ArrayList<String>();
+    var scoreMap = new HashMap<String, List<Integer>>();
+    for (var card : repoCards) {
+      var webCard = new WebsiteDuelistCard();
+      var cardId = scv(3, card);
+      var scorePool = scv(0, card);
+      var infoPool = scv(1, card);
+      var overallScore = ncv(24, card);
+      if (!ignorePoolForAverageScore(infoPool)) {
+        var scoreList = scoreMap.containsKey(cardId) ? scoreMap.get(cardId) : new ArrayList<Integer>();
+        scoreList.add(overallScore);
+        scoreMap.put(cardId, scoreList);
+      }
+      cardIds.add(cardId);
+      webCard.scorePool = scorePool;
+      webCard.infoPool = infoPool;
+      webCard.displayPool = getPoolDisplayName(scorePool);
+      webCard.isColoredPool = webCard.infoPool != null && webCard.infoPool.contains("[Basic/Colorless]");
+      webCard.poolType = webCard.isColoredPool ? "Colored" : "Basic/Colorless";
+      webCard.block = ncv(2, card);
+      webCard.cardId = cardId;
+      webCard.color = scv(4, card);
+      webCard.cost = scv(5, card);
+      webCard.damage = ncv(6, card);
+      webCard.duelistType = scv(7, card);
+      webCard.entomb = ncv(8, card);
+      webCard.magicNumber = ncv(9, card);
+      webCard.name = scv(10, card);
+      webCard.rarity = scv(11, card);
+      webCard.secondMagic = ncv(12, card);
+      webCard.summons = ncv(13, card);
+      webCard.text = scv(14, card);
+      webCard.thirdMagic = ncv(15, card);
+      webCard.tributes = ncv(16, card);
+      webCard.type = scv(17, card);
+      webCard.formattedText = scv(18, card);
+      webCard.maxUpgrades = ncv(19, card);
+      webCard.act0score = ncv(20, card);
+      webCard.act1score = ncv(21, card);
+      webCard.act2score = ncv(22, card);
+      webCard.act3score = ncv(23, card);
+      webCard.overallScore = overallScore;
+      webCard.lastUpdated = scv(25, card);
+      output.add(webCard);
+    }
+    var allPools = this.cardRepo.getAllPoolsForCards(cardIds);
+    var poolsByCard = new HashMap<String, List<String>>();
+    for (var pool : allPools) {
+      var poolName = pool[0];
+      var cardId = pool[1];
+      var list = poolsByCard.containsKey(cardId) ? poolsByCard.get(cardId) : new ArrayList<String>();
+      if (!list.contains(poolName)) {
+        list.add(poolName);
+        poolsByCard.put(cardId, list);
+      }
+    }
+    for (var card : output) {
+      if (poolsByCard.containsKey(card.cardId)) {
+        card.pools = poolsByCard.get(card.cardId);
+      }
+      if (scoreMap.containsKey(card.cardId)) {
+        var list = scoreMap.get(card.cardId);
+        var sum = 0;
+        for (var i : list) {
+          sum += i;
+        }
+        card.averageScore = sum / list.size();
+      } else {
+        card.averageScore = -1;
+      }
+    }
+    return output;
+  }
+
+  private Boolean ignorePoolForAverageScore(String poolName) {
+    var badDecks = new ArrayList<String>();
+    badDecks.add("Ascended I");
+    badDecks.add("Ascended II");
+    badDecks.add("Ascended III");
+    badDecks.add("Pharaoh I");
+    badDecks.add("Pharaoh II");
+    badDecks.add("Pharaoh III");
+    badDecks.add("Pharaoh IV");
+    badDecks.add("Pharaoh V");
+    badDecks.add("Random (Small) Pool");
+    badDecks.add("Random (Big) Pool");
+    badDecks.add("Upgrade Pool");
+    badDecks.add("Metronome Pool");
+    badDecks.add("Giant Pool");
+    badDecks.add("Predaplant Pool");
+    return badDecks.contains(poolName);
+  }
+
+  private String getPoolDisplayName(String poolName) {
+    return poolName;
+  }
+
+  private String scv(int index, Object[] card) {
+    if (card.length > index) {
+      return card[index] != null ? card[index].toString() : null;
+    }
+    return null;
+  }
+
+  private Integer ncv(int index, Object[] card) {
+    try {
+      if (card.length > index) {
+        return card[index] != null ? Integer.parseInt(card[index].toString()) : null;
+      }
+    } catch (Exception ignored) {}
+    return null;
+  }
+
+  private Boolean bcv(int index, Object[] card) {
+    if (card.length > index) {
+      return card[index] != null ? card[index].equals(true) : null;
+    }
+    return null;
   }
 
   static {

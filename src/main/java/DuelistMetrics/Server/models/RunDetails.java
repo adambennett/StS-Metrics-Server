@@ -14,6 +14,10 @@ public class RunDetails {
         this.floors = floors;
     }
 
+    public RunDetails(RunTop top) {
+        this.top = top;
+    }
+
     public RunTop getTop() {
         return top;
     }

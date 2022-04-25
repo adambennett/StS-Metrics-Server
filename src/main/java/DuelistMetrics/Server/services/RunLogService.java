@@ -7,9 +7,12 @@ import org.springframework.data.domain.*;
 import org.springframework.stereotype.*;
 
 import java.util.*;
+import java.util.logging.*;
 
 @Service
 public class RunLogService {
+
+  private static final Logger logger = Logger.getLogger("DuelistMetrics.Server.RunLogService");
 
   private RunLogRepo repo;
 
@@ -35,58 +38,25 @@ public class RunLogService {
   public Collection<RunLog> findAll() { return repo.findAll(); }
 
   public Long countRuns(RunCountParams params) {
-    if (params.type == null) {
-      return this.repo.count();
+    if (params.noTypes) {
+      return this.repo.countWithoutFilter();
     }
-    switch (params.type) {
-      case "Character":
-        return this.repo.countAllWithParamsChar(params.secondType);
-      case "Country":
-        return this.repo.countAllWithParamsCountry(params.secondType);
-      case "Time":
-        String[] split = params.secondType.split("~~");
-        return this.repo.countAllWithParamsTime(split[0], split[1]);
-      case "Duelist":
-        return this.repo.countAllWithParamsChar("THE_DUELIST");
-      case "Non-Duelist":
-        return this.repo.countAllWithParamsNonDuelist();
-      case "Host":
-        return this.repo.countAllWithParamsHost(params.secondType);
-      default:
-        return this.repo.count();
-    }
+    var t = params.types;
+    return this.repo.countAllWithFilters(t.character(), t.duelist(), t.nonDuelist(), t.timeStart(), t.timeEnd(),
+            t.host(), t.country(), t.ascensionStart(), t.ascensionEnd(), t.challengeStart(), t.challengeEnd(),
+            t.victory(), t.floorStart(), t.floorEnd(), t.deck(), t.killedBy());
   }
 
-  public Collection<RunLog> findAll(Integer pageNumber, Integer pageSize, RunLogCriteria options) {
+  public Collection<RunLog> findAll(Integer pageNumber, Integer pageSize, RunCountParams params) {
     int offset = pageNumber * pageSize;
-
-    if (options.filter.isNonDuelist) {
-      return this.repo.findAllWithParamsNonDuelist(offset, pageSize);
-    }
-
-    else if (!options.filter.host.equals("")) {
-      return this.repo.findAllWithParamsHost(offset, pageSize, options.filter.host);
-    }
-
-    else if (!options.filter.character.equals("")) {
-      return this.repo.findAllWithParamsChar(offset, pageSize, options.filter.character);
-    }
-
-    else if (!options.filter.country.equals("")) {
-      return this.repo.findAllWithParamsCountry(offset, pageSize, options.filter.country);
-    }
-
-    else if (!options.filter.timeStart.equals("") && !options.filter.timeEnd.equals("")) {
-      return this.repo.findAllWithParamsTime(offset, pageSize, options.filter.timeStart, options.filter.timeEnd);
-    }
-
-    else if (!options.filter.ids.isEmpty()) {
-      return this.repo.findAllWithParamsIds(offset, pageSize, options.filter.ids);
-    }
-
-    else {
+    logger.info("filter params: " + params);
+    if (params.noTypes) {
       return this.repo.findAllWithParams(offset, pageSize);
     }
+    var t = params.types;
+    return this.repo.findAllWithFilters(offset, pageSize, t.character(), t.duelist(), t.nonDuelist(), t.timeStart(),
+            t.timeEnd(), t.host(), t.country(), t.ascensionStart(), t.ascensionEnd(), t.challengeStart(),
+            t.challengeEnd(), t.victory(), t.floorStart(), t.floorEnd(), t.deck(), t.killedBy());
   }
 
   public Page<RunLog> findAllPages(Pageable pageable) { return repo.findAll(pageable); }

@@ -17,9 +17,10 @@ public class CardController {
   private static CardRepo cards;
   private static CardService serv;
   private static InfoCardRepo infoCardRepo;
+  private static InfoService infoService;
 
   @Autowired
-  public CardController(CardRepo card, InfoCardRepo infoRepo, CardService service) { cards = card; infoCardRepo = infoRepo; serv = service; }
+  public CardController(CardRepo card, InfoCardRepo infoRepo, CardService service, InfoService infoServ) { infoService = infoServ; cards = card; infoCardRepo = infoRepo; serv = service; }
 
   @GetMapping("/cards")
   @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
@@ -31,6 +32,12 @@ public class CardController {
     return sortDuelistCards(output);
   }
 
+  @GetMapping("/cards-new")
+  @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+  public static Collection<WebsiteDuelistCard> getCardsV2(){
+    return infoService.getAllDuelistCardsForWebview();
+  }
+
   @GetMapping("/cards/{deck}")
   @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
   public static Collection<DisplayCard> getCards(@PathVariable String deck){
@@ -39,6 +46,15 @@ public class CardController {
       createDisplayCard(output, s);
     }
     return sortDuelistCards(output);
+  }
+
+  @GetMapping("/cards-new/{decks}")
+  @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+  public static Collection<WebsiteDuelistCard> getCardsV2(@PathVariable String decks){
+    if (decks == null || decks.equals("")) {
+      return new ArrayList<>();
+    }
+    return infoService.getAllCardsByDeckForWebview(new ArrayList<>(Arrays.asList(decks.split(","))));
   }
 
   private static Collection<DisplayCard> sortDuelistCards(Collection<DisplayCard> output) {
