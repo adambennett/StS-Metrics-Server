@@ -336,6 +336,22 @@ public class InfoService {
 
   public List<String> getModList() { return this.bundleRepo.getMods(); }
 
+  private record ModInfo(String modId, String displayName, List<String> versions, List<String> authors){}
+  public List<ModInfo> getModListNew() {
+    var mods = this.bundleRepo.getAllMods();
+    var output = new ArrayList<ModInfo>();
+    for (var mod : mods) {
+      var id = mod[0].toString();
+      var displayName = mod[1].toString();
+      var versionSplice = mod[2].toString().split(",");
+      var authorSplice = mod[3].toString().split(",");
+      var versions = new ArrayList<>(Arrays.asList(versionSplice));
+      var authors = new ArrayList<>(Arrays.asList(authorSplice));
+      output.add(new ModInfo(id, displayName, versions, authors));
+    }
+    return output;
+  }
+
   public Optional<ModInfoBundle> getModInfo(String id, String version) { return this.bundleRepo.findByModIDAndVersion(id, version); }
 
   public ModInfoBundle updateQuickFields(ModInfoBundle mod) {

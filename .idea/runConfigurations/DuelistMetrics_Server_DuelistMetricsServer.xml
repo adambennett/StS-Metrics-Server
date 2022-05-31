@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="SpringApp" type="Application" factoryName="Application" nameIsGenerated="true">
-    <option name="MAIN_CLASS_NAME" value="DuelistMetrics.Server.SpringApp" />
+  <configuration default="false" name="DuelistMetrics.Server.DuelistMetricsServer" type="Application" factoryName="Application" nameIsGenerated="true">
+    <option name="MAIN_CLASS_NAME" value="DuelistMetrics.Server.DuelistMetricsServer" />
     <module name="StS-Metrics-Server" />
     <extension name="coverage">
       <pattern>

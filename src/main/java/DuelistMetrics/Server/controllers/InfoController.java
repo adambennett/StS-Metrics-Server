@@ -212,6 +212,12 @@ public class InfoController {
         return new ResponseEntity<>(mods, HttpStatus.OK);
     }
 
+    @GetMapping("/modlist-v2")
+    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    public ResponseEntity<?> getAllModsNew() {
+        return new ResponseEntity<>(bundles.getModListNew(), HttpStatus.OK);
+    }
+
     @GetMapping(value={"/tierScores", "/tierScores/{pool}", "/tierScores/{pool}/{cardId}"})
     @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
     public ResponseEntity<?> checkTierScores(@PathVariable(required = false) String pool, @PathVariable(required = false) String cardId) {

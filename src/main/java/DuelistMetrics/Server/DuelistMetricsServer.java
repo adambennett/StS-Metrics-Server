@@ -7,13 +7,12 @@ import java.util.logging.*;
 
 @SpringBootApplication
 //@EnableScheduling
-public class SpringApp {
+public class DuelistMetricsServer {
 
-	private static final Logger logger = Logger.getLogger("DuelistMetrics.Server.SpringApp");
+	private static final Logger logger = Logger.getLogger("DuelistMetricsServer");
 
 	public static void main(String[] args) {
-		SpringApplication.run(SpringApp.class, args);
-		logger.info("DuelistMod Metrics Server started and ready");
+		SpringApplication.run(DuelistMetricsServer.class, args);
 		//LocalCommands.updateDuelistEvents();
 		//LocalProccesor.runInitCommands();
 		//logger.info("SpringApp finished with local commands. Running...");

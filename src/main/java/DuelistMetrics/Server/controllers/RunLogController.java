@@ -150,14 +150,14 @@ public class RunLogController {
         for (var card : run.top.getEvent().getRelics_obtained()) {
             var floor = card.getFloor();
             var fullItem = SpireUtils.parseBaseIdToSimpleCard(card.getId(), cardMap, relicMap, potionMap);
-            var list = cardsChosen.getOrDefault(floor, new ArrayList<>());
+            var list = relicsChosen.getOrDefault(floor, new ArrayList<>());
             list.add(new SimpleCardExtended(fullItem.name(), fullItem.card().id, SimpleCardExtendedType.Relic));
             relicsChosen.put(floor, list);
         }
         for (var card : run.top.getEvent().getPotions_obtained()) {
             var floor = card.getFloor();
             var fullItem = SpireUtils.parseBaseIdToSimpleCard(card.getId(), cardMap, relicMap, potionMap);
-            var list = cardsChosen.getOrDefault(floor, new ArrayList<>());
+            var list = potionsChosen.getOrDefault(floor, new ArrayList<>());
             list.add(new SimpleCardExtended(fullItem.name(), fullItem.card().id, SimpleCardExtendedType.Potion));
             potionsChosen.put(floor, list);
         }
@@ -278,9 +278,20 @@ public class RunLogController {
 
     @PostMapping("/runs")
     @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
-    public Collection<RunLog> getBundlesNew(@RequestBody RunCountParams options) {
+    public Collection<RunLogWithUTC> getBundlesNew(@RequestBody RunCountParams options) {
         try {
-            return bundles.findAll(options.pageNumber, options.pageSize, options);
+            var output = new ArrayList<RunLogWithUTC>();
+            var runs = bundles.findAll(options.pageNumber, options.pageSize, options);
+            for (var run : runs) {
+                try {
+                    var bigD = new BigDecimal(run.getFilterDate());
+                    var topTime = realBundles.findTopBundleTimeByHostAndLocalTime(run.getHost(), bigD);
+                    output.add(new RunLogWithUTC(run, topTime));
+                } catch (Exception ex) {
+                    output.add(new RunLogWithUTC(run, null));
+                }
+            }
+            return output;
         } catch (Exception ex) {
             return new ArrayList<>();
         }

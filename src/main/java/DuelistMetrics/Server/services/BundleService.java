@@ -38,7 +38,29 @@ public class BundleService {
     return null;
   }
 
+  public String findTopBundleTimeByHostAndLocalTime(String host, BigDecimal localTime) {
+    return this.repo.findTimeByHostAndLocalTime(host, localTime).toString();
+  }
+
   public Optional<Bundle> findByIdInner(long ID) { return this.innerRepo.findById(ID); }
+
+  public Integer countRunsInTimeFrame(int endInterval, int startInterval) {
+    return this.repo.countRunsInTimeFrame(endInterval, startInterval);
+  }
+
+  public Integer countRunsInTimeFrame(int endInterval, int startInterval, String character, boolean isDuelist,
+                                      boolean nonDuelist, String timeStart, String timeEnd, String host,
+                                      String country, Integer ascensionStart, Integer ascensionEnd,
+                                      Integer challengeStart, Integer challengeEnd, Boolean victory,
+                                      Integer floorStart, Integer floorEnd, String deck, String killedBy) {
+    return this.repo.countRunsInTimeFrameWithFilters(endInterval, startInterval, character, isDuelist, nonDuelist,
+            timeStart, timeEnd, host, country, ascensionStart, ascensionEnd, challengeStart, challengeEnd, victory,
+            floorStart, floorEnd, deck, killedBy);
+  }
+
+  public Date getTimeFrame(int start) {
+    return this.repo.getTimeFrameDate(start + 1, start);
+  }
 
   public List<String> getCountries() {
     return innerRepo.getCountries();

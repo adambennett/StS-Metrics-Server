@@ -25,4 +25,11 @@ public interface TopInfoBundleRepo extends JpaRepository<ModInfoBundle, Long> {
 
     @Query(value = "SELECT name, miba.authors FROM mod_info_bundle JOIN mod_info_bundle_authors miba on mod_info_bundle.info_bundle_id = miba.mod_info_bundle_info_bundle_id WHERE info_bundle_id = :info_id", nativeQuery = true)
     List<String> getModInfoFromInfoId(Long info_id);
+
+    @Query(value = "SELECT DISTINCT " +
+            "m.modid, m.display_name, GROUP_CONCAT(DISTINCT m.version SEPARATOR  ','), GROUP_CONCAT(DISTINCT miba.authors SEPARATOR  ',') " +
+            "FROM mod_info_bundle m " +
+            "JOIN mod_info_bundle_authors miba on m.info_bundle_id = miba.mod_info_bundle_info_bundle_id " +
+            "GROUP BY modid", nativeQuery = true)
+    List<Object[]> getAllMods();
 }

@@ -10,6 +10,8 @@ import org.springframework.scheduling.annotation.*;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.*;
+import java.time.*;
+import java.time.format.*;
 import java.util.*;
 import java.util.logging.*;
 
@@ -94,5 +96,50 @@ public class BundleController {
             return new ResponseEntity<>(fullModList, HttpStatus.OK);
         }
         return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+    }
+
+    private record RunTimeFrameData(Integer runs, String date){}
+
+    @PostMapping("/runs-in-time-frame/{weeks}")
+    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    public ResponseEntity<?> getRunsInTimeFrame(@PathVariable String weeks, @RequestBody RunCountParams params) {
+        try {
+            boolean isParams = params != null;
+            var output = new ArrayList<RunTimeFrameData>();   // week number -> runs in week
+            var numWeeks = Integer.parseInt(weeks);
+            var week = 1;
+            if (numWeeks > 0) {
+                var start = 0;
+                var end = 168;
+                while (numWeeks > 0) {
+                    Integer count = null;
+                    if (!isParams || params.noTypes) {
+                        count = bundles.countRunsInTimeFrame(end, start);
+                    } else {
+                        var t = params.types;
+                        count = bundles.countRunsInTimeFrame(end, start, t.character(), t.duelist(),
+                                t.nonDuelist(), t.timeStart(), t.timeEnd(), t.host(), t.country(), t.ascensionStart(),
+                                t.ascensionEnd(), t.challengeStart(), t.challengeEnd(), t.victory(), t.floorStart(),
+                                t.floorEnd(), t.deck(), t.killedBy());
+                    }
+                    var startDate = bundles.getTimeFrame(start);
+                    var endDate = bundles.getTimeFrame(end - 1);
+                    var startDateTime = new SimpleDateFormat("MM/dd").format(startDate);
+                    var endDateTime = new SimpleDateFormat("MM/dd").format(endDate);
+                    var date = endDateTime + " - " + startDateTime;
+                    output.add(new RunTimeFrameData(count, date));
+                    week++;
+                    start += 168;
+                    end += 168;
+                    numWeeks--;
+                }
+                return new ResponseEntity<>(output, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            }
+        } catch (Exception ex) {
+            logger.info("Exception fetching run timeframe data\n" + ex);
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
     }
 }
