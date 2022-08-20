@@ -141,5 +141,31 @@ public interface RunLogRepo extends JpaRepository<RunLog, Long> {
   @Query(value = "SELECT filter_date, deck, character_name FROM run_log", nativeQuery = true)
   List<String> getDataForPopularity();
 
+  @Query(value = "SELECT ic.info_card_id " +
+          "FROM info_card_pools icp " +
+          "JOIN info_card ic on icp.info_card_info_card_id = ic.info_card_id " +
+          "WHERE " +
+          "ic.info_info_bundle_id = (SELECT info_bundle_id FROM mod_info_bundle WHERE mod_name = 'Duelist Mod' order by info_bundle_id desc limit 1) " +
+          "AND " +
+          "icp.pools = :deck ", nativeQuery = true)
+  List<Integer> getCardsBasedOnDeckSet(String deck);
+
+  @Query(value = "SELECT ic.info_relic_id " +
+          "FROM info_relic_pools icp " +
+          "JOIN info_relic ic on icp.info_relic_info_relic_id = ic.info_relic_id " +
+          "WHERE " +
+          "ic.info_info_bundle_id = (SELECT info_bundle_id FROM mod_info_bundle WHERE mod_name = 'Duelist Mod' order by info_bundle_id desc limit 1) " +
+          "AND " +
+          "icp.pools = :deck ", nativeQuery = true)
+  List<Integer> getRelicsBasedOnDeckSet(String deck);
+
+  @Query(value = "SELECT ic.info_potion_id " +
+          "FROM info_potion_pools icp " +
+          "JOIN info_potion ic on icp.info_potion_info_potion_id = ic.info_potion_id " +
+          "WHERE " +
+          "ic.info_info_bundle_id = (SELECT info_bundle_id FROM mod_info_bundle WHERE mod_name = 'Duelist Mod' order by info_bundle_id desc limit 1) " +
+          "AND " +
+          "icp.pools = :deck ", nativeQuery = true)
+  List<Integer> getPotionsBasedOnDeckSet(String deck);
 
 }

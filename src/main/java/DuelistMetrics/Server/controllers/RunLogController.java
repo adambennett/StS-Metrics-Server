@@ -2,11 +2,11 @@ package DuelistMetrics.Server.controllers;
 
 import DuelistMetrics.Server.models.*;
 import DuelistMetrics.Server.models.builders.*;
+import DuelistMetrics.Server.models.dto.*;
 import DuelistMetrics.Server.models.infoModels.*;
 import DuelistMetrics.Server.models.runDetails.*;
 import DuelistMetrics.Server.services.*;
 import DuelistMetrics.Server.util.*;
-import com.fasterxml.jackson.databind.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
@@ -362,46 +362,46 @@ public class RunLogController {
         return out;
     }
 
+    private record DeckCardsHolder(String deckName, List<Integer> basicCards, List<Integer> poolCards, List<Integer> deckCards, List<Integer> relics, List<Integer> potions){
+
+        @Override
+        public String toString() {
+            var basicCard = basicCards() != null ? basicCards().size() + "" : "0";
+            var poolCard = poolCards() != null ? poolCards().size() + "" : "0";
+            var deckCard = deckCards() != null ? deckCards().size() + "" : "0";
+            var potion = potions() != null ? potions.size() + "" : "0";
+            var relic = relics() != null ? relics.size() + "" : "0";
+            return "{ " + "deckName: '" + deckName + "', basicCards: " + basicCard + ", poolCards: " + poolCard + ", deckCard: " + deckCard + ", potions: " + potion + ", relics: " + relic + " }\n";
+        }
+    }
+
     @GetMapping("/decks")
     @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
-    public static Collection<DisplayDeck> getDeckCompare() {
-      List<DisplayDeck> output = new ArrayList<>();
-
-      Optional<Long> allA20W = getService().getA20WinsAll();
-      Long allA20Wins = allA20W.orElse(0L);
-      Long allA20Runs = getService().getA20RunsAll();
-      Long allC20Wins = getService().getC20WinsAll();
-      Long allC20Runs = getService().getC20RunsAll();
-      Long allRuns = getService().getRunsAll();
-      Long allWins = getService().getWinsAll();
-      Long allKaiba = getService().getKaibaRunsAll();
-      if (allC20Wins == null) { allC20Wins = 0L; }
-      if (allC20Runs == null) { allC20Runs = 0L; }
-      List<String> allKilledList =  getService().getMostKilledByAll();
-      String allKilled ="";
+    public static Collection<DisplayDeckV2> getDeckCompare() {
+      var allRuns = getService().getRunsAll();
+      var allWins = getService().getWinsAll();
+      var allKaiba = getService().getKaibaRunsAll();
+      var allKilledList =  getService().getMostKilledByAll();
+      var allKilled = "";
       if (allKilledList.size() > 0) {
           String[] splice = allKilledList.get(0).split(",");
           allKilled = splice[0] + " (" + splice[1] + ")";
       }
-      Long allFloor = getService().getHighestFloorAll();
-      Optional<Long> highestChallenge = getService().getHighestChallengeAll();
-      List<String> highestChalId = getService().getHighestChallengeAllWithId();
-      List<Integer> highestChalIdentifiers = new ArrayList<>();
-      for (String id : highestChalId) {
-          String[] splice = id.split(",");
+      var allFloor = getService().getHighestFloorAll();
+      var highestChallenge = getService().getHighestChallengeAll();
+      var highestChalId = getService().getHighestChallengeAllWithId();
+      var highestChalIdentifiers = new ArrayList<Integer>();
+      for (var id : highestChalId) {
+          var splice = id.split(",");
           try {
-              Integer parsed = Integer.parseInt(splice[0]);
+              var parsed = Integer.parseInt(splice[0]);
               highestChalIdentifiers.add(parsed);
           } catch (Exception ignored) {
-              System.out.println("Couldn't parse id: " + id);
+              logger.info("Couldn't parse id: " + id);
           }
       }
-      DisplayDeck allDeck = new DisplayDeckBuilder()
+      var allDeck = new DisplayDeckBuilder()
                 .setDeck("All")
-                .setA20runs(Math.toIntExact(allA20Runs))
-                .setA20wins(Math.toIntExact(allA20Wins))
-                .setC20runs(Math.toIntExact(allC20Runs))
-                .setC20wins(Math.toIntExact(allC20Wins))
                 .setFloor(Math.toIntExact(allFloor))
                 .setKaiba(Math.toIntExact(allKaiba))
                 .setRuns(Math.toIntExact(allRuns))
@@ -411,38 +411,57 @@ public class RunLogController {
                 .setHighestChallengeRunID(highestChalIdentifiers)
                 .createDisplayDeck();
 
-      Map<String, Integer> a20Wins = getService().getA20Wins();
-      Map<String, Integer> a20Runs = getService().getA20Runs();
-      Map<String, Integer> c20Wins = getService().getC20Wins();
-      Map<String, Integer> c20Runs = getService().getC20Runs();
-      Map<String, Integer> runs = getService().getRuns();
-      Map<String, Integer> wins = getService().getWins();
-      Map<String, Integer> kaiba = getService().getKaibaRuns();
-      List<DeckKilledBy> killed = getService().getMostKilledBy();
-      Map<String, Integer> floor = getService().getHighestFloor();
-      Map<String, Integer> highestChal = getService().getHighestChallenge();
-      Map<String, List<Integer>> highestChalIds = getService().getHighestChallengeWithId();
-      Map<String, String> deckToKilledBy = new HashMap<>();
-      for (DeckKilledBy dkb : killed) {
-        String creature = dkb.getKilled_by();
+      var runs = getService().getRuns();
+      var wins = getService().getWins();
+      var kaiba = getService().getKaibaRuns();
+      var killed = getService().getMostKilledBy();
+      var floor = getService().getHighestFloor();
+      var highestChal = getService().getHighestChallenge();
+      var highestChalIds = getService().getHighestChallengeWithId();
+      var deckToKilledBy = new HashMap<String, String>();
+      for (var dkb : killed) {
+        var creature = dkb.getKilled_by();
         deckToKilledBy.put(dkb.getDeck(), creature + " (" + dkb.getCount() + ")");
       }
-      ArrayList<String> decks = new ArrayList<>();
+      var decks = new ArrayList<String>();
       DisplayDeck nonDuelist = null;
       for (Map.Entry<String, Integer> entry : runs.entrySet()) {
         decks.add(entry.getKey());
       }
+      var deckSets = new HashMap<String, String>();
+      for (var deckName : decks) {
+          if (!deckName.equals("NotYugi") && !deckName.contains("Random") && !deckName.equals("Upgrade Deck")) {
+              var splice = deckName.split("Deck");
+              var out = new StringBuilder();
+              for (var split : splice) {
+                  if (split.equals("Deck")) {
+                      break;
+                  }
+                  out.append(!split.equals("") ? " " + split : split);
+              }
+              if (!out.toString().equals("")) {
+                  deckSets.put(deckName, out.toString());
+              }
+          }
+      }
+      var deckCardHolders = new HashMap<String, DeckCardsHolder>();
+      for (var entry : deckSets.entrySet()) {
+          var deckStr = entry.getValue().trim() + " Deck";
+          var basicCards = getService().getCardsBasedOnDeckSet(entry.getValue().trim() + " Pool [Basic/Colorless]");
+          var poolCards = getService().getCardsBasedOnDeckSet(entry.getValue().trim() + " Pool");
+          var startingDeckCards = getService().getCardsBasedOnDeckSet(deckStr);
+          var relics = getService().getRelicsBasedOnDeckSet(deckStr);
+          var potions = getService().getPotionsBasedOnDeckSet(deckStr);
+          deckCardHolders.put(entry.getKey(), new DeckCardsHolder(entry.getKey(), basicCards, poolCards, startingDeckCards, relics, potions));
+      }
+      var displayDeckV2s = new ArrayList<DisplayDeckV2>();
       for (String deckName : decks) {
         String dName = deckName;
         if (deckName.equals("NotYugi")) {
             dName = "Non-Duelist Character";
         }
-        DisplayDeck deck = new DisplayDeckBuilder()
+        var deck = new DisplayDeckBuilder()
           .setDeck(dName)
-          .setA20runs(a20Runs.getOrDefault(deckName, 0))
-          .setA20wins(a20Wins.getOrDefault(deckName, 0))
-          .setC20runs(c20Runs.getOrDefault(deckName, 0))
-          .setC20wins(c20Wins.getOrDefault(deckName, 0))
           .setFloor(floor.getOrDefault(deckName, 0))
           .setKaiba(kaiba.get(deckName))
           .setRuns(runs.getOrDefault(deckName, 0))
@@ -451,19 +470,31 @@ public class RunLogController {
           .setHighestChallenge(highestChal.getOrDefault(deckName, -1))
           .setHighestChallengeRunID(highestChalIds.getOrDefault(deckName, new ArrayList<>()))
           .createDisplayDeck();
-        if (deck.getC20runs() == null) { deck.setC20runs(0); }
-        if (deck.getC20wins() == null) { deck.setC20wins(0); }
         if (deck.getKaiba() == null) { deck.setKaiba(0); }
         if (dName.equals("Non-Duelist Character")) {
             nonDuelist = deck;
         } else {
-            output.add(deck);
+            var dch = deckCardHolders.get(deck.getDeck());
+            var poolCards = dch != null ? dch.poolCards : new ArrayList<Integer>();
+            var basicCards = dch != null ? dch.basicCards : new ArrayList<Integer>();
+            var deckCards = dch != null ? dch.deckCards : new ArrayList<Integer>();
+            var relics = dch != null ? dch.relics : new ArrayList<Integer>();
+            var potions = dch != null ? dch.potions : new ArrayList<Integer>();
+            displayDeckV2s.add(new DisplayDeckV2(deck.getDeck(), deck.getMostKilledBy(), deck.getRuns(),
+                    deck.getWins(), deck.getFloor(), deck.getKaiba(), deck.getHighestChallenge(), deck.getHighestChallengeRunID(),
+                    deck.getHighestFloorRunID(), poolCards, basicCards, deckCards, relics, potions));
         }
       }
-      Collections.sort(output);
-      output.add(0, allDeck);
-      if (nonDuelist != null) { output.add(nonDuelist); }
-      return output;
+      Collections.sort(displayDeckV2s);
+      displayDeckV2s.add(0, new DisplayDeckV2("All", allDeck.getMostKilledBy(), allDeck.getRuns(), allDeck.getWins(),
+              allDeck.getFloor(), allDeck.getKaiba(), allDeck.getHighestChallenge(), allDeck.getHighestChallengeRunID(),
+              allDeck.getHighestFloorRunID(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
+      if (nonDuelist != null) {
+          displayDeckV2s.add(new DisplayDeckV2("Non-Duelist", nonDuelist.getMostKilledBy(), nonDuelist.getRuns(), nonDuelist.getWins(),
+                  nonDuelist.getFloor(), nonDuelist.getKaiba(), nonDuelist.getHighestChallenge(), nonDuelist.getHighestChallengeRunID(),
+                  nonDuelist.getHighestFloorRunID(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
+      }
+      return displayDeckV2s;
     }
 
     @GetMapping("/deckPopularity")

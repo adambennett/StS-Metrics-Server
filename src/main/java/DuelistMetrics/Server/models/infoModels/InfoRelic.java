@@ -30,6 +30,9 @@ public class InfoRelic {
     @Column(length = 4028)
     private String descriptionPlain;
 
+    @ElementCollection
+    private List<String> pools;
+
     public InfoRelic() {}
 
     public String getDescriptionPlain() {
@@ -102,6 +105,14 @@ public class InfoRelic {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public List<String> getPools() {
+        return pools;
+    }
+
+    public void setPools(List<String> pools) {
+        this.pools = pools;
     }
 
     @Override

@@ -125,6 +125,12 @@ public class RunLogService {
     return getIntegers(this.repo.getA20Wins());
   }
 
+  public List<Integer> getCardsBasedOnDeckSet(String deckSet) { return this.repo.getCardsBasedOnDeckSet(deckSet); }
+
+  public List<Integer> getRelicsBasedOnDeckSet(String deckSet) { return this.repo.getRelicsBasedOnDeckSet(deckSet); }
+
+  public List<Integer> getPotionsBasedOnDeckSet(String deckSet) { return this.repo.getPotionsBasedOnDeckSet(deckSet); }
+
   private Map<String, Integer> getIntegers(List<String> a20WinsByDeck) {
     Map<String, Integer> output = new HashMap<>();
     for (String s : a20WinsByDeck) {

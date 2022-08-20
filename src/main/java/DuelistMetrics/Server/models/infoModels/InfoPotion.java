@@ -28,6 +28,9 @@ public class InfoPotion {
 
     private String playerClass;
 
+    @ElementCollection
+    private List<String> pools;
+
     public InfoPotion() {}
 
     public Long getInfo_potion_id() {
@@ -92,6 +95,14 @@ public class InfoPotion {
 
     public void setPlayerClass(String playerClass) {
         this.playerClass = playerClass;
+    }
+
+    public List<String> getPools() {
+        return pools;
+    }
+
+    public void setPools(List<String> pools) {
+        this.pools = pools;
     }
 
     @Override
