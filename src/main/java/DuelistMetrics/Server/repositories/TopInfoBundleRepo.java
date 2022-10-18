@@ -9,7 +9,7 @@ import java.util.*;
 @Repository
 public interface TopInfoBundleRepo extends JpaRepository<ModInfoBundle, Long> {
 
-    @Query(value = "SELECT DISTINCT modid, mod_version FROM mini_mod ORDER BY modid", nativeQuery = true)
+    @Query(value = "SELECT DISTINCT modid, version as mod_version FROM mod_info_bundle WHERE modid is not null UNION SELECT DISTINCT modid, mod_version FROM mini_mod WHERE modid is not null ORDER BY modid", nativeQuery = true)
     List<String> getAllModuleVersions();
 
     @Query(value = "SELECT DISTINCT modid, display_name FROM mod_info_bundle ORDER BY modid", nativeQuery = true)
