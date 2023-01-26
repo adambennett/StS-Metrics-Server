@@ -30,6 +30,10 @@ public class BundleService {
 
   public Optional<TopBundle> findById(long infoID) { return this.repo.findById(infoID); }
 
+  public Integer countRunsByCharacterToday(String character) { return this.repo.getRunsByCharacterFromToday(character); }
+
+  public Integer countRunsByCharacterThisYear(String character) { return this.repo.getRunsByCharacterFromThisYear(character); }
+
   public TopBundle findByHostAndLocalTime(String host, BigDecimal localTime) {
     var list = this.repo.findByHostAndLocalTime(host, localTime);
     if (list != null && list.size() > 0) {

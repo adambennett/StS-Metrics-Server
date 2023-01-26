@@ -354,6 +354,18 @@ public class RunLogController {
         return bundles.getAllByAnyOtherChar("THE_DUELIST");
     }
 
+    @GetMapping("/runs-today/{character}")
+    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    public static Integer getRunsTodayByCharacter(@PathVariable String character) {
+        return realBundles.countRunsByCharacterToday(character);
+    }
+
+    @GetMapping("/runs-this-year/{character}")
+    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    public static Integer getRunsThisYearByCharacter(@PathVariable String character) {
+        return realBundles.countRunsByCharacterThisYear(character);
+    }
+
     @GetMapping("/allCharacters")
     @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
     public static Collection<String> getCharacters() {

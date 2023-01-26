@@ -28,6 +28,16 @@ public interface TopBundleRepo extends JpaRepository<TopBundle, Long> {
     @Query(value = "SELECT from_unixtime(t.time) FROM top_bundle t WHERE (from_unixtime(t.time) BETWEEN DATE_SUB(NOW(), INTERVAL :endInterval HOUR) AND DATE_SUB(NOW(), INTERVAL :startInterval HOUR)) LIMIT 1", nativeQuery = true)
     Date getTimeFrameDate(int endInterval, int startInterval);
 
+    @Query(value = """
+            SELECT COUNT(*)
+            FROM bundle b
+            WHERE from_unixtime(b.timestamp) >= DATE_SUB(CURDATE(), INTERVAL 1 DAY) and from_unixtime(b.timestamp) <= DATE_ADD(CURDATE(), INTERVAL 1 DAY) and b.character_chosen = :character
+            """, nativeQuery = true)
+    Integer getRunsByCharacterFromToday(String character);
+
+    @Query(value = "SELECT COUNT(*) FROM bundle b WHERE YEAR(from_unixtime(b.timestamp)) = YEAR(CURDATE()) and b.character_chosen = :character", nativeQuery = true)
+    Integer getRunsByCharacterFromThisYear(String character);
+
     @Query(value = "SELECT COUNT(*) FROM top_bundle t " +
             "JOIN bundle b on t.top_id = b.top_id " +
             "WHERE " +

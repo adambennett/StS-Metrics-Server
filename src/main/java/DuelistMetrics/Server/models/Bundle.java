@@ -35,6 +35,7 @@ public class Bundle {
   private String starting_deck;
   private String country;
   private String lang;
+  private String unique_player_id;
 
   private Boolean add_base_game_cards;
   private Boolean allow_boosters;
@@ -71,6 +72,9 @@ public class Bundle {
   private Integer highest_max_summons;
   private Integer number_of_monsters;
   private Integer number_of_resummons;
+  /*private Integer number_of_tributes;
+  private Integer number_of_summons;
+  private Integer number_of_megatype_tributes;*/
   private Integer number_of_spells;
   private Integer number_of_traps;
   private Integer playtime;
@@ -925,6 +929,14 @@ public class Bundle {
     this.challenge_level = challenge_level;
   }
 
+  public String getUnique_player_id() {
+    return unique_player_id;
+  }
+
+  public void setUnique_player_id(String unique_player_id) {
+    this.unique_player_id = unique_player_id;
+  }
+
   @Override
   public String toString() {
     return "Bundle{" +
@@ -1008,6 +1020,7 @@ public class Bundle {
             ", relics_obtained=" + relics_obtained +
             ", campfire_choices=" + campfire_choices +
             ", damage_taken=" + damage_taken +
+            ", unique_player_id=" + unique_player_id +
             '}';
   }
 }

@@ -138,7 +138,7 @@ public class BundleController {
                 return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
             }
         } catch (Exception ex) {
-            logger.info("Exception fetching run timeframe data\n" + ex);
+            logger.info("Exception fetching run timeframe data\n" + Arrays.toString(ex.getStackTrace()));
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }

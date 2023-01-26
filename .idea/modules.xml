@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/StS-Metrics-Server.iml" filepath="$PROJECT_DIR$/.idea/StS-Metrics-Server.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Duelist-Metrics-Server.iml" filepath="$PROJECT_DIR$/Duelist-Metrics-Server.iml" />
     </modules>
   </component>
 </project>
