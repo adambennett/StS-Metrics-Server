@@ -1,15 +1,9 @@
 package DuelistMetrics.Server.controllers;
 
-import DuelistMetrics.Server.models.*;
-import DuelistMetrics.Server.models.builders.*;
 import DuelistMetrics.Server.services.*;
-import com.fasterxml.jackson.core.util.*;
-import com.fasterxml.jackson.databind.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.web.bind.annotation.*;
 
-import javax.transaction.*;
-import java.io.*;
 import java.util.*;
 import java.util.logging.*;
 

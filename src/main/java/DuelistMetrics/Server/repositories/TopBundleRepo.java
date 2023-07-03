@@ -1,8 +1,8 @@
 package DuelistMetrics.Server.repositories;
 
 import DuelistMetrics.Server.models.*;
+import DuelistMetrics.Server.models.dto.RunMonthDTO;
 import org.springframework.data.jpa.repository.*;
-import org.springframework.data.repository.query.*;
 import org.springframework.stereotype.*;
 
 import java.math.*;
@@ -14,10 +14,10 @@ public interface TopBundleRepo extends JpaRepository<TopBundle, Long> {
     @Query(value = "SELECT * FROM top_bundle WHERE top_id > ((SELECT MAX(top_id) FROM top_bundle) - :amt)", nativeQuery = true)
     List<TopBundle> getMostRecentRuns(int amt);
 
-    @Query(value = "SELECT * FROM top_bundle t JOIN bundle b on t.event_top_id = b.top_id WHERE t.host = :host and b.local_time = :localTime", nativeQuery = true)
+    @Query(value = "SELECT * FROM top_bundle t WHERE t.host = :host AND (SELECT local_time FROM bundle b WHERE b.top_id = t.event_top_id) = :localTime", nativeQuery = true)
     List<TopBundle> findByHostAndLocalTime(String host, BigDecimal localTime);
 
-    @Query(value = "SELECT t.time FROM top_bundle t JOIN bundle b on t.event_top_id = b.top_id WHERE t.host = :host and b.local_time = :localTime", nativeQuery = true)
+    @Query(value = "SELECT t.time FROM top_bundle t WHERE t.host = :host AND (SELECT local_time FROM bundle b WHERE b.top_id = t.event_top_id) = :localTime", nativeQuery = true)
     Object findTimeByHostAndLocalTime(String host, BigDecimal localTime);
 
     @Query(value = "SELECT COUNT(*) FROM top_bundle t " +
@@ -35,8 +35,8 @@ public interface TopBundleRepo extends JpaRepository<TopBundle, Long> {
             """, nativeQuery = true)
     Integer getRunsByCharacterFromToday(String character);
 
-    @Query(value = "SELECT COUNT(*) FROM bundle b WHERE YEAR(from_unixtime(b.timestamp)) = YEAR(CURDATE()) and b.character_chosen = :character", nativeQuery = true)
-    Integer getRunsByCharacterFromThisYear(String character);
+    @Query(name = "getRunsByCharacterFromThisYearLookup", nativeQuery = true)
+    List<RunMonthDTO> getRunsByCharacterFromThisYear(String character);
 
     @Query(value = "SELECT COUNT(*) FROM top_bundle t " +
             "JOIN bundle b on t.top_id = b.top_id " +

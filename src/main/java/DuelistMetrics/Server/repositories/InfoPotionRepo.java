@@ -10,5 +10,5 @@ import java.util.*;
 public interface InfoPotionRepo extends JpaRepository<InfoPotion, Long> {
 
     @Query(value = "SELECT DISTINCT potion_id, name FROM info_potion WHERE info_info_bundle_id IN (:info_bundle_ids)", nativeQuery = true)
-    List<String> potionIdMappingArchive(List<Long> info_bundle_ids);
+    List<Object[]> potionIdMappingArchive(List<Long> info_bundle_ids);
 }

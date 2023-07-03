@@ -1,0 +1,9 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="DuelistMetricsServer" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+    <module name="Duelist-Metrics-Server" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="DuelistMetrics.Server.DuelistMetricsServer" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

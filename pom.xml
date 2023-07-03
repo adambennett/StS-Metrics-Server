@@ -5,17 +5,17 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.6.6</version>
+		<version>3.0.1</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>DuelistMetrics</groupId>
 	<artifactId>Duelist-Metrics-Server</artifactId>
-	<version>1.0.0</version>
+	<version>2.0.0</version>
 	<name>Duelist-Metrics-Server</name>
 	<description>Spring boot server that runs the backend for Duelist Metrics processing</description>
 	<packaging>jar</packaging>
 	<properties>
-		<java.version>18</java.version>
+		<java.version>20</java.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -76,7 +76,12 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-jdbc</artifactId>
-			<version>2.7.3</version>
+			<version>3.0.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-properties-migrator</artifactId>
+			<scope>runtime</scope>
 		</dependency>
 	</dependencies>
 

@@ -46,7 +46,7 @@ public interface InfoCardRepo extends JpaRepository<InfoCard, Long> {
     List<String> getTrackedCardsForTierScores(String pool_name, List<Long> duelist_version, String pool_basic);
 
     @Query(value = "SELECT DISTINCT card_id, name FROM info_card WHERE info_info_bundle_id IN (:info_bundle_ids) GROUP BY card_id", nativeQuery = true)
-    List<String> cardIdMappingArchive(List<Long> info_bundle_ids);
+    List<Object[]> cardIdMappingArchive(List<Long> info_bundle_ids);
 
     @Query(value = "SELECT card_id, name FROM info_card WHERE info_info_bundle_id = :duelist_version AND card_id IN (:card_ids)", nativeQuery = true)
     Map<String, String> lookupDuelistCardNames(List<String> card_ids, Long duelist_version);

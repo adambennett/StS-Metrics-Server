@@ -10,5 +10,5 @@ import java.util.*;
 public interface InfoRelicRepo extends JpaRepository<InfoRelic, Long> {
 
     @Query(value = "SELECT DISTINCT relic_id, name FROM info_relic WHERE info_info_bundle_id IN (:info_bundle_ids)", nativeQuery = true)
-    List<String> relicIdMappingArchive(List<Long> info_bundle_ids);
+    List<Object[]> relicIdMappingArchive(List<Long> info_bundle_ids);
 }

@@ -65,14 +65,13 @@ public class InfoService {
     return getStringStringMap(this.potionRepo.potionIdMappingArchive(infoBundleIds));
   }
 
-  private Map<String, String> getStringStringMap(List<String> strings) {
+  private Map<String, String> getStringStringMap(List<Object[]> strings) {
     Map<String, String> out = new HashMap<>();
-    for (String s : strings) {
-      String[] splice = s.split(",");
-      if (!out.containsKey(splice[0])) {
-        out.put(splice[0], splice[1]);
-      } else {
-        logger.info("Duplicate id while getting map of names - ID: " + splice[0]);
+    for (Object[] s : strings) {
+      String zero = s.length > 0 ? s[0]+"" : "";
+      String one = s.length > 1 ? s[1]+"" : "";
+      if (!out.containsKey(zero)) {
+        out.put(zero, one);
       }
     }
     return out;

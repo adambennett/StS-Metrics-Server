@@ -1,6 +1,6 @@
 package DuelistMetrics.Server.models.tierScore;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.*;
 
 @Entity

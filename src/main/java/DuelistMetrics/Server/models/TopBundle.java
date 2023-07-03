@@ -1,11 +1,26 @@
 package DuelistMetrics.Server.models;
 
+import DuelistMetrics.Server.models.dto.RunMonthDTO;
 import com.fasterxml.jackson.annotation.*;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.math.*;
 
 @Entity
+@NamedNativeQuery(name = "getRunsByCharacterFromThisYearLookup", query = """
+SELECT MONTH(from_unixtime(b.timestamp)) AS month,
+       COUNT(*) AS runs
+FROM bundle b
+WHERE YEAR(from_unixtime(b.timestamp)) = YEAR(CURDATE()) AND
+      b.character_chosen = :character
+GROUP BY month
+""", resultSetMapping = "runMonthDtoMapping")
+@SqlResultSetMapping(
+        name = "runMonthDtoMapping",
+        classes = @ConstructorResult(targetClass = RunMonthDTO.class,columns = {
+                @ColumnResult(name = "month", type = Integer.class),
+                @ColumnResult(name = "runs", type = Integer.class)})
+)
 public class TopBundle {
 
     @Id

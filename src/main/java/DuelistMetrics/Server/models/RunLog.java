@@ -1,6 +1,6 @@
 package DuelistMetrics.Server.models;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
 public class RunLog {

@@ -107,12 +107,11 @@ public class BundleController {
             boolean isParams = params != null;
             var output = new ArrayList<RunTimeFrameData>();   // week number -> runs in week
             var numWeeks = Integer.parseInt(weeks);
-            var week = 1;
             if (numWeeks > 0) {
                 var start = 0;
                 var end = 168;
                 while (numWeeks > 0) {
-                    Integer count = null;
+                    Integer count;
                     if (!isParams || params.noTypes) {
                         count = bundles.countRunsInTimeFrame(end, start);
                     } else {
@@ -128,7 +127,6 @@ public class BundleController {
                     var endDateTime = new SimpleDateFormat("MM/dd").format(endDate);
                     var date = endDateTime + " - " + startDateTime;
                     output.add(new RunTimeFrameData(count, date));
-                    week++;
                     start += 168;
                     end += 168;
                     numWeeks--;

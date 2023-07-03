@@ -362,7 +362,7 @@ public class RunLogController {
 
     @GetMapping("/runs-this-year/{character}")
     @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
-    public static Integer getRunsThisYearByCharacter(@PathVariable String character) {
+    public static List<RunMonthDTO> getRunsThisYearByCharacter(@PathVariable String character) {
         return realBundles.countRunsByCharacterThisYear(character);
     }
 

@@ -2,6 +2,7 @@ package DuelistMetrics.Server.services;
 
 import DuelistMetrics.Server.controllers.*;
 import DuelistMetrics.Server.models.*;
+import DuelistMetrics.Server.models.dto.RunMonthDTO;
 import DuelistMetrics.Server.models.tierScore.*;
 import DuelistMetrics.Server.repositories.*;
 import org.springframework.beans.factory.annotation.*;
@@ -32,7 +33,7 @@ public class BundleService {
 
   public Integer countRunsByCharacterToday(String character) { return this.repo.getRunsByCharacterFromToday(character); }
 
-  public Integer countRunsByCharacterThisYear(String character) { return this.repo.getRunsByCharacterFromThisYear(character); }
+  public List<RunMonthDTO> countRunsByCharacterThisYear(String character) { return this.repo.getRunsByCharacterFromThisYear(character); }
 
   public TopBundle findByHostAndLocalTime(String host, BigDecimal localTime) {
     var list = this.repo.findByHostAndLocalTime(host, localTime);

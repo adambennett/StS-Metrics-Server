@@ -5,9 +5,9 @@ import DuelistMetrics.Server.util.*;
 import com.fasterxml.jackson.annotation.*;
 import org.hibernate.annotations.*;
 
-import javax.persistence.*;
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
+import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
 import java.math.*;
 import java.util.*;
 
