@@ -29,11 +29,18 @@ public interface TopBundleRepo extends JpaRepository<TopBundle, Long> {
     Date getTimeFrameDate(int endInterval, int startInterval);
 
     @Query(value = """
-            SELECT COUNT(*)
-            FROM bundle b
-            WHERE from_unixtime(b.timestamp) >= DATE_SUB(CURDATE(), INTERVAL 1 DAY) and from_unixtime(b.timestamp) <= DATE_ADD(CURDATE(), INTERVAL 1 DAY) and b.character_chosen = :character
-            """, nativeQuery = true)
+    SELECT COUNT(*)
+    FROM bundle b
+    WHERE from_unixtime(b.timestamp) >= DATE_SUB(CURDATE(), INTERVAL 1 DAY) and from_unixtime(b.timestamp) <= DATE_ADD(CURDATE(), INTERVAL 1 DAY) and b.character_chosen = :character
+    """, nativeQuery = true)
     Integer getRunsByCharacterFromToday(String character);
+
+    @Query(value = """
+    SELECT COUNT(*)
+    FROM bundle b
+    WHERE from_unixtime(b.timestamp) >= DATE_SUB(CURDATE(), INTERVAL 1 DAY) and from_unixtime(b.timestamp) <= DATE_ADD(CURDATE(), INTERVAL 1 DAY) and b.character_chosen = :character AND b.victory = 1
+    """, nativeQuery = true)
+    Integer getWinsByCharacterFromToday(String character);
 
     @Query(name = "getRunsByCharacterFromThisYearLookup", nativeQuery = true)
     List<RunMonthDTO> getRunsByCharacterFromThisYear(String character);

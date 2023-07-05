@@ -105,7 +105,7 @@ public class BundleController {
     public ResponseEntity<?> getRunsInTimeFrame(@PathVariable String weeks, @RequestBody RunCountParams params) {
         try {
             boolean isParams = params != null;
-            var output = new ArrayList<RunTimeFrameData>();   // week number -> runs in week
+            var output = new ArrayList<RunTimeFrameData>();
             var numWeeks = Integer.parseInt(weeks);
             if (numWeeks > 0) {
                 var start = 0;
@@ -137,6 +137,40 @@ public class BundleController {
             }
         } catch (Exception ex) {
             logger.info("Exception fetching run timeframe data\n" + Arrays.toString(ex.getStackTrace()));
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PostMapping("/runs-in-week")
+    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    public ResponseEntity<?> getRunsInOneWeek(@RequestBody RunCountParams params) {
+        try {
+            boolean isParams = params != null;
+            var output = new ArrayList<RunTimeFrameData>();
+            var numDays = 7;
+            var start = 0;
+            var end = 24;
+            while (numDays > 0) {
+                Integer count;
+                if (!isParams || params.noTypes) {
+                    count = bundles.countRunsInTimeFrame(end, start);
+                } else {
+                    var t = params.types;
+                    count = bundles.countRunsInTimeFrame(end, start, t.character(), t.duelist(),
+                            t.nonDuelist(), t.timeStart(), t.timeEnd(), t.host(), t.country(), t.ascensionStart(),
+                            t.ascensionEnd(), t.challengeStart(), t.challengeEnd(), t.victory(), t.floorStart(),
+                            t.floorEnd(), t.deck(), t.killedBy());
+                }
+                var midDate = bundles.getTimeFrame(start + 12);
+                var date = new SimpleDateFormat("EEEE - MM/dd/yyyy").format(midDate);
+                output.add(new RunTimeFrameData(count, date));
+                start += 24;
+                end += 24;
+                numDays--;
+            }
+            return new ResponseEntity<>(output, HttpStatus.OK);
+        } catch (Exception ex) {
+            logger.info("Exception fetching run timeframe data for 1 week\n" + Arrays.toString(ex.getStackTrace()));
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }

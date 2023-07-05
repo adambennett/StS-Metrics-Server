@@ -10,7 +10,7 @@ public class RunCountParams {
     public record RunCountParamType(String character, String country, String timeStart, String timeEnd, boolean duelist,
                                     boolean nonDuelist, String host, Integer ascensionStart, Integer ascensionEnd,
                                     Integer challengeStart, Integer challengeEnd, Boolean victory, Integer floorStart,
-                                    Integer floorEnd, String deck, String killedBy){}
+                                    Integer floorEnd, String deck, String killedBy, String uuid){}
 
     public RunCountParams() {}
 

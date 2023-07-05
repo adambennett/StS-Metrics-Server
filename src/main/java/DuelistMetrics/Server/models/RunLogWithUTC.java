@@ -1,3 +1,5 @@
 package DuelistMetrics.Server.models;
 
-public record RunLogWithUTC(RunLog log, String utcTimestamp) {}
+import DuelistMetrics.Server.models.dto.RunLogDTO;
+
+public record RunLogWithUTC(RunLogDTO log, String utcTimestamp) {}

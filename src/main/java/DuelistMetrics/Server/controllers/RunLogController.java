@@ -284,8 +284,8 @@ public class RunLogController {
             var runs = bundles.findAll(options.pageNumber, options.pageSize, options);
             for (var run : runs) {
                 try {
-                    var bigD = new BigDecimal(run.getFilterDate());
-                    var topTime = realBundles.findTopBundleTimeByHostAndLocalTime(run.getHost(), bigD);
+                    var bigD = new BigDecimal(run.filterDate());
+                    var topTime = realBundles.findTopBundleTimeByHostAndLocalTime(run.host(), bigD);
                     output.add(new RunLogWithUTC(run, topTime));
                 } catch (Exception ex) {
                     output.add(new RunLogWithUTC(run, null));
@@ -358,6 +358,13 @@ public class RunLogController {
     @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
     public static Integer getRunsTodayByCharacter(@PathVariable String character) {
         return realBundles.countRunsByCharacterToday(character);
+    }
+
+
+    @GetMapping("/wins-today/{character}")
+    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    public static Integer getWinsTodayByCharacter(@PathVariable String character) {
+        return realBundles.countWinsByCharacterToday(character);
     }
 
     @GetMapping("/runs-this-year/{character}")

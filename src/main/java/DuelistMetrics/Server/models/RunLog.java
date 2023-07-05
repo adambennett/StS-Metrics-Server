@@ -1,8 +1,66 @@
 package DuelistMetrics.Server.models;
 
+import DuelistMetrics.Server.models.dto.RunLogDTO;
 import jakarta.persistence.*;
 
 @Entity
+@NamedNativeQuery(name = "findAllRunDetailsByPlayerUUIDLookup", query = """
+SELECT
+  rl.run_id,
+  rl.ascension,
+  rl.challenge,
+  rl.character_name AS characterName,
+  rl.deck,
+  rl.floor,
+  rl.host,
+  rl.kaiba,
+  rl.killed_by AS killedBy,
+  rl.time,
+  rl.victory,
+  rl.country,
+  rl.filter_date AS filterDate,
+  rl.language
+FROM run_log rl
+WHERE run_id IN (
+SELECT rl.run_id
+FROM top_bundle t
+JOIN bundle b ON b.top_id = t.event_top_id
+JOIN run_log rl ON rl.host = t.host AND rl.filter_date = b.local_time
+WHERE t.event_top_id = (SELECT b.top_id FROM bundle b WHERE b.unique_player_id = :uuid)
+) AND DATEDIFF(rl.filter_date, CURDATE()) < 14 and
+(character_name = :character or :character IS null) and
+(character_name = 'THE_DUELIST' or :isDuelist = false) and
+(character_name != 'THE_DUELIST' or :nonDuelist = false) and
+(rl.host = :host or :host IS null) and
+((ascension BETWEEN :ascensionStart AND :ascensionEnd) or :ascensionStart IS null) and
+((challenge BETWEEN :challengeStart AND :challengeEnd) or :challengeStart IS null) and
+((floor BETWEEN :floorStart AND :floorEnd) or :floorStart IS null) and
+(victory = :victory or :victory IS null) and
+(deck = :deck or :deck IS null) and
+(killed_by = :killedBy or :killedBy IS null) and
+((filter_date BETWEEN :timeStart AND :timeEnd) or (:timeStart IS null or :timeEnd IS null)) and
+(country = :country or :country IS null)
+ORDER BY rl.filter_date
+DESC LIMIT :offset, :pageSize
+""", resultSetMapping = "runLogDtoMapping")
+@SqlResultSetMapping(
+        name = "runLogDtoMapping",
+        classes = @ConstructorResult(targetClass = RunLogDTO.class,columns = {
+                @ColumnResult(name = "run_id", type = Long.class),
+                @ColumnResult(name = "ascension", type = Integer.class),
+                @ColumnResult(name = "challenge", type = Integer.class),
+                @ColumnResult(name = "characterName", type = String.class),
+                @ColumnResult(name = "deck", type = String.class),
+                @ColumnResult(name = "floor", type = Integer.class),
+                @ColumnResult(name = "host", type = String.class),
+                @ColumnResult(name = "kaiba", type = Boolean.class),
+                @ColumnResult(name = "killedBy", type = String.class),
+                @ColumnResult(name = "time", type = String.class),
+                @ColumnResult(name = "victory", type = Boolean.class),
+                @ColumnResult(name = "country", type = String.class),
+                @ColumnResult(name = "filterDate", type = String.class),
+                @ColumnResult(name = "language", type = String.class)})
+)
 public class RunLog {
 
   @Id

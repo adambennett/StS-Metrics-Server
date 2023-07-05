@@ -1,6 +1,7 @@
 package DuelistMetrics.Server.repositories;
 
 import DuelistMetrics.Server.models.*;
+import DuelistMetrics.Server.models.dto.RunLogDTO;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.stereotype.*;
 
@@ -58,6 +59,43 @@ public interface RunLogRepo extends JpaRepository<RunLog, Long> {
                                         String country, Integer ascensionStart, Integer ascensionEnd,
                                         Integer challengeStart, Integer challengeEnd, Boolean victory,
                                         Integer floorStart, Integer floorEnd, String deck, String killedBy);
+
+  @Query(value = """
+SELECT
+  COUNT(*)
+FROM run_log rl
+WHERE run_id IN (
+    SELECT rl.run_id
+    FROM top_bundle t
+    JOIN bundle b ON b.top_id = t.event_top_id
+    JOIN run_log rl ON rl.host = t.host AND rl.filter_date = b.local_time
+    WHERE t.event_top_id = (SELECT b.top_id FROM bundle b WHERE b.unique_player_id = :uuid)
+) AND
+  DATEDIFF(rl.filter_date, CURDATE()) < 14 and
+  (character_name = :character or :character IS null) and
+  (character_name = 'THE_DUELIST' or :isDuelist = false) and
+  (character_name != 'THE_DUELIST' or :nonDuelist = false) and
+  (rl.host = :host or :host IS null) and
+  ((ascension BETWEEN :ascensionStart AND :ascensionEnd) or :ascensionStart IS null) and
+  ((challenge BETWEEN :challengeStart AND :challengeEnd) or :challengeStart IS null) and
+  ((floor BETWEEN :floorStart AND :floorEnd) or :floorStart IS null) and
+  (victory = :victory or :victory IS null) and
+  (deck = :deck or :deck IS null) and
+  (killed_by = :killedBy or :killedBy IS null) and
+  ((filter_date BETWEEN :timeStart AND :timeEnd) or (:timeStart IS null or :timeEnd IS null)) and
+  (country = :country or :country IS null)
+  """, nativeQuery = true)
+  Long countAllByPlayerUUID(String uuid, String character, boolean isDuelist, boolean nonDuelist, String timeStart, String timeEnd,
+                            String host, String country, Integer ascensionStart, Integer ascensionEnd,
+                            Integer challengeStart, Integer challengeEnd, Boolean victory, Integer floorStart,
+                            Integer floorEnd, String deck, String killedBy);
+
+  @Query(name = "findAllRunDetailsByPlayerUUIDLookup", nativeQuery = true)
+  Collection<RunLogDTO> findAllByPlayerUUID(String uuid, Integer offset, Integer pageSize,String character, boolean isDuelist,
+                                            boolean nonDuelist, String timeStart, String timeEnd, String host,
+                                            String country, Integer ascensionStart, Integer ascensionEnd,
+                                            Integer challengeStart, Integer challengeEnd, Boolean victory,
+                                            Integer floorStart, Integer floorEnd, String deck, String killedBy);
 
   @Query(value = "SELECT rl.deck, SUM(rl.victory = 1) AS yes FROM run_log rl WHERE rl.ascension = 20 GROUP BY rl.deck", nativeQuery = true)
   List<String> getA20Wins();

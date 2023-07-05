@@ -2,6 +2,7 @@ package DuelistMetrics.Server.controllers;
 
 import DuelistMetrics.Server.models.*;
 import DuelistMetrics.Server.models.builders.*;
+import DuelistMetrics.Server.models.dto.FullInfoDisplayObject;
 import DuelistMetrics.Server.models.infoModels.*;
 import DuelistMetrics.Server.repositories.*;
 import DuelistMetrics.Server.util.*;
@@ -26,12 +27,8 @@ public class DisplayObjectController {
 
   @GetMapping("/relics")
   @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
-  public static Collection<DisplayObject> getRelics(){
-    Collection<DisplayObject> output = new ArrayList<>();
-    for (String s : relics.getAll()) {
-      createDisplayObj(output, s);
-    }
-    return sortDuelistObjs(output, "relics");
+  public static Collection<FullInfoDisplayObject> getRelics(){
+    return relics.getAll();
   }
 
   @GetMapping("/potions")
@@ -56,12 +53,8 @@ public class DisplayObjectController {
 
   @GetMapping("/relics/{deck}")
   @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
-  public static Collection<DisplayObject> getRelics(@PathVariable String deck){
-    Collection<DisplayObject> output = new ArrayList<>();
-    for (String s : relics.getAllFromDeck(DeckNameProcessor.getProperDeckName(deck))) {
-      createDisplayObj(output, s);
-    }
-    return sortDuelistObjs(output, "relics");
+  public static Collection<FullInfoDisplayObject> getRelics(@PathVariable String deck){
+    return relics.getAllFromDeck(DeckNameProcessor.getProperDeckName(deck));
   }
 
   @GetMapping("/potions/{deck}")
