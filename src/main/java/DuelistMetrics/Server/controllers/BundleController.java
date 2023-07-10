@@ -111,16 +111,7 @@ public class BundleController {
                 var start = 0;
                 var end = 168;
                 while (numWeeks > 0) {
-                    Integer count;
-                    if (!isParams || params.noTypes) {
-                        count = bundles.countRunsInTimeFrame(end, start);
-                    } else {
-                        var t = params.types;
-                        count = bundles.countRunsInTimeFrame(end, start, t.character(), t.duelist(),
-                                t.nonDuelist(), t.timeStart(), t.timeEnd(), t.host(), t.country(), t.ascensionStart(),
-                                t.ascensionEnd(), t.challengeStart(), t.challengeEnd(), t.victory(), t.floorStart(),
-                                t.floorEnd(), t.deck(), t.killedBy());
-                    }
+                    Integer count = countRunsInTimeFrame(params, isParams, start, end);
                     var startDate = bundles.getTimeFrame(start);
                     var endDate = bundles.getTimeFrame(end - 1);
                     var startDateTime = new SimpleDateFormat("MM/dd").format(startDate);
@@ -151,16 +142,7 @@ public class BundleController {
             var start = 0;
             var end = 24;
             while (numDays > 0) {
-                Integer count;
-                if (!isParams || params.noTypes) {
-                    count = bundles.countRunsInTimeFrame(end, start);
-                } else {
-                    var t = params.types;
-                    count = bundles.countRunsInTimeFrame(end, start, t.character(), t.duelist(),
-                            t.nonDuelist(), t.timeStart(), t.timeEnd(), t.host(), t.country(), t.ascensionStart(),
-                            t.ascensionEnd(), t.challengeStart(), t.challengeEnd(), t.victory(), t.floorStart(),
-                            t.floorEnd(), t.deck(), t.killedBy());
-                }
+                Integer count = countRunsInTimeFrame(params, isParams, start, end);
                 var midDate = bundles.getTimeFrame(start + 12);
                 var date = new SimpleDateFormat("EEEE - MM/dd/yyyy").format(midDate);
                 output.add(new RunTimeFrameData(count, date));
@@ -173,5 +155,19 @@ public class BundleController {
             logger.info("Exception fetching run timeframe data for 1 week\n" + Arrays.toString(ex.getStackTrace()));
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
+    }
+
+    private static Integer countRunsInTimeFrame(@RequestBody RunCountParams params, boolean isParams, int start, int end) {
+        Integer count;
+        if (!isParams || params.noTypes) {
+            count = bundles.countRunsInTimeFrame(end, start);
+        } else {
+            var t = params.types;
+            count = bundles.countRunsInTimeFrame(end, start, t.character(), t.duelist(),
+                    t.nonDuelist(), t.timeStart(), t.timeEnd(), t.host(), t.country(), t.ascensionStart(),
+                    t.ascensionEnd(), t.challengeStart(), t.challengeEnd(), t.victory(), t.floorStart(),
+                    t.floorEnd(), t.deck(), t.killedBy());
+        }
+        return count;
     }
 }

@@ -2,7 +2,6 @@ package DuelistMetrics.Server.controllers;
 
 import DuelistMetrics.Server.models.*;
 import DuelistMetrics.Server.models.builders.*;
-import DuelistMetrics.Server.models.infoModels.*;
 import DuelistMetrics.Server.repositories.*;
 import DuelistMetrics.Server.services.*;
 import DuelistMetrics.Server.util.*;
@@ -20,7 +19,12 @@ public class CardController {
   private static InfoService infoService;
 
   @Autowired
-  public CardController(CardRepo card, InfoCardRepo infoRepo, CardService service, InfoService infoServ) { infoService = infoServ; cards = card; infoCardRepo = infoRepo; serv = service; }
+  public CardController(CardRepo card, InfoCardRepo infoRepo, CardService service, InfoService infoServ) {
+    infoService = infoServ;
+    cards = card;
+    infoCardRepo = infoRepo;
+    serv = service;
+  }
 
   @GetMapping("/cards")
   @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})

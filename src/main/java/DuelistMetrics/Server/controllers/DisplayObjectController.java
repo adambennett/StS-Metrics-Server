@@ -2,8 +2,8 @@ package DuelistMetrics.Server.controllers;
 
 import DuelistMetrics.Server.models.*;
 import DuelistMetrics.Server.models.builders.*;
+import DuelistMetrics.Server.models.dto.FormattedKeywordDTO;
 import DuelistMetrics.Server.models.dto.FullInfoDisplayObject;
-import DuelistMetrics.Server.models.infoModels.*;
 import DuelistMetrics.Server.repositories.*;
 import DuelistMetrics.Server.util.*;
 import org.springframework.beans.factory.annotation.*;
@@ -17,12 +17,14 @@ public class DisplayObjectController {
   private static RelicRepo relics;
   private static PotionRepo pots;
   private static NeowRepo neo;
+  private static InfoKeywordRepo keywords;
 
   @Autowired
-  public DisplayObjectController(RelicRepo card, PotionRepo pot, NeowRepo no) {
+  public DisplayObjectController(RelicRepo card, PotionRepo pot, NeowRepo no, InfoKeywordRepo kw) {
     relics = card;
     pots = pot;
     neo = no;
+    keywords = kw;
   }
 
   @GetMapping("/relics")
@@ -33,12 +35,8 @@ public class DisplayObjectController {
 
   @GetMapping("/potions")
   @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
-  public static Collection<DisplayObject> getPotions(){
-    Collection<DisplayObject> output = new ArrayList<>();
-    for (String s : pots.getAll()) {
-      createDisplayObj(output, s);
-    }
-    return sortDuelistObjs(output, "potions");
+  public static Collection<FullInfoDisplayObject> getPotions(){
+    return pots.getAll();
   }
 
   @GetMapping("/neow")
@@ -51,6 +49,17 @@ public class DisplayObjectController {
     return sortDuelistObjs(output, "neow");
   }
 
+  @GetMapping("/keywords/duelist")
+  @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+  public static Collection<FormattedKeywordDTO> getKeywords(){
+    var kw = keywords.getDuelistKeywordListLookup();
+    var list = new ArrayList<FormattedKeywordDTO>();
+    for (var k : kw) {
+      list.add(k.format(", "));
+    }
+    return list;
+  }
+
   @GetMapping("/relics/{deck}")
   @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
   public static Collection<FullInfoDisplayObject> getRelics(@PathVariable String deck){
@@ -59,12 +68,8 @@ public class DisplayObjectController {
 
   @GetMapping("/potions/{deck}")
   @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
-  public static Collection<DisplayObject> getPotions(@PathVariable String deck){
-    Collection<DisplayObject> output = new ArrayList<>();
-    for (String s : pots.getAllFromDeck(DeckNameProcessor.getProperDeckName(deck))) {
-      createDisplayObj(output, s);
-    }
-    return sortDuelistObjs(output, "potions");
+  public static Collection<FullInfoDisplayObject> getPotions(@PathVariable String deck){
+    return pots.getAllFromDeck(DeckNameProcessor.getProperDeckName(deck));
   }
 
   @GetMapping("/neow/{deck}")
