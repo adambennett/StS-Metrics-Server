@@ -1,19 +1,15 @@
 package DuelistMetrics.Server.models;
 
 import DuelistMetrics.Server.models.dto.LoggedExceptionDTO;
-import jakarta.persistence.ColumnResult;
-import jakarta.persistence.ConstructorResult;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.NamedNativeQuery;
-import jakarta.persistence.SqlResultSetMapping;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import java.util.Date;
 
 @Entity
-@NamedNativeQuery(name = "findLastXDaysOfLogsLookup", query = """
+/*@NamedNativeQuery(name = "findLastXDaysOfLogsLookup", query = """
 SELECT
   message,
   stack_trace AS stackTrace,
@@ -119,7 +115,7 @@ WHERE stack_trace like CONCAT('%', :message, '%') AND
                 @ColumnResult(name = "createdDate", type = Date.class),
                 @ColumnResult(name = "duelistModVersion", type = String.class),
                 @ColumnResult(name = "devMessage", type = String.class)})
-)
+)*/
 public class LoggedException {
 
   @Id

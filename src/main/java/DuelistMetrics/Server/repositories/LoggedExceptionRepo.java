@@ -11,7 +11,7 @@ import java.util.List;
 @Repository
 public interface LoggedExceptionRepo extends JpaRepository<LoggedException, Long> {
 
-  @Query(name = "findLogsMatchingMessageLookup", nativeQuery = true)
+ /* @Query(name = "findLogsMatchingMessageLookup", nativeQuery = true)
   List<LoggedExceptionDTO> findLogsByMessage(String message);
 
   @Query(name = "findLogsMatchingStackTraceLookup", nativeQuery = true)
@@ -24,6 +24,6 @@ public interface LoggedExceptionRepo extends JpaRepository<LoggedException, Long
   List<LoggedExceptionDTO> findLogsByStackTraceDays(String message, Integer days);
 
   @Query(name = "findLastXDaysOfLogsLookup", nativeQuery = true)
-  List<LoggedExceptionDTO> findLastXDaysOfLogs(Integer days);
+  List<LoggedExceptionDTO> findLastXDaysOfLogs(Integer days);*/
 
 }

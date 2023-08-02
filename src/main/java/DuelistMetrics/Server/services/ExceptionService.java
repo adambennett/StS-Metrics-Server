@@ -22,7 +22,7 @@ public class ExceptionService {
 
   public LoggedException create(LoggedException exception) { return this.repo.save(exception); }
 
-  public List<LoggedExceptionDTO> searchLogsByMessage(String message) {
+  /*public List<LoggedExceptionDTO> searchLogsByMessage(String message) {
     return this.repo.findLogsByMessage(message);
   }
 
@@ -40,5 +40,5 @@ public class ExceptionService {
 
   public List<LoggedExceptionDTO> findLastXDaysOfLogs(Integer days) {
     return this.repo.findLastXDaysOfLogs(days);
-  }
+  }*/
 }

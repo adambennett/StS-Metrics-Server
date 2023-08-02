@@ -27,7 +27,7 @@ public class ExceptionController {
         exceptionService = expService;
     }
 
-    @PostMapping({"/searchLogsByMessage", "/searchLogsByMessage/{days}"})
+    /*@PostMapping({"/searchLogsByMessage", "/searchLogsByMessage/{days}"})
     @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
     public List<LoggedExceptionDTO> findLogsByMessage(@RequestBody String message, @PathVariable(required = false) String days) {
         if (days != null) {
@@ -64,20 +64,20 @@ public class ExceptionController {
         } catch (Exception ex) {
             return "Exception while fetching logs - " + ex.getMessage();
         }
-    }
+    }*/
 
     @PostMapping("/logException")
     @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
     public String handleException(@RequestBody LoggedExceptionDTO exception) {
         this.exceptionService.create(new LoggedException(
-                exception.message(),
-                exception.stackTrace(),
-                exception.uuid(),
+                exception.getMessage(),
+                exception.getStackTrace(),
+                exception.getUuid(),
                 new Date(),
-                exception.duelistModVersion(),
-                exception.devMessage()
+                exception.getDuelistModVersion(),
+                exception.getDevMessage()
         ));
-        logger.info("Saved exception - " + exception.message());
+        logger.info("Saved exception - " + exception.getMessage());
         return "";
     }
 
