@@ -1,6 +1,7 @@
 package DuelistMetrics.Server.repositories;
 
 import DuelistMetrics.Server.models.*;
+import DuelistMetrics.Server.models.dto.RunDifficultyBreakdownDTO;
 import DuelistMetrics.Server.models.dto.RunLogDTO;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.stereotype.*;
@@ -205,5 +206,11 @@ WHERE run_id IN (
           "AND " +
           "icp.pools = :deck ", nativeQuery = true)
   List<Integer> getPotionsBasedOnDeckSet(String deck);
+
+  @Query(name = "ascensionRunBreakdownLookup", nativeQuery = true)
+  List<RunDifficultyBreakdownDTO> getAscensionRunBreakdownData();
+
+  @Query(name = "challengeRunBreakdownLookup", nativeQuery = true)
+  List<RunDifficultyBreakdownDTO> getChallengeRunBreakdownData();
 
 }

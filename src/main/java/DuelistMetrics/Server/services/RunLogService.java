@@ -1,6 +1,7 @@
 package DuelistMetrics.Server.services;
 
 import DuelistMetrics.Server.models.*;
+import DuelistMetrics.Server.models.dto.RunDifficultyBreakdownDTO;
 import DuelistMetrics.Server.models.dto.RunLogDTO;
 import DuelistMetrics.Server.repositories.*;
 import org.springframework.beans.factory.annotation.*;
@@ -16,7 +17,7 @@ public class RunLogService {
 
   private static final Logger logger = Logger.getLogger("DuelistMetrics.Server.RunLogService");
 
-  private RunLogRepo repo;
+  private final RunLogRepo repo;
 
   @Autowired
   public RunLogService(RunLogRepo repo) { this.repo = repo; }
@@ -38,6 +39,23 @@ public class RunLogService {
   public RunLog create(RunLog run) { return this.repo.save(run); }
 
   public Collection<RunLog> findAll() { return repo.findAll(); }
+
+  public Map<String, List<RunDifficultyBreakdownDTO>> getAscensionBreakdownDataByCharacterName() {
+    List<RunDifficultyBreakdownDTO> ascensionData = this.repo.getAscensionRunBreakdownData();
+    Map<String, List<RunDifficultyBreakdownDTO>> organized = new HashMap<>();
+    for (var run : ascensionData) {
+      if (organized.containsKey(run.characterName())) {
+        organized.get(run.characterName()).add(run);
+      } else {
+        organized.put(run.characterName(), List.of(run));
+      }
+    }
+    return organized;
+  }
+
+  public List<RunDifficultyBreakdownDTO> getChallengeBreakdownData() {
+    return this.repo.getChallengeRunBreakdownData();
+  }
 
   public Long countRuns(RunCountParams params) {
     if (params.noTypes) {

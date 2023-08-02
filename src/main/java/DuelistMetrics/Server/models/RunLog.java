@@ -1,5 +1,6 @@
 package DuelistMetrics.Server.models;
 
+import DuelistMetrics.Server.models.dto.RunDifficultyBreakdownDTO;
 import DuelistMetrics.Server.models.dto.RunLogDTO;
 import jakarta.persistence.*;
 
@@ -60,6 +61,39 @@ DESC LIMIT :offset, :pageSize
                 @ColumnResult(name = "country", type = String.class),
                 @ColumnResult(name = "filterDate", type = String.class),
                 @ColumnResult(name = "language", type = String.class)})
+)
+@NamedNativeQuery(name = "ascensionRunBreakdownLookup", query = """
+SELECT
+    'ascension' AS type,
+    rl.character_name AS characterName,
+    ascension AS level,
+    COUNT(*) AS runs
+FROM run_log rl
+GROUP BY rl.ascension, rl.character_name
+ORDER BY rl.character_name, level
+""", resultSetMapping = "ascensionDifficultyBreakdownDtoMapping")
+@SqlResultSetMapping(
+        name = "ascensionDifficultyBreakdownDtoMapping",
+        classes = @ConstructorResult(targetClass = RunDifficultyBreakdownDTO.class,columns = {
+                @ColumnResult(name = "type", type = String.class),
+                @ColumnResult(name = "characterName", type = String.class),
+                @ColumnResult(name = "level", type = Integer.class),
+                @ColumnResult(name = "runs", type = Integer.class)})
+)
+@NamedNativeQuery(name = "challengeRunBreakdownLookup", query = """
+SELECT
+    'challenge' AS type,
+    challenge AS level,
+    COUNT(*) AS runs
+FROM run_log rl
+GROUP BY rl.challenge
+""", resultSetMapping = "challengeDifficultyBreakdownDtoMapping")
+@SqlResultSetMapping(
+        name = "challengeDifficultyBreakdownDtoMapping",
+        classes = @ConstructorResult(targetClass = RunDifficultyBreakdownDTO.class,columns = {
+                @ColumnResult(name = "type", type = String.class),
+                @ColumnResult(name = "level", type = Integer.class),
+                @ColumnResult(name = "runs", type = Integer.class)})
 )
 public class RunLog {
 

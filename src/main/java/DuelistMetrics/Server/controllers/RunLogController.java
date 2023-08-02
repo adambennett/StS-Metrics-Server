@@ -381,6 +381,18 @@ public class RunLogController {
         return out;
     }
 
+    @GetMapping("/ascensionBreakdownData")
+    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    public static Map<String, List<RunDifficultyBreakdownDTO>> getAscensionBreakdownData() {
+        return bundles.getAscensionBreakdownDataByCharacterName();
+    }
+
+    @GetMapping("/challengeBreakdownData")
+    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    public static List<RunDifficultyBreakdownDTO> getChallengeBreakdownData() {
+        return bundles.getChallengeBreakdownData();
+    }
+
     private record DeckCardsHolder(String deckName, List<Integer> basicCards, List<Integer> poolCards, List<Integer> deckCards, List<Integer> relics, List<Integer> potions){
 
         @Override
