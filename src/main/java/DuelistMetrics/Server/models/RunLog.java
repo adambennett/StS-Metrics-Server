@@ -2,6 +2,7 @@ package DuelistMetrics.Server.models;
 
 import DuelistMetrics.Server.models.dto.RunDifficultyBreakdownDTO;
 import DuelistMetrics.Server.models.dto.RunLogDTO;
+import DuelistMetrics.Server.models.dto.UploadedRunsDTO;
 import jakarta.persistence.*;
 
 @Entity
@@ -94,6 +95,24 @@ GROUP BY rl.challenge
                 @ColumnResult(name = "type", type = String.class),
                 @ColumnResult(name = "level", type = Integer.class),
                 @ColumnResult(name = "runs", type = Integer.class)})
+)
+@NamedNativeQuery(name = "getNumberOfRunsByPlayerIdLookup", query = """
+SELECT
+    unique_player_id AS uuid,
+    COUNT(*) AS runs,
+    GROUP_CONCAT(DISTINCT t.host SEPARATOR ', ') AS playerNames
+FROM bundle b
+JOIN top_bundle t ON t.event_top_id = b.top_id
+WHERE unique_player_id IS NOT NULL
+GROUP BY unique_player_id
+ORDER BY runs DESC
+""", resultSetMapping = "uploadedRunsDtoMapping")
+@SqlResultSetMapping(
+        name = "uploadedRunsDtoMapping",
+        classes = @ConstructorResult(targetClass = UploadedRunsDTO.class,columns = {
+                @ColumnResult(name = "uuid", type = String.class),
+                @ColumnResult(name = "runs", type = Integer.class),
+                @ColumnResult(name = "playerNames", type = String.class)})
 )
 public class RunLog {
 

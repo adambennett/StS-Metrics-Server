@@ -41,20 +41,6 @@ public class ExceptionController {
         return this.exceptionService.searchLogsByMessage(message);
     }
 
-    @PostMapping({"/searchLogsByTrace", "/searchLogsByTrace/{days}"})
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
-    public List<LoggedExceptionDTO> findLogsByTrace(@RequestBody String trace, @PathVariable(required = false) String days) {
-        if (days != null) {
-            try {
-                Integer daysParsed = Integer.parseInt(days);
-                return this.exceptionService.searchLogsByStackTraceDays(trace, daysParsed);
-            } catch (Exception ex) {
-                return this.exceptionService.searchLogsByStackTrace(trace);
-            }
-        }
-        return this.exceptionService.searchLogsByStackTrace(trace);
-    }
-
     @GetMapping("/lastXDaysOfLogs/{days}")
     @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
     public Object findLogsByTrace(@PathVariable String days) {
@@ -75,7 +61,8 @@ public class ExceptionController {
                 exception.uuid(),
                 new Date(),
                 exception.duelistModVersion(),
-                exception.devMessage()
+                exception.devMessage(),
+                exception.runUUID()
         ));
         logger.info("Saved exception - " + exception.message());
         return "";

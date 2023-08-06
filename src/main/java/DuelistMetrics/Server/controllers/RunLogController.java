@@ -393,6 +393,12 @@ public class RunLogController {
         return bundles.getChallengeBreakdownData();
     }
 
+    @GetMapping("/runsUploadedByPlayerID")
+    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    public static List<UploadedRunsDTO> getNumberOfRunsByPlayerIds() {
+        return bundles.getNumberOfRunsByPlayerIds();
+    }
+
     private record DeckCardsHolder(String deckName, List<Integer> basicCards, List<Integer> poolCards, List<Integer> deckCards, List<Integer> relics, List<Integer> potions){
 
         @Override

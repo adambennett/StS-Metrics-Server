@@ -3,6 +3,7 @@ package DuelistMetrics.Server.repositories;
 import DuelistMetrics.Server.models.*;
 import DuelistMetrics.Server.models.dto.RunDifficultyBreakdownDTO;
 import DuelistMetrics.Server.models.dto.RunLogDTO;
+import DuelistMetrics.Server.models.dto.UploadedRunsDTO;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.stereotype.*;
 
@@ -212,5 +213,8 @@ WHERE run_id IN (
 
   @Query(name = "challengeRunBreakdownLookup", nativeQuery = true)
   List<RunDifficultyBreakdownDTO> getChallengeRunBreakdownData();
+
+  @Query(name = "getNumberOfRunsByPlayerIdLookup", nativeQuery = true)
+  List<UploadedRunsDTO> getNumberOfRunsByPlayerIds();
 
 }

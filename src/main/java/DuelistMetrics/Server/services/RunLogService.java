@@ -3,6 +3,7 @@ package DuelistMetrics.Server.services;
 import DuelistMetrics.Server.models.*;
 import DuelistMetrics.Server.models.dto.RunDifficultyBreakdownDTO;
 import DuelistMetrics.Server.models.dto.RunLogDTO;
+import DuelistMetrics.Server.models.dto.UploadedRunsDTO;
 import DuelistMetrics.Server.repositories.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.data.domain.*;
@@ -36,6 +37,8 @@ public class RunLogService {
 
   public List<String> getAllCharacters() { return this.repo.getAllCharacters(); }
 
+  public List<UploadedRunsDTO> getNumberOfRunsByPlayerIds() { return this.repo.getNumberOfRunsByPlayerIds(); }
+
   public RunLog create(RunLog run) { return this.repo.save(run); }
 
   public Collection<RunLog> findAll() { return repo.findAll(); }
@@ -47,7 +50,9 @@ public class RunLogService {
       if (organized.containsKey(run.characterName())) {
         organized.get(run.characterName()).add(run);
       } else {
-        organized.put(run.characterName(), List.of(run));
+        List<RunDifficultyBreakdownDTO> list = new ArrayList<>();
+        list.add(run);
+        organized.put(run.characterName(), list);
       }
     }
     return organized;

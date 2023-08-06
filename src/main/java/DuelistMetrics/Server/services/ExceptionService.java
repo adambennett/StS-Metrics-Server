@@ -26,16 +26,8 @@ public class ExceptionService {
     return this.repo.findLogsByMessage(message);
   }
 
-  public List<LoggedExceptionDTO> searchLogsByStackTrace(String stackTrace) {
-    return this.repo.findLogsByStackTrace(stackTrace);
-  }
-
   public List<LoggedExceptionDTO> searchLogsByMessageDays(String message, Integer days) {
     return this.repo.findLogsByMessageDays(message, days);
-  }
-
-  public List<LoggedExceptionDTO> searchLogsByStackTraceDays(String stackTrace, Integer days) {
-    return this.repo.findLogsByStackTraceDays(stackTrace, days);
   }
 
   public List<LoggedExceptionDTO> findLastXDaysOfLogs(Integer days) {
