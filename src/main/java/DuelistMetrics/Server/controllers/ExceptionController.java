@@ -1,6 +1,7 @@
 package DuelistMetrics.Server.controllers;
 
 import DuelistMetrics.Server.models.LoggedException;
+import DuelistMetrics.Server.models.dto.ExceptionSearchMessage;
 import DuelistMetrics.Server.models.dto.LoggedExceptionDTO;
 import DuelistMetrics.Server.services.ExceptionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
@@ -38,25 +40,28 @@ public class ExceptionController {
             "/searchLogsByMessage/{days}/{version}"
     })
     @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
-    public List<LoggedExceptionDTO> findLogsByMessage(@RequestBody String message, @PathVariable(required = false) String days, @PathVariable(required = false) String version) {
+    public List<LoggedExceptionDTO> findLogsByMessage(@RequestBody ExceptionSearchMessage message, @PathVariable(required = false) String days, @PathVariable(required = false) String version) {
+        if (message == null) {
+            return new ArrayList<>();
+        }
         if (version != null && days != null) {
             try {
                 Integer daysParsed = Integer.parseInt(days);
-                return exceptionService.searchLogsByMessageDays(message, daysParsed, version);
+                return exceptionService.searchLogsByMessageDays(message.message(), daysParsed, version);
             } catch (Exception ex) {
-                return exceptionService.searchLogsByMessage(message, version);
+                return exceptionService.searchLogsByMessage(message.message(), version);
             }
         } else if (version != null) {
-            return exceptionService.searchLogsByMessage(message, version);
+            return exceptionService.searchLogsByMessage(message.message(), version);
         } else if (days != null) {
             try {
                 Integer daysParsed = Integer.parseInt(days);
-                return exceptionService.searchLogsByMessageDays(message, daysParsed);
+                return exceptionService.searchLogsByMessageDays(message.message(), daysParsed);
             } catch (Exception ex) {
-                return exceptionService.searchLogsByMessage(message);
+                return exceptionService.searchLogsByMessage(message.message());
             }
         }
-        return exceptionService.searchLogsByMessage(message);
+        return exceptionService.searchLogsByMessage(message.message());
     }
 
     @GetMapping({"/lastXDaysOfLogs/{days}", "/lastXDaysOfLogs/{days}/{version}"})

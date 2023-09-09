@@ -20,12 +20,14 @@ SELECT
   stack_trace AS stackTrace,
   unique_player_id AS uuid,
   created_date AS createdDate,
+  DATE_FORMAT(created_date, '%c/%d/%Y %h:%i %p') AS formattedDate,
   duelist_mod_version AS duelistModVersion,
   dev_message AS devMessage,
   run_uuid AS runUUID
 FROM logged_exception
 WHERE DATEDIFF(created_date, CURDATE()) > ((:days) * -1) AND
       (:version IS NULL OR duelist_mod_version = :version)
+ORDER BY created_date DESC
 """, resultSetMapping = "loggedExceptionDtoXDaysMapping")
 @SqlResultSetMapping(
         name = "loggedExceptionDtoXDaysMapping",
@@ -35,6 +37,7 @@ WHERE DATEDIFF(created_date, CURDATE()) > ((:days) * -1) AND
                 @ColumnResult(name = "stackTrace", type = String.class),
                 @ColumnResult(name = "uuid", type = String.class),
                 @ColumnResult(name = "createdDate", type = Date.class),
+                @ColumnResult(name = "formattedDate", type = String.class),
                 @ColumnResult(name = "duelistModVersion", type = String.class),
                 @ColumnResult(name = "devMessage", type = String.class),
                 @ColumnResult(name = "runUUID", type = String.class)})
@@ -46,12 +49,14 @@ SELECT
   stack_trace AS stackTrace,
   unique_player_id AS uuid,
   created_date AS createdDate,
+  DATE_FORMAT(created_date, '%c/%d/%Y %h:%i %p') AS formattedDate,
   duelist_mod_version AS duelistModVersion,
   dev_message AS devMessage,
   run_uuid AS runUUID
 FROM logged_exception
-WHERE (message LIKE CONCAT('%', :message, '%') OR (stack_trace LIKE CONCAT('%', :message '%'))) AND
+WHERE (:message IS NULL OR message LIKE CONCAT('%', :message, '%') OR (stack_trace LIKE CONCAT('%', :message, '%'))) AND
       (:version IS NULL OR duelist_mod_version = :version)
+ORDER BY created_date DESC
 """, resultSetMapping = "loggedExceptionDtoMessageMapping")
 @SqlResultSetMapping(
         name = "loggedExceptionDtoMessageMapping",
@@ -61,7 +66,9 @@ WHERE (message LIKE CONCAT('%', :message, '%') OR (stack_trace LIKE CONCAT('%', 
                 @ColumnResult(name = "stackTrace", type = String.class),
                 @ColumnResult(name = "uuid", type = String.class),
                 @ColumnResult(name = "createdDate", type = Date.class),
+                @ColumnResult(name = "formattedDate", type = String.class),
                 @ColumnResult(name = "duelistModVersion", type = String.class),
+                @ColumnResult(name = "devMessage", type = String.class),
                 @ColumnResult(name = "runUUID", type = String.class)})
 )
 @NamedNativeQuery(name = "findLogsMatchingMessageByDaysLookup", query = """
@@ -71,13 +78,15 @@ SELECT
   stack_trace AS stackTrace,
   unique_player_id AS uuid,
   created_date AS createdDate,
+  DATE_FORMAT(created_date, '%c/%d/%Y %h:%i %p') AS formattedDate,
   duelist_mod_version AS duelistModVersion,
   dev_message AS devMessage,
   run_uuid AS runUUID
 FROM logged_exception
-WHERE (message LIKE CONCAT('%', :message, '%') OR (stack_trace LIKE CONCAT('%', :message '%'))) AND
+WHERE (:message IS NULL OR message LIKE CONCAT('%', :message, '%') OR (stack_trace LIKE CONCAT('%', :message, '%'))) AND
       (DATEDIFF(created_date, CURDATE()) > ((:days) * -1)) AND
       (:version IS NULL OR duelist_mod_version = :version)
+ORDER BY created_date DESC
 """, resultSetMapping = "loggedExceptionDtoMessageByDaysMapping")
 @SqlResultSetMapping(
         name = "loggedExceptionDtoMessageByDaysMapping",
@@ -87,7 +96,9 @@ WHERE (message LIKE CONCAT('%', :message, '%') OR (stack_trace LIKE CONCAT('%', 
                 @ColumnResult(name = "stackTrace", type = String.class),
                 @ColumnResult(name = "uuid", type = String.class),
                 @ColumnResult(name = "createdDate", type = Date.class),
+                @ColumnResult(name = "formattedDate", type = String.class),
                 @ColumnResult(name = "duelistModVersion", type = String.class),
+                @ColumnResult(name = "devMessage", type = String.class),
                 @ColumnResult(name = "runUUID", type = String.class)})
 )
 public class LoggedException {
