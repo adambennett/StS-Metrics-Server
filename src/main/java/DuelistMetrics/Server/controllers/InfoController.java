@@ -8,10 +8,13 @@ import DuelistMetrics.Server.models.tierScore.*;
 import DuelistMetrics.Server.services.*;
 import DuelistMetrics.Server.util.*;
 import com.vdurmont.semver4j.*;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.*;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.*;
 import java.util.logging.*;
 
@@ -35,6 +38,20 @@ public class InfoController {
     @GetMapping("/isAlive")
     public HttpStatus isAlive() {
         return HttpStatus.OK;
+    }
+
+
+
+    @GetMapping("/allTrackedDuelistVersions")
+    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    public ResponseEntity<?> allTrackedDuelistVersions() {
+        return new ResponseEntity<>(bundles.getAllTrackedDuelistVersions(), HttpStatus.OK);
+    }
+
+    @GetMapping("/orbInfo")
+    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    public ResponseEntity<?> orbInfo() {
+        return new ResponseEntity<>(bundles.getOrbInfo(), HttpStatus.OK);
     }
 
     @GetMapping("/cardLookup/{card}")
@@ -149,24 +166,43 @@ public class InfoController {
     @PostMapping("/dataupload")
     @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
     public ResponseEntity<?> infoUpload(@RequestBody TopInfoBundle list){
-        if (list != null) {
-            Map<String, List<String>> output = recheckModules();
-            List<ModInfoBundle> saved = new ArrayList<>(list.getInfo().size());
-            for (ModInfoBundle mod : list.getInfo()) {
-                if (output.containsKey(mod.getModID())) {
-                    if (!output.get(mod.getModID()).contains(mod.getVersion())) {
+        try {
+            if (list != null) {
+                Map<String, List<String>> output = recheckModules();
+                List<ModInfoBundle> saved = new ArrayList<>(list.getInfo().size());
+                for (ModInfoBundle mod : list.getInfo()) {
+                    if (output.containsKey(mod.getModID())) {
+                        if (!output.get(mod.getModID()).contains(mod.getVersion())) {
+                            saved.add(bundles.createBundle(mod));
+                        }
+                    } else {
                         saved.add(bundles.createBundle(mod));
                     }
-                } else {
-                    saved.add(bundles.createBundle(mod));
                 }
-            }
-            if (saved.size() > 0) {
                 return new ResponseEntity<>(saved, HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>(list, HttpStatus.NO_CONTENT);
             }
+        } catch (Exception ex) {
+            logger.info("Exception saving uploaded module info\n" + ExceptionUtils.getStackTrace(ex));
         }
+        return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @PostMapping("/orbInfoUpload")
+    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    public ResponseEntity<?> infoUpload(@RequestBody List<DuelistOrbInfo> list){
+        try {
+            if (list != null) {
+                for (DuelistOrbInfo orb : list) {
+                    try {
+                        bundles.createOrbInfo(orb);
+                    } catch (SQLIntegrityConstraintViolationException | DataIntegrityViolationException ignored) {}
+                    catch (Exception ex) {
+                        logger.info("Exception saving duelist orb info\n" + ExceptionUtils.getStackTrace(ex));
+                    }
+                }
+                return new ResponseEntity<>(null, HttpStatus.OK);
+            }
+        } catch (Exception ignored) {}
         return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 

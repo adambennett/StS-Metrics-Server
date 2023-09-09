@@ -2,6 +2,7 @@ package DuelistMetrics.Server.models;
 
 import DuelistMetrics.Server.controllers.*;
 import DuelistMetrics.Server.models.builders.*;
+import DuelistMetrics.Server.models.dto.RunUploadDTO;
 import DuelistMetrics.Server.util.*;
 import com.fasterxml.jackson.databind.*;
 import org.apache.commons.io.*;
@@ -50,6 +51,15 @@ public class BundleProcessor {
   }
 
   public static void parse(TopBundle bnd, boolean saveTopBundles, boolean saveRunsAndInfos) {
+    parse(new RunUploadDTO(bnd, new ArrayList<>()), saveTopBundles, saveRunsAndInfos);
+  }
+
+  public static void parse(RunUploadDTO runUploadDTO) {
+    parse(runUploadDTO, true, true);
+  }
+
+  public static void parse(RunUploadDTO runUploadDTO, boolean saveTopBundles, boolean saveRunsAndInfos) {
+    TopBundle bnd = runUploadDTO.runBundle();
     if (saveTopBundles || saveRunsAndInfos) {
       Mapper<String> com = new Mapper<>();
       Map<String, Integer> offered = new HashMap<>();
@@ -62,19 +72,21 @@ public class BundleProcessor {
       Map<String, Integer> pickedVicP = new HashMap<>();
       Map<String, Integer> pickedVicN = new HashMap<>();
 
-      PickInfo info = null;
       boolean victory = bnd.getEvent().getVictory();
       Integer ascensionLvl = bnd.getEvent().getAscension_level();
       Integer challengeLvl = bnd.getEvent().getChallenge_level();
       if (challengeLvl == null) { challengeLvl = -1; }
       String deck;
+      boolean isDuelist = false;
       if (bnd.getEvent().getStarting_deck() != null) {
         deck = bnd.getEvent().getStarting_deck();
+        isDuelist = true;
       } else {
         deck = "NotYugi";
       }
       String runID = "run #" + bnd.getEvent().getPlay_id();
-      Logger.getGlobal().info("Attempting to parse and save " + runID);
+      String duelistMessage = isDuelist ? "Duelist run (" + deck + ") " : "";
+      Logger.getGlobal().info("Attempting to parse and save " + duelistMessage + runID);
       // Parse the information we are interested in from cards/relics/potions/neow bonuses
       // Parsed info is saved into passed in maps
       parseCards(bnd, offered, picked, pickedVic, com, victory);
@@ -83,7 +95,7 @@ public class BundleProcessor {
       parseNeow(bnd, pickedN, pickedVicN, victory);
 
       // Find or create info model to represent the state of the run (ascension/challenge/starting deck)
-      info = getPinfo(deck, ascensionLvl, challengeLvl);
+      PickInfo info = getPinfo(deck, ascensionLvl, challengeLvl);
 
       // Update info model with processed run info
       processCards(info, offered, picked, pickedVic);
@@ -92,13 +104,31 @@ public class BundleProcessor {
       processNeow(info, pickedN, pickedVicN);
 
       // Save all to DB
-      saveParsedInfo(info, bnd, deck, ascensionLvl, challengeLvl, runID, saveTopBundles, saveRunsAndInfos);
+      Long newRun = saveParsedInfo(info, bnd, deck, ascensionLvl, challengeLvl, runID, saveTopBundles, saveRunsAndInfos);
+      if (newRun != null && newRun > -1 && runUploadDTO.configDifferences() != null && !runUploadDTO.configDifferences().isEmpty()) {
+        List<Long> differenceIds = new ArrayList<>();
+        for (var difference : runUploadDTO.configDifferences()) {
+          Long created = ConfigDifferenceController.getService().create(difference);
+          if (created != null) {
+            differenceIds.add(created);
+          }
+        }
+        if (!differenceIds.isEmpty()) {
+          boolean saved = ConfigDifferenceController.getService().createXrefs(differenceIds, newRun);
+          Logger.getGlobal().info("ConfigDifference XREFs saved for " + runID + ": " + saved);
+        } else {
+          Logger.getGlobal().info("No ConfigDifference XREFs to save for " + runID);
+        }
+        Logger.getGlobal().info("Done tracking config differences for " + runID);
+      } else if (newRun != null && newRun > -1) {
+        Logger.getGlobal().info("No config differences to track for " + runID);
+      }
     } else {
       Logger.getGlobal().warning("Nothing to save!");
     }
   }
 
-  private static void saveParsedInfo(PickInfo info, TopBundle bnd, String deck, int asc, int chal, String runID, boolean saveTopBundles, boolean saveRunsAndInfos) {
+  private static Long saveParsedInfo(PickInfo info, TopBundle bnd, String deck, int asc, int chal, String runID, boolean saveTopBundles, boolean saveRunsAndInfos) {
     if (saveRunsAndInfos || saveTopBundles) {
       Logger.getGlobal().info("Parsed " + runID + ". Attempting to save to DB...");
       if (saveRunsAndInfos) {
@@ -149,10 +179,14 @@ public class BundleProcessor {
         bnd.getEvent().removeDisallowedRelics();
         TopBundle top = BundleController.getService().create(bnd);
         Logger.getGlobal().info("TopBundle " + top.getTop_id() + " saved");
+        Logger.getGlobal().info("Full run data has been added to DB for " + runID);
+        return top.getTop_id();
       }
       Logger.getGlobal().info("Full run data has been added to DB for " + runID);
+      return -1L;
     } else {
       Logger.getGlobal().warning("Nothing to save!");
+      return -2L;
     }
   }
 
@@ -341,6 +375,7 @@ public class BundleProcessor {
     decks.add("Random Deck (Big)");
     decks.add("Upgrade Deck");
     decks.add("Metronome Deck");
+    decks.add("Beast Deck");
     long startTime = System.nanoTime();
     for (String deck : decks) {
       for (int ascension = 0; ascension < 21; ascension++) {

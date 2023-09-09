@@ -35,6 +35,10 @@ public class BundleService {
 
   public Integer countWinsByCharacterToday(String character) { return this.repo.getWinsByCharacterFromToday(character); }
 
+  public Integer countUniquePlayersByCharacterToday(String character) { return this.innerRepo.numberOfUniquePlayersTodayByCharacter(character); }
+
+  public List<RunMonthDTO> countRunsThisYear() { return this.repo.getRunsByCharacterFromThisYear(null); }
+
   public List<RunMonthDTO> countRunsByCharacterThisYear(String character) { return this.repo.getRunsByCharacterFromThisYear(character); }
 
   public TopBundle findByHostAndLocalTime(String host, BigDecimal localTime) {

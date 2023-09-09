@@ -1,8 +1,6 @@
 package DuelistMetrics.Server.models.infoModels;
-import com.fasterxml.jackson.annotation.*;
 
-import java.util.*;
-
+import java.util.List;
 
 public class TopInfoBundle {
 

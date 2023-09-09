@@ -1,12 +1,14 @@
 package DuelistMetrics.Server.services;
 
 import DuelistMetrics.Server.models.*;
+import DuelistMetrics.Server.models.dto.OrbInfoDTO;
 import DuelistMetrics.Server.models.infoModels.*;
 import DuelistMetrics.Server.models.tierScore.*;
 import DuelistMetrics.Server.repositories.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.stereotype.*;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.*;
 import java.util.logging.*;
 
@@ -24,10 +26,11 @@ public class InfoService {
   private final EventRepo eventRepo;
   private final MiniModRepo miniModRepo;
   private final TierScoreRepo tierRepo;
+  private final DuelistOrbInfoRepo orbRepo;
   private static final ArrayList<String> decks;
 
   @Autowired
-  public InfoService(InfoRepo repo, TopInfoBundleRepo bundleRepo, InfoCardRepo cardRepo, InfoRelicRepo relicRepo, InfoPotionRepo potionRepo, InfoCreatureRepo creatureRepo, MiniModRepo miniModRepo, EventRepo eventRepo, TierScoreRepo scoreRepo) {
+  public InfoService(InfoRepo repo, TopInfoBundleRepo bundleRepo, InfoCardRepo cardRepo, InfoRelicRepo relicRepo, InfoPotionRepo potionRepo, InfoCreatureRepo creatureRepo, MiniModRepo miniModRepo, EventRepo eventRepo, TierScoreRepo scoreRepo, DuelistOrbInfoRepo orbRepo) {
     this.repo = repo;
     this.bundleRepo = bundleRepo;
     this.cardRepo = cardRepo;
@@ -37,6 +40,15 @@ public class InfoService {
     this.miniModRepo = miniModRepo;
     this.eventRepo = eventRepo;
     this.tierRepo = scoreRepo;
+    this.orbRepo = orbRepo;
+  }
+
+  public List<String> getAllTrackedDuelistVersions() {
+    return this.bundleRepo.getAllTrackedDuelistVersion();
+  }
+
+  public List<OrbInfoDTO> getOrbInfo() {
+    return orbRepo.getOrbInfo(orbRepo.getLatestVersion());
   }
 
   public String getCardName(String card_id, boolean duelist) {
@@ -357,6 +369,10 @@ public class InfoService {
     return this.bundleRepo.save(mod);
   }
 
+  public DuelistOrbInfo createOrbInfo(DuelistOrbInfo info) throws SQLIntegrityConstraintViolationException {
+    return orbRepo.save(info);
+  }
+
   public ModInfoBundle createBundle(ModInfoBundle mod) {
     for (InfoCard c : mod.getCards()) {
       c.setInfo(mod);
@@ -418,7 +434,7 @@ public class InfoService {
       webCard.scorePool = scorePool;
       webCard.infoPool = infoPool;
       webCard.displayPool = getPoolDisplayName(scorePool);
-      webCard.isColoredPool = webCard.infoPool != null && webCard.infoPool.contains("[Basic/Colorless]");
+      webCard.isColoredPool = webCard.infoPool != null && !webCard.infoPool.contains("[Basic/Colorless]");
       webCard.poolType = webCard.isColoredPool ? "Colored" : "Basic/Colorless";
       webCard.block = ncv(2, card);
       webCard.cardId = cardId;
@@ -465,7 +481,9 @@ public class InfoService {
         var list = scoreMap.get(card.cardId);
         var sum = 0;
         for (var i : list) {
-          sum += i;
+          if (i != null) {
+            sum += i;
+          }
         }
         card.averageScore = sum / list.size();
       } else {
@@ -554,6 +572,7 @@ public class InfoService {
     decks.add("Metronome Deck");
     decks.add("Giant Deck");
     decks.add("Predaplant Deck");
+    decks.add("Beast Deck");
   }
 
 }

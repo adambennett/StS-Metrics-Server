@@ -1,6 +1,5 @@
 package DuelistMetrics.Server.models;
 
-import DuelistMetrics.Server.controllers.*;
 import DuelistMetrics.Server.controllers.RunLogController.*;
 
 import java.util.*;

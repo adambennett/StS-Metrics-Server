@@ -12,12 +12,12 @@ import java.util.List;
 public interface LoggedExceptionRepo extends JpaRepository<LoggedException, Long> {
 
   @Query(name = "findLogsMatchingMessageLookup", nativeQuery = true)
-  List<LoggedExceptionDTO> findLogsByMessage(String message);
+  List<LoggedExceptionDTO> findLogsByMessage(String message, String version);
 
   @Query(name = "findLogsMatchingMessageByDaysLookup", nativeQuery = true)
-  List<LoggedExceptionDTO> findLogsByMessageDays(String message, Integer days);
+  List<LoggedExceptionDTO> findLogsByMessageDays(String message, Integer days, String version);
 
   @Query(name = "findLastXDaysOfLogsLookup", nativeQuery = true)
-  List<LoggedExceptionDTO> findLastXDaysOfLogs(Integer days);
+  List<LoggedExceptionDTO> findLastXDaysOfLogs(Integer days, String version);
 
 }

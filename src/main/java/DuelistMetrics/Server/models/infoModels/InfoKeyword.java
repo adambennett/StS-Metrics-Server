@@ -21,7 +21,8 @@ WHERE ik.info_info_bundle_id = (SELECT MAX(info_bundle_id) FROM mod_info_bundle 
   'fatal', 'focus', 'frail', 'frost', 'golem''s might', 'hubris:piercing', 'innate', 'intangible', 'lightning', 'lock-on',
   'locked', 'manaspark', 'mantra' ,'minion', 'mitigation', 'necrotic', 'opener', 'plasma', 'poison', 'reflection',
   'retain', 'ritual', 'scry', 'shielding', 'shiv', 'shredded', 'slothful', 'snecko', 'stance', 'startup', 'status',
-  'strength', 'strike', 'thorns', 'transform', 'unknown', 'unplayable', 'upgrade', 'vulnerable', 'weak', 'wound', 'wrath'
+  'strength', 'strike', 'thorns', 'transform', 'unknown', 'unplayable', 'upgrade', 'vulnerable', 'weak', 'wound', 'wrath',
+  'resummon'
 )
 GROUP BY ik.name
 ORDER BY ik.name

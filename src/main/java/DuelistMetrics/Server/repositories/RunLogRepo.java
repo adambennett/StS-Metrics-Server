@@ -71,7 +71,7 @@ WHERE run_id IN (
     FROM top_bundle t
     JOIN bundle b ON b.top_id = t.event_top_id
     JOIN run_log rl ON rl.host = t.host AND rl.filter_date = b.local_time
-    WHERE t.event_top_id = (SELECT b.top_id FROM bundle b WHERE b.unique_player_id = :uuid)
+    WHERE t.event_top_id IN (SELECT b.top_id FROM bundle b WHERE b.unique_player_id = :uuid)
 ) AND
   DATEDIFF(rl.filter_date, CURDATE()) < 14 and
   (character_name = :character or :character IS null) and
@@ -114,7 +114,7 @@ WHERE run_id IN (
   @Query(value = "SELECT rl.deck, SUM(rl.victory = 1) AS yes FROM run_log rl GROUP BY rl.deck", nativeQuery = true)
   List<String> getWins();
 
-  @Query(value = "SELECT rl.deck, COUNT(*) FROM run_log rl GROUP BY rl.deck", nativeQuery = true)
+  @Query(value = "SELECT rl.deck, COUNT(*) FROM run_log rl WHERE rl.deck NOT IN ('Giant Deck', 'Increment Deck', 'Ojama Deck', 'Predaplant Deck') GROUP BY rl.deck", nativeQuery = true)
   List<String> getRuns();
 
   @Query(value = "SELECT rl.deck, MAX(rl.floor) FROM run_log rl GROUP BY rl.deck", nativeQuery = true)

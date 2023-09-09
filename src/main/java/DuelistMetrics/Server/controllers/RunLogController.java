@@ -7,6 +7,10 @@ import DuelistMetrics.Server.models.infoModels.*;
 import DuelistMetrics.Server.models.runDetails.*;
 import DuelistMetrics.Server.services.*;
 import DuelistMetrics.Server.util.*;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
@@ -23,8 +27,8 @@ public class RunLogController {
     private static final Logger logger = Logger.getLogger("DuelistMetrics.RunLogController");
 
     private static RunLogService bundles;
-    private static BundleService realBundles; // temp delete this
-    private static InfoService infos;         // this too
+    private static BundleService realBundles;
+    private static InfoService infos;
 
     @Autowired
     public RunLogController(RunLogService service, BundleService serv, InfoService inf) { bundles = service; realBundles = serv; infos = inf;}
@@ -57,11 +61,20 @@ public class RunLogController {
 
     @PostMapping("/runupload")
     @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
-    public ResponseEntity<?> upload(@RequestBody TopBundle run)
-    {
-        if (run != null) {
-            BundleProcessor.parse(run, true, true);
-            return new ResponseEntity<>(null, HttpStatus.OK);
+    public ResponseEntity<?> upload(@RequestBody String body) {
+        if (body != null) {
+            try {
+                ObjectMapper objectMapper = new ObjectMapper();
+                RunUploadDTO runUploadDTO = objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).readValue(body, new TypeReference<>(){});
+                if (runUploadDTO == null) {
+                    return new ResponseEntity<>("Error parsing run bundle", HttpStatus.INTERNAL_SERVER_ERROR);
+                }
+                BundleProcessor.parse(runUploadDTO);
+                return new ResponseEntity<>(null, HttpStatus.OK);
+            } catch (Exception ex) {
+                logger.info("Exception while parsing run JSON\n" + ExceptionUtils.getStackTrace(ex) + "\n\nBody:\n" + body);
+                return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
         } else {
             return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
         }
@@ -204,6 +217,7 @@ public class RunLogController {
     private static ResponseEntity<?> runDetailsLogic(TopBundle top) {
         if (top != null) {
             RunDetails run = new RunDetails(new RunTop(top));
+            run.setConfigDifferenceDTOs(ConfigDifferenceController.getService().getDifferencesByRunId(top.getTop_id()));
             List<Long> modsToCheck = new ArrayList<>();
             for (DetailsMiniMod mod : run.top.getEvent().getModList()) {
                 modsToCheck.add(infos.getModInfoBundleFromMiniMod(mod.getModID(), mod.getModVersion()));
@@ -272,6 +286,7 @@ public class RunLogController {
             Long runs = bundles.countRuns(params);
             return new ResponseEntity<>(runs, HttpStatus.OK);
         } catch (Exception ex) {
+            logger.info("Exception on /count-runs\n" + ExceptionUtils.getStackTrace(ex));
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -365,6 +380,18 @@ public class RunLogController {
     @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
     public static Integer getWinsTodayByCharacter(@PathVariable String character) {
         return realBundles.countWinsByCharacterToday(character);
+    }
+
+    @GetMapping("/players-today/{character}")
+    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    public static Integer getUniquePlayersTodayByCharacter(@PathVariable String character) {
+        return realBundles.countUniquePlayersByCharacterToday(character);
+    }
+
+    @GetMapping("/runs-this-year")
+    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    public static List<RunMonthDTO> getRunsThisYear() {
+        return realBundles.countRunsThisYear();
     }
 
     @GetMapping("/runs-this-year/{character}")

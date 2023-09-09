@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="DuelistMetrics.Server.DuelistMetricsServer" type="Application" factoryName="Application" nameIsGenerated="true">
+  <configuration default="false" name="Run" type="Application" factoryName="Application">
     <option name="MAIN_CLASS_NAME" value="DuelistMetrics.Server.DuelistMetricsServer" />
-    <module name="StS-Metrics-Server" />
+    <module name="Duelist-Metrics-Server" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="DuelistMetrics.Server.*" />

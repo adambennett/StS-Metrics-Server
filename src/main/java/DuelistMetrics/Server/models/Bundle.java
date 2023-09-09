@@ -22,6 +22,10 @@ public class Bundle {
   @JsonIgnoreProperties("event")
   private TopBundle top;
 
+  @Temporal(TemporalType.TIMESTAMP)
+  @Generated(GenerationTime.INSERT)
+  private Date created_date;
+
   private String build_version;
   private String character_chosen;
   private String duelistmod_version;
@@ -38,7 +42,6 @@ public class Bundle {
   private String unique_player_id;
   private String run_uuid;
   private String character_model;
-  private String config_differences;
 
   private Boolean add_base_game_cards;
   private Boolean allow_boosters;
@@ -64,7 +67,6 @@ public class Bundle {
   private Boolean remove_toons;
   private Boolean unlock_all_decks;
   private Boolean victory;
-  private Boolean restrict_summoning_zones;
 
   private Integer ascension_level;
   private Integer campfire_rested;
@@ -176,7 +178,7 @@ public class Bundle {
   public Bundle(TopBundle top) {
     Bundle event = top.getEvent();
     this.top = top;
-    this.config_differences = event.getConfig_differences();
+    this.created_date = event.getCreated_date();
     this.unique_player_id = event.getUnique_player_id();
     this.run_uuid = event.getRun_uuid();
     this.number_of_megatype_tributes = event.getNumber_of_megatype_tributes();
@@ -184,7 +186,6 @@ public class Bundle {
     this.number_of_tributes = event.getNumber_of_tributes();
     this.duelist_score = event.getDuelist_score();
     this.duelist_score_current_version = event.getDuelist_score_current_version();
-    this.restrict_summoning_zones = event.getRestrict_summoning_zones();
     this.character_model = event.getCharacter_model();
     this.build_version= event.getBuild_version();
     this.character_chosen= event.getCharacter_chosen();
@@ -1001,14 +1002,6 @@ public class Bundle {
     this.duelist_score_current_version = duelist_score_current_version;
   }
 
-  public Boolean getRestrict_summoning_zones() {
-    return restrict_summoning_zones;
-  }
-
-  public void setRestrict_summoning_zones(Boolean restrict_summoning_zones) {
-    this.restrict_summoning_zones = restrict_summoning_zones;
-  }
-
   public String getCharacter_model() {
     return character_model;
   }
@@ -1017,11 +1010,11 @@ public class Bundle {
     this.character_model = character_model;
   }
 
-  public String getConfig_differences() {
-    return config_differences;
+  public Date getCreated_date() {
+    return created_date;
   }
 
-  public void setConfig_differences(String config_differences) {
-    this.config_differences = config_differences;
+  public void setCreated_date(Date createdDate) {
+    this.created_date = createdDate;
   }
 }

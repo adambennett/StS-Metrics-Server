@@ -12,7 +12,7 @@ SELECT MONTH(from_unixtime(b.timestamp)) AS month,
        COUNT(*) AS runs
 FROM bundle b
 WHERE YEAR(from_unixtime(b.timestamp)) = YEAR(CURDATE()) AND
-      b.character_chosen = :character
+      (:character IS NULL OR b.character_chosen = :character)
 GROUP BY month
 """, resultSetMapping = "runMonthDtoMapping")
 @SqlResultSetMapping(

@@ -9,7 +9,16 @@ import java.util.*;
 @Repository
 public interface TopInfoBundleRepo extends JpaRepository<ModInfoBundle, Long> {
 
-    @Query(value = "SELECT DISTINCT modid, version as mod_version FROM mod_info_bundle WHERE modid is not null UNION SELECT DISTINCT modid, mod_version FROM mini_mod WHERE modid is not null ORDER BY modid", nativeQuery = true)
+    @Query(value = """
+    SELECT DISTINCT modid, version as mod_version
+    FROM mod_info_bundle
+    WHERE modid is not null
+    UNION
+    SELECT DISTINCT modid, mod_version
+    FROM mini_mod
+    WHERE modid is not null AND (modid != 'duelistmod' OR mod_version in (SELECT DISTINCT version FROM mod_info_bundle WHERE is_duelist = true))
+    ORDER BY modid
+    """, nativeQuery = true)
     List<String> getAllModuleVersions();
 
     @Query(value = "SELECT DISTINCT modid, display_name FROM mod_info_bundle ORDER BY modid", nativeQuery = true)
@@ -32,4 +41,7 @@ public interface TopInfoBundleRepo extends JpaRepository<ModInfoBundle, Long> {
             "JOIN mod_info_bundle_authors miba on m.info_bundle_id = miba.mod_info_bundle_info_bundle_id " +
             "GROUP BY modid", nativeQuery = true)
     List<Object[]> getAllMods();
+
+    @Query(value = "SELECT DISTINCT version FROM mod_info_bundle WHERE is_duelist = true", nativeQuery = true)
+    List<String> getAllTrackedDuelistVersion();
 }

@@ -39,7 +39,7 @@ public interface InfoCardRepo extends JpaRepository<InfoCard, Long> {
     @Query(value = "SELECT ic.card_id FROM info_card ic WHERE ic.info_info_bundle_id = :duelist_version AND ic.card_id LIKE '%theDuelist:%'", nativeQuery = true)
     List<String> getGlobalListOfTrackedCardsForTierScores(Long duelist_version);
 
-    @Query(value = "SELECT ic.card_id, icp.pools FROM info_card ic JOIN info_card_pools icp on ic.info_card_id = icp.info_card_info_card_id WHERE (ic.info_info_bundle_id IN (:duelist_version)) AND ic.card_id LIKE '%theDuelist:%' AND icp.pools IN ('Standard Pool',  'Standard Pool [Basic/Colorless]', 'Dragon Pool',  'Dragon Pool [Basic/Colorless]', 'Naturia Pool',  'Naturia Pool [Basic/Colorless]', 'Spellcaster Pool',  'Spellcaster Pool [Basic/Colorless]', 'Toon Pool',  'Toon Pool [Basic/Colorless]', 'Zombie Pool',  'Zombie Pool [Basic/Colorless]', 'Aqua Pool',  'Aqua Pool [Basic/Colorless]', 'Fiend Pool',  'Fiend Pool [Basic/Colorless]', 'Machine Pool', 'Machine Pool [Basic/Colorless]', 'Warrior Pool', 'Warrior Pool [Basic/Colorless]', 'Insect Pool', 'Insect Pool [Basic/Colorless]', 'Plant Pool', 'Plant Pool [Basic/Colorless]', 'Megatype Pool', 'Megatype Pool [Basic/Colorless]', 'Increment Pool', 'Increment Pool [Basic/Colorless]', 'Creator Pool', 'Creator Pool [Basic/Colorless]', 'Ojama Pool', 'Ojama Pool [Basic/Colorless]', 'Ascended I Pool', 'Ascended I Pool [Basic/Colorless]', 'Ascended II Pool',  'Ascended II Pool [Basic/Colorless]',  'Metronome Pool', 'Metronome Pool [Basic/Colorless]')", nativeQuery = true)
+    @Query(value = "SELECT ic.card_id, icp.pools FROM info_card ic JOIN info_card_pools icp on ic.info_card_id = icp.info_card_info_card_id WHERE (ic.info_info_bundle_id IN (:duelist_version)) AND ic.card_id LIKE '%theDuelist:%' AND icp.pools IN ('Standard Pool',  'Standard Pool [Basic/Colorless]', 'Dragon Pool',  'Dragon Pool [Basic/Colorless]', 'Naturia Pool',  'Naturia Pool [Basic/Colorless]', 'Spellcaster Pool',  'Spellcaster Pool [Basic/Colorless]', 'Toon Pool',  'Toon Pool [Basic/Colorless]', 'Zombie Pool',  'Zombie Pool [Basic/Colorless]', 'Aqua Pool',  'Aqua Pool [Basic/Colorless]', 'Fiend Pool',  'Fiend Pool [Basic/Colorless]', 'Machine Pool', 'Machine Pool [Basic/Colorless]', 'Warrior Pool', 'Warrior Pool [Basic/Colorless]', 'Insect Pool', 'Insect Pool [Basic/Colorless]', 'Plant Pool', 'Plant Pool [Basic/Colorless]', 'Megatype Pool', 'Megatype Pool [Basic/Colorless]', 'Beast Pool', 'Beast Pool [Basic/Colorless]', 'Increment Pool', 'Increment Pool [Basic/Colorless]', 'Creator Pool', 'Creator Pool [Basic/Colorless]', 'Ojama Pool', 'Ojama Pool [Basic/Colorless]', 'Ascended I Pool', 'Ascended I Pool [Basic/Colorless]', 'Ascended II Pool',  'Ascended II Pool [Basic/Colorless]',  'Metronome Pool', 'Metronome Pool [Basic/Colorless]')", nativeQuery = true)
     List<String> getTrackedCardsForTierScores(List<Long> duelist_version);
 
     @Query(value = "SELECT ic.card_id, icp.pools FROM info_card ic JOIN info_card_pools icp on ic.info_card_id = icp.info_card_info_card_id WHERE (ic.info_info_bundle_id IN (:duelist_version)) AND ic.card_id LIKE '%theDuelist:%' AND icp.pools IN (:pool_name, :pool_basic)", nativeQuery = true)
@@ -61,7 +61,7 @@ public interface InfoCardRepo extends JpaRepository<InfoCard, Long> {
             "sc.act0_score as act0score, sc.act1_score as act1score, sc.act2_score as act2Score, sc.act3_score as act3Score, sc.overall_score as overallScore, sc.last_updated as scoreLastUpdated " +
             "FROM info_card ic " +
             "JOIN info_card_pools icp on ic.info_card_id = icp.info_card_info_card_id " +
-            "JOIN scored_card sc on ic.card_id = sc.card_id and sc.pool_name = :poolName " +
+            "LEFT JOIN scored_card sc on ic.card_id = sc.card_id and sc.pool_name = :poolName " +
             "WHERE ic.info_info_bundle_id = :version and (icp.pools = :poolName or icp.pools = CONCAT(:poolName, ' [Basic/Colorless]')) ORDER BY scorePool, cardId", nativeQuery = true)
     List<Object[]> getDuelistCardsByPool(String poolName, long version);
 
@@ -72,7 +72,7 @@ public interface InfoCardRepo extends JpaRepository<InfoCard, Long> {
             "sc.act0_score as act0score, sc.act1_score as act1score, sc.act2_score as act2Score, sc.act3_score as act3Score, sc.overall_score as overallScore, sc.last_updated as scoreLastUpdated " +
             "FROM info_card ic " +
             "JOIN info_card_pools icp on ic.info_card_id = icp.info_card_info_card_id " +
-            "JOIN scored_card sc on ic.card_id = sc.card_id " +
+            "LEFT JOIN scored_card sc on ic.card_id = sc.card_id " +
             "WHERE ic.info_info_bundle_id = :version and (sc.pool_name = icp.pools or (substring_index(sc.pool_name, ' ', 2) = substring_index(icp.pools, ' ', 2) and icp.pools not like '% Deck%')) " +
             "ORDER BY scorePool, cardId", nativeQuery = true)
     List<Object[]> getAllDuelistCards(long version);

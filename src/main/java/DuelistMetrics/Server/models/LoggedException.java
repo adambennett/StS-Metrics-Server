@@ -15,6 +15,7 @@ import java.util.Date;
 @Entity
 @NamedNativeQuery(name = "findLastXDaysOfLogsLookup", query = """
 SELECT
+  codebase,
   message,
   stack_trace AS stackTrace,
   unique_player_id AS uuid,
@@ -23,11 +24,13 @@ SELECT
   dev_message AS devMessage,
   run_uuid AS runUUID
 FROM logged_exception
-WHERE DATEDIFF(created_date, CURDATE()) > ((:days) * -1)
+WHERE DATEDIFF(created_date, CURDATE()) > ((:days) * -1) AND
+      (:version IS NULL OR duelist_mod_version = :version)
 """, resultSetMapping = "loggedExceptionDtoXDaysMapping")
 @SqlResultSetMapping(
         name = "loggedExceptionDtoXDaysMapping",
         classes = @ConstructorResult(targetClass = LoggedExceptionDTO.class,columns = {
+                @ColumnResult(name = "codebase", type = String.class),
                 @ColumnResult(name = "message", type = String.class),
                 @ColumnResult(name = "stackTrace", type = String.class),
                 @ColumnResult(name = "uuid", type = String.class),
@@ -38,28 +41,7 @@ WHERE DATEDIFF(created_date, CURDATE()) > ((:days) * -1)
 )
 @NamedNativeQuery(name = "findLogsMatchingMessageLookup", query = """
 SELECT
-  message,
-  stack_trace AS stackTrace,
-  unique_player_id AS uuid,
-  created_date AS createdDate,
-  duelist_mod_version AS duelistModVersion,
-  dev_message AS devMessage,
-  run_uuid AS runUUID
-FROM logged_exception
-WHERE (message LIKE CONCAT('%', :message, '%') OR (stack_trace LIKE CONCAT('%', :message '%')))
-""", resultSetMapping = "loggedExceptionDtoMessageMapping")
-@SqlResultSetMapping(
-        name = "loggedExceptionDtoMessageMapping",
-        classes = @ConstructorResult(targetClass = LoggedExceptionDTO.class,columns = {
-                @ColumnResult(name = "message", type = String.class),
-                @ColumnResult(name = "stackTrace", type = String.class),
-                @ColumnResult(name = "uuid", type = String.class),
-                @ColumnResult(name = "createdDate", type = Date.class),
-                @ColumnResult(name = "duelistModVersion", type = String.class),
-                @ColumnResult(name = "runUUID", type = String.class)})
-)
-@NamedNativeQuery(name = "findLogsMatchingMessageByDaysLookup", query = """
-SELECT
+  codebase,
   message,
   stack_trace AS stackTrace,
   unique_player_id AS uuid,
@@ -69,11 +51,38 @@ SELECT
   run_uuid AS runUUID
 FROM logged_exception
 WHERE (message LIKE CONCAT('%', :message, '%') OR (stack_trace LIKE CONCAT('%', :message '%'))) AND
-      DATEDIFF(created_date, CURDATE()) > ((:days) * -1)
+      (:version IS NULL OR duelist_mod_version = :version)
+""", resultSetMapping = "loggedExceptionDtoMessageMapping")
+@SqlResultSetMapping(
+        name = "loggedExceptionDtoMessageMapping",
+        classes = @ConstructorResult(targetClass = LoggedExceptionDTO.class,columns = {
+                @ColumnResult(name = "codebase", type = String.class),
+                @ColumnResult(name = "message", type = String.class),
+                @ColumnResult(name = "stackTrace", type = String.class),
+                @ColumnResult(name = "uuid", type = String.class),
+                @ColumnResult(name = "createdDate", type = Date.class),
+                @ColumnResult(name = "duelistModVersion", type = String.class),
+                @ColumnResult(name = "runUUID", type = String.class)})
+)
+@NamedNativeQuery(name = "findLogsMatchingMessageByDaysLookup", query = """
+SELECT
+  codebase,
+  message,
+  stack_trace AS stackTrace,
+  unique_player_id AS uuid,
+  created_date AS createdDate,
+  duelist_mod_version AS duelistModVersion,
+  dev_message AS devMessage,
+  run_uuid AS runUUID
+FROM logged_exception
+WHERE (message LIKE CONCAT('%', :message, '%') OR (stack_trace LIKE CONCAT('%', :message '%'))) AND
+      (DATEDIFF(created_date, CURDATE()) > ((:days) * -1)) AND
+      (:version IS NULL OR duelist_mod_version = :version)
 """, resultSetMapping = "loggedExceptionDtoMessageByDaysMapping")
 @SqlResultSetMapping(
         name = "loggedExceptionDtoMessageByDaysMapping",
         classes = @ConstructorResult(targetClass = LoggedExceptionDTO.class,columns = {
+                @ColumnResult(name = "codebase", type = String.class),
                 @ColumnResult(name = "message", type = String.class),
                 @ColumnResult(name = "stackTrace", type = String.class),
                 @ColumnResult(name = "uuid", type = String.class),
@@ -87,24 +96,30 @@ public class LoggedException {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  private String devMessage;
+  private String codebase;
+  private String dev_message;
   private String message;
-  private String stackTrace;
-  private String uniquePlayerId;
-  private String duelistModVersion;
-  private String runUUID;
-  private Date createdDate;
+  private String stack_trace;
+  private String unique_player_id;
+  private String duelist_mod_version;
+  private String run_uuid;
+  private Date created_date;
 
   public LoggedException() {}
 
-  public LoggedException(String message, String stackTrace, String uniquePlayerId, Date createdDate, String duelistModVersion, String devMessage, String runUUID) {
+  public LoggedException(String message, String stack_trace, String unique_player_id, Date created_date, String duelist_mod_version, String dev_message, String run_uuid) {
+    this("DuelistMod", dev_message, message, stack_trace, unique_player_id, duelist_mod_version, run_uuid, created_date);
+  }
+
+  public LoggedException(String codebase, String dev_message, String message, String stack_trace, String unique_player_id, String duelist_mod_version, String run_uuid, Date created_date) {
+    this.codebase = codebase;
+    this.dev_message = dev_message;
     this.message = message;
-    this.stackTrace = stackTrace;
-    this.uniquePlayerId = uniquePlayerId;
-    this.createdDate = createdDate;
-    this.duelistModVersion = duelistModVersion;
-    this.devMessage = devMessage;
-    this.runUUID = runUUID;
+    this.stack_trace = stack_trace;
+    this.unique_player_id = unique_player_id;
+    this.duelist_mod_version = duelist_mod_version;
+    this.run_uuid = run_uuid;
+    this.created_date = created_date;
   }
 
   public Long getId() {
@@ -123,51 +138,59 @@ public class LoggedException {
     this.message = message;
   }
 
-  public String getStackTrace() {
-    return stackTrace;
+  public String getStack_trace() {
+    return stack_trace;
   }
 
-  public void setStackTrace(String stackTrace) {
-    this.stackTrace = stackTrace;
+  public void setStack_trace(String stackTrace) {
+    this.stack_trace = stackTrace;
   }
 
-  public String getUniquePlayerId() {
-    return uniquePlayerId;
+  public String getUnique_player_id() {
+    return unique_player_id;
   }
 
-  public void setUniquePlayerId(String uuid) {
-    this.uniquePlayerId = uuid;
+  public void setUnique_player_id(String uuid) {
+    this.unique_player_id = uuid;
   }
 
-  public Date getCreatedDate() {
-    return createdDate;
+  public Date getCreated_date() {
+    return created_date;
   }
 
-  public void setCreatedDate(Date createdDate) {
-    this.createdDate = createdDate;
+  public void setCreated_date(Date createdDate) {
+    this.created_date = createdDate;
   }
 
-  public String getDuelistModVersion() {
-    return duelistModVersion;
+  public String getDuelist_mod_version() {
+    return duelist_mod_version;
   }
 
-  public void setDuelistModVersion(String duelistModVersion) {
-    this.duelistModVersion = duelistModVersion;
+  public void setDuelist_mod_version(String duelistModVersion) {
+    this.duelist_mod_version = duelistModVersion;
   }
 
-  public String getDevMessage() {
-    return devMessage;
+  public String getDev_message() {
+    return dev_message;
   }
 
-  public void setDevMessage(String devMessage) {
-    this.devMessage = devMessage;
+  public void setDev_message(String devMessage) {
+    this.dev_message = devMessage;
   }
 
-  public String getRunUUID() {
-    return runUUID;
+  public String getRun_uuid() {
+    return run_uuid;
   }
 
-  public void setRunUUID(String runUUID) {
-    this.runUUID = runUUID;
+  public void setRun_uuid(String runUUID) {
+    this.run_uuid = runUUID;
+  }
+
+  public String getCodebase() {
+    return codebase;
+  }
+
+  public void setCodebase(String codebase) {
+    this.codebase = codebase;
   }
 }

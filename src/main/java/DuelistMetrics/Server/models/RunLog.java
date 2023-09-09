@@ -28,7 +28,7 @@ SELECT rl.run_id
 FROM top_bundle t
 JOIN bundle b ON b.top_id = t.event_top_id
 JOIN run_log rl ON rl.host = t.host AND rl.filter_date = b.local_time
-WHERE t.event_top_id = (SELECT b.top_id FROM bundle b WHERE b.unique_player_id = :uuid)
+WHERE t.event_top_id IN (SELECT b.top_id FROM bundle b WHERE b.unique_player_id = :uuid)
 ) AND DATEDIFF(rl.filter_date, CURDATE()) < 14 and
 (character_name = :character or :character IS null) and
 (character_name = 'THE_DUELIST' or :isDuelist = false) and
@@ -106,6 +106,7 @@ JOIN top_bundle t ON t.event_top_id = b.top_id
 WHERE unique_player_id IS NOT NULL
 GROUP BY unique_player_id
 ORDER BY runs DESC
+LIMIT 50
 """, resultSetMapping = "uploadedRunsDtoMapping")
 @SqlResultSetMapping(
         name = "uploadedRunsDtoMapping",
