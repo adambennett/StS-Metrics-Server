@@ -2,47 +2,42 @@ package DuelistMetrics.Server.models;
 
 import DuelistMetrics.Server.models.dto.RunDifficultyBreakdownDTO;
 import DuelistMetrics.Server.models.dto.RunLogDTO;
+import DuelistMetrics.Server.models.dto.RunLogFavoriteItem;
 import DuelistMetrics.Server.models.dto.UploadedRunsDTO;
 import jakarta.persistence.*;
 
 @Entity
-@NamedNativeQuery(name = "findAllRunDetailsByPlayerUUIDLookup", query = """
+@NamedNativeQuery(name = "runLookup", query = """
 SELECT
-  rl.run_id,
-  rl.ascension,
-  rl.challenge,
-  rl.character_name AS characterName,
-  rl.deck,
-  rl.floor,
-  rl.host,
-  rl.kaiba,
-  rl.killed_by AS killedBy,
-  rl.time,
-  rl.victory,
-  rl.country,
-  rl.filter_date AS filterDate,
-  rl.language
+    rl.run_id,
+    rl.ascension,
+    rl.challenge,
+    rl.character_name AS characterName,
+    rl.deck,
+    rl.floor,
+    rl.host,
+    rl.kaiba,
+    rl.killed_by AS killedBy,
+    rl.time,
+    rl.victory,
+    rl.country,
+    rl.filter_date AS filterDate,
+    rl.language
 FROM run_log rl
-WHERE run_id IN (
-SELECT rl.run_id
-FROM top_bundle t
-JOIN bundle b ON b.top_id = t.event_top_id
-JOIN run_log rl ON rl.host = t.host AND rl.filter_date = b.local_time
-WHERE t.event_top_id IN (SELECT b.top_id FROM bundle b WHERE b.unique_player_id = :uuid)
-) AND DATEDIFF(rl.filter_date, CURDATE()) < 14 and
-(character_name = :character or :character IS null) and
-(character_name = 'THE_DUELIST' or :isDuelist = false) and
-(character_name != 'THE_DUELIST' or :nonDuelist = false) and
-(rl.host = :host or :host IS null) and
-((ascension BETWEEN :ascensionStart AND :ascensionEnd) or :ascensionStart IS null) and
-((challenge BETWEEN :challengeStart AND :challengeEnd) or :challengeStart IS null) and
-((floor BETWEEN :floorStart AND :floorEnd) or :floorStart IS null) and
-(victory = :victory or :victory IS null) and
-(deck = :deck or :deck IS null) and
-(killed_by = :killedBy or :killedBy IS null) and
-((filter_date BETWEEN :timeStart AND :timeEnd) or (:timeStart IS null or :timeEnd IS null)) and
-(country = :country or :country IS null)
-ORDER BY rl.filter_date
+WHERE DATEDIFF(rl.filter_date, CURDATE()) < 14 AND
+      (character_name = :character or :character IS null) AND
+      (character_name = 'THE_DUELIST' or :isDuelist = false) AND
+      (character_name != 'THE_DUELIST' or :nonDuelist = false) AND
+      (host = :host or :host IS null) AND
+      ((ascension BETWEEN :ascensionStart AND :ascensionEnd) or :ascensionStart IS null) AND
+      ((challenge BETWEEN :challengeStart AND :challengeEnd) or :challengeStart IS null) AND
+      ((floor BETWEEN :floorStart AND :floorEnd) or :floorStart IS null) AND
+      (victory = :victory or :victory IS null) AND
+      (deck = :deck or :deck IS null) AND
+      (killed_by = :killedBy or :killedBy IS null) AND
+      ((filter_date BETWEEN :timeStart AND :timeEnd) or (:timeStart IS null or :timeEnd IS null)) AND
+      (country = :country or :country IS null)
+ORDER BY filter_date
 DESC LIMIT :offset, :pageSize
 """, resultSetMapping = "runLogDtoMapping")
 @SqlResultSetMapping(
@@ -61,7 +56,8 @@ DESC LIMIT :offset, :pageSize
                 @ColumnResult(name = "victory", type = Boolean.class),
                 @ColumnResult(name = "country", type = String.class),
                 @ColumnResult(name = "filterDate", type = String.class),
-                @ColumnResult(name = "language", type = String.class)})
+                @ColumnResult(name = "language", type = String.class)
+        })
 )
 @NamedNativeQuery(name = "ascensionRunBreakdownLookup", query = """
 SELECT
@@ -114,6 +110,60 @@ LIMIT 50
                 @ColumnResult(name = "uuid", type = String.class),
                 @ColumnResult(name = "runs", type = Integer.class),
                 @ColumnResult(name = "playerNames", type = String.class)})
+)
+@NamedNativeQuery(name = "getNumberOfDuelistRunsByPlayerIdLookup", query = """
+SELECT
+    unique_player_id AS uuid,
+    COUNT(*) AS runs,
+    GROUP_CONCAT(DISTINCT t.host SEPARATOR ', ') AS playerNames
+FROM bundle b
+JOIN top_bundle t ON t.event_top_id = b.top_id
+WHERE unique_player_id IS NOT NULL AND b.character_chosen = 'THE_DUELIST'
+GROUP BY unique_player_id
+ORDER BY runs DESC
+LIMIT 50
+""", resultSetMapping = "uploadedDuelistRunsDtoMapping")
+@SqlResultSetMapping(
+        name = "uploadedDuelistRunsDtoMapping",
+        classes = @ConstructorResult(targetClass = UploadedRunsDTO.class,columns = {
+                @ColumnResult(name = "uuid", type = String.class),
+                @ColumnResult(name = "runs", type = Integer.class),
+                @ColumnResult(name = "playerNames", type = String.class)})
+)
+@NamedNativeQuery(name = "getFavoriteDecksByPlayerIdLookup", query = """
+SELECT
+  starting_deck AS favorite,
+  COUNT(*) AS runs,
+  unique_player_id AS playerId
+FROM bundle
+WHERE unique_player_id IN :runnerIds AND
+      character_chosen = 'THE_DUELIST'
+GROUP BY unique_player_id, starting_deck
+ORDER BY COUNT(*) DESC
+""", resultSetMapping = "runLogFavoriteDeckDtoMapping")
+@SqlResultSetMapping(
+        name = "runLogFavoriteDeckDtoMapping",
+        classes = @ConstructorResult(targetClass = RunLogFavoriteItem.class,columns = {
+                @ColumnResult(name = "favorite", type = String.class),
+                @ColumnResult(name = "runs", type = Integer.class),
+                @ColumnResult(name = "playerId", type = String.class)})
+)
+@NamedNativeQuery(name = "getFavoriteCharsByPlayerIdLookup", query = """
+SELECT
+  character_chosen AS favorite,
+  COUNT(*) AS runs,
+  unique_player_id AS playerId
+FROM bundle
+WHERE unique_player_id IN :runnerIds
+GROUP BY unique_player_id, character_chosen
+ORDER BY COUNT(*) DESC
+""", resultSetMapping = "runLogFavoriteCharDtoMapping")
+@SqlResultSetMapping(
+        name = "runLogFavoriteCharDtoMapping",
+        classes = @ConstructorResult(targetClass = RunLogFavoriteItem.class,columns = {
+                @ColumnResult(name = "favorite", type = String.class),
+                @ColumnResult(name = "runs", type = Integer.class),
+                @ColumnResult(name = "playerId", type = String.class)})
 )
 public class RunLog {
 

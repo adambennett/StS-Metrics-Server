@@ -3,15 +3,12 @@ package DuelistMetrics.Server.controllers;
 import DuelistMetrics.Server.models.*;
 import DuelistMetrics.Server.models.infoModels.*;
 import DuelistMetrics.Server.services.*;
-import DuelistMetrics.Server.util.*;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
-import org.springframework.scheduling.annotation.*;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.*;
-import java.time.*;
-import java.time.format.*;
 import java.util.*;
 import java.util.logging.*;
 
@@ -60,6 +57,7 @@ public class BundleController {
         }
     }
 
+    @SuppressWarnings("ComparatorMethodParameterNotUsed")
     public static <K,V extends Comparable<? super V>> SortedSet<Map.Entry<K,V>> entriesSortedByValues(Map<K,V> map) {
         SortedSet<Map.Entry<K,V>> sortedEntries = new TreeSet<>((e1, e2) -> {
             int res = e2.getValue().compareTo(e1.getValue());
@@ -114,6 +112,9 @@ public class BundleController {
                     Integer count = countRunsInTimeFrame(params, isParams, start, end);
                     var startDate = bundles.getTimeFrame(start);
                     var endDate = bundles.getTimeFrame(end - 1);
+                    if (startDate == null) {
+                        startDate = new Date();
+                    }
                     var startDateTime = new SimpleDateFormat("MM/dd").format(startDate);
                     var endDateTime = new SimpleDateFormat("MM/dd").format(endDate);
                     var date = endDateTime + " - " + startDateTime;
@@ -127,7 +128,7 @@ public class BundleController {
                 return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
             }
         } catch (Exception ex) {
-            logger.info("Exception fetching run timeframe data\n" + Arrays.toString(ex.getStackTrace()));
+            logger.info("Exception fetching run timeframe data\n" + ExceptionUtils.getStackTrace(ex));
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
@@ -152,7 +153,7 @@ public class BundleController {
             }
             return new ResponseEntity<>(output, HttpStatus.OK);
         } catch (Exception ex) {
-            logger.info("Exception fetching run timeframe data for 1 week\n" + Arrays.toString(ex.getStackTrace()));
+            logger.info("Exception fetching run timeframe data for 1 week\n" + ExceptionUtils.getStackTrace(ex));
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }

@@ -29,9 +29,15 @@ public class RunLogController {
     private static RunLogService bundles;
     private static BundleService realBundles;
     private static InfoService infos;
+    private static FailedRunService failedRunService;
 
     @Autowired
-    public RunLogController(RunLogService service, BundleService serv, InfoService inf) { bundles = service; realBundles = serv; infos = inf;}
+    public RunLogController(RunLogService service, BundleService serv, InfoService inf, FailedRunService failures) {
+        bundles = service;
+        realBundles = serv;
+        infos = inf;
+        failedRunService = failures;
+    }
 
     public static void updateModInfoBundles() {
         List<ModInfoBundle> mods = infos.getAllMods();
@@ -67,13 +73,26 @@ public class RunLogController {
                 ObjectMapper objectMapper = new ObjectMapper();
                 RunUploadDTO runUploadDTO = objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).readValue(body, new TypeReference<>(){});
                 if (runUploadDTO == null) {
-                    return new ResponseEntity<>("Error parsing run bundle", HttpStatus.INTERNAL_SERVER_ERROR);
+                    logger.info("Could not parse run with new DTO format, runUploadDTO was null");
+                    throw new RuntimeException("Error parsing run bundle");
                 }
                 BundleProcessor.parse(runUploadDTO);
                 return new ResponseEntity<>(null, HttpStatus.OK);
             } catch (Exception ex) {
-                logger.info("Exception while parsing run JSON\n" + ExceptionUtils.getStackTrace(ex) + "\n\nBody:\n" + body);
-                return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+                try {
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    TopBundle bundle = objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).readValue(body, new TypeReference<>(){});
+                    if (bundle == null) {
+                        logger.info("Could not parse run with old DTO format, bundle was null");
+                        throw new RuntimeException("Error parsing run bundle");
+                    }
+                    BundleProcessor.parse(bundle, true, true);
+                    return new ResponseEntity<>(null, HttpStatus.OK);
+                } catch (Exception finalEx) {
+                    failedRunService.persist(body);
+                    logger.info("Exception while parsing run JSON\n" + ExceptionUtils.getStackTrace(ex) + "\n\nBody:\n" + body);
+                    return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+                }
             }
         } else {
             return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
@@ -293,21 +312,11 @@ public class RunLogController {
 
     @PostMapping("/runs")
     @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
-    public Collection<RunLogWithUTC> getBundlesNew(@RequestBody RunCountParams options) {
+    public Collection<RunLogDTO> getBundlesNew(@RequestBody RunCountParams options) {
         try {
-            var output = new ArrayList<RunLogWithUTC>();
-            var runs = bundles.findAll(options.pageNumber, options.pageSize, options);
-            for (var run : runs) {
-                try {
-                    var bigD = new BigDecimal(run.filterDate());
-                    var topTime = realBundles.findTopBundleTimeByHostAndLocalTime(run.host(), bigD);
-                    output.add(new RunLogWithUTC(run, topTime));
-                } catch (Exception ex) {
-                    output.add(new RunLogWithUTC(run, null));
-                }
-            }
-            return output;
+            return bundles.findAll(options.pageNumber, options.pageSize, options);
         } catch (Exception ex) {
+            logger.info("Error loading runs!\n" + ExceptionUtils.getStackTrace(ex));
             return new ArrayList<>();
         }
     }
@@ -369,22 +378,22 @@ public class RunLogController {
         return bundles.getAllByAnyOtherChar("THE_DUELIST");
     }
 
-    @GetMapping("/runs-today/{character}")
+    @GetMapping({"/runs-today", "/runs-today/{character}"})
     @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
-    public static Integer getRunsTodayByCharacter(@PathVariable String character) {
+    public static Integer getRunsTodayByCharacter(@PathVariable(required = false) String character) {
         return realBundles.countRunsByCharacterToday(character);
     }
 
 
-    @GetMapping("/wins-today/{character}")
+    @GetMapping({"/wins-today", "/wins-today/{character}"})
     @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
-    public static Integer getWinsTodayByCharacter(@PathVariable String character) {
+    public static Integer getWinsTodayByCharacter(@PathVariable(required = false) String character) {
         return realBundles.countWinsByCharacterToday(character);
     }
 
-    @GetMapping("/players-today/{character}")
+    @GetMapping({"/players-today", "/players-today/{character}"})
     @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
-    public static Integer getUniquePlayersTodayByCharacter(@PathVariable String character) {
+    public static Integer getUniquePlayersTodayByCharacter(@PathVariable(required = false) String character) {
         return realBundles.countUniquePlayersByCharacterToday(character);
     }
 
@@ -424,6 +433,12 @@ public class RunLogController {
     @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
     public static List<UploadedRunsDTO> getNumberOfRunsByPlayerIds() {
         return bundles.getNumberOfRunsByPlayerIds();
+    }
+
+    @GetMapping("/duelistRunsUploadedByPlayerID")
+    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    public static List<UploadedRunsDTO> getNumberOfDuelistRunsByPlayerIds() {
+        return bundles.getNumberOfDuelistRunsByPlayerIds();
     }
 
     private record DeckCardsHolder(String deckName, List<Integer> basicCards, List<Integer> poolCards, List<Integer> deckCards, List<Integer> relics, List<Integer> potions){

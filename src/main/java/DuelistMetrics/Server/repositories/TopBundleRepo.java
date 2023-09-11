@@ -1,6 +1,7 @@
 package DuelistMetrics.Server.repositories;
 
 import DuelistMetrics.Server.models.*;
+import DuelistMetrics.Server.models.dto.RunLogExtensionDataDTO;
 import DuelistMetrics.Server.models.dto.RunMonthDTO;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.stereotype.*;
@@ -31,14 +32,14 @@ public interface TopBundleRepo extends JpaRepository<TopBundle, Long> {
     @Query(value = """
     SELECT COUNT(*)
     FROM bundle b
-    WHERE from_unixtime(b.timestamp) >= DATE_SUB(CURDATE(), INTERVAL 1 DAY) and from_unixtime(b.timestamp) <= DATE_ADD(CURDATE(), INTERVAL 1 DAY) and b.character_chosen = :character
+    WHERE from_unixtime(b.timestamp) >= DATE_SUB(CURDATE(), INTERVAL 1 DAY) and from_unixtime(b.timestamp) <= DATE_ADD(CURDATE(), INTERVAL 1 DAY) and (:character IS NULL OR b.character_chosen = :character)
     """, nativeQuery = true)
     Integer getRunsByCharacterFromToday(String character);
 
     @Query(value = """
     SELECT COUNT(*)
     FROM bundle b
-    WHERE from_unixtime(b.timestamp) >= DATE_SUB(CURDATE(), INTERVAL 1 DAY) and from_unixtime(b.timestamp) <= DATE_ADD(CURDATE(), INTERVAL 1 DAY) and b.character_chosen = :character AND b.victory = 1
+    WHERE from_unixtime(b.timestamp) >= DATE_SUB(CURDATE(), INTERVAL 1 DAY) and from_unixtime(b.timestamp) <= DATE_ADD(CURDATE(), INTERVAL 1 DAY) and (:character IS NULL OR b.character_chosen = :character) AND b.victory = 1
     """, nativeQuery = true)
     Integer getWinsByCharacterFromToday(String character);
 
@@ -67,4 +68,7 @@ public interface TopBundleRepo extends JpaRepository<TopBundle, Long> {
                                             String country, Integer ascensionStart, Integer ascensionEnd,
                                             Integer challengeStart, Integer challengeEnd, Boolean victory,
                                             Integer floorStart, Integer floorEnd, String deck, String killedBy);
+
+    @Query(name = "runLogExtensionDataLookup", nativeQuery = true)
+    List<RunLogExtensionDataDTO> getRunLogExtensionData(List<String> hosts, List<String> times, String uuid);
 }

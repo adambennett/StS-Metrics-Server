@@ -19,15 +19,17 @@ SELECT
   message,
   stack_trace AS stackTrace,
   unique_player_id AS uuid,
-  created_date AS createdDate,
-  DATE_FORMAT(created_date, '%c/%d/%Y %h:%i %p') AS formattedDate,
   duelist_mod_version AS duelistModVersion,
   dev_message AS devMessage,
-  run_uuid AS runUUID
+  run_uuid AS runUUID,
+  COUNT(stack_trace) AS occurrences,
+  DATE_FORMAT(MIN(created_date), '%c/%d/%Y %h:%i %p') AS firstOccurrence,
+  DATE_FORMAT(MAX(created_date), '%c/%d/%Y %h:%i %p') AS mostRecentOccurrence
 FROM logged_exception
 WHERE DATEDIFF(created_date, CURDATE()) > ((:days) * -1) AND
       (:version IS NULL OR duelist_mod_version = :version)
-ORDER BY created_date DESC
+GROUP BY stack_trace
+ORDER BY MAX(created_date) DESC
 """, resultSetMapping = "loggedExceptionDtoXDaysMapping")
 @SqlResultSetMapping(
         name = "loggedExceptionDtoXDaysMapping",
@@ -36,11 +38,13 @@ ORDER BY created_date DESC
                 @ColumnResult(name = "message", type = String.class),
                 @ColumnResult(name = "stackTrace", type = String.class),
                 @ColumnResult(name = "uuid", type = String.class),
-                @ColumnResult(name = "createdDate", type = Date.class),
-                @ColumnResult(name = "formattedDate", type = String.class),
                 @ColumnResult(name = "duelistModVersion", type = String.class),
                 @ColumnResult(name = "devMessage", type = String.class),
-                @ColumnResult(name = "runUUID", type = String.class)})
+                @ColumnResult(name = "runUUID", type = String.class),
+                @ColumnResult(name = "occurrences", type = Integer.class),
+                @ColumnResult(name = "firstOccurrence", type = String.class),
+                @ColumnResult(name = "mostRecentOccurrence", type = String.class)
+        })
 )
 @NamedNativeQuery(name = "findLogsMatchingMessageLookup", query = """
 SELECT
@@ -48,15 +52,17 @@ SELECT
   message,
   stack_trace AS stackTrace,
   unique_player_id AS uuid,
-  created_date AS createdDate,
-  DATE_FORMAT(created_date, '%c/%d/%Y %h:%i %p') AS formattedDate,
   duelist_mod_version AS duelistModVersion,
   dev_message AS devMessage,
-  run_uuid AS runUUID
+  run_uuid AS runUUID,
+  COUNT(stack_trace) AS occurrences,
+  DATE_FORMAT(MIN(created_date), '%c/%d/%Y %h:%i %p') AS firstOccurrence,
+  DATE_FORMAT(MAX(created_date), '%c/%d/%Y %h:%i %p') AS mostRecentOccurrence
 FROM logged_exception
 WHERE (:message IS NULL OR message LIKE CONCAT('%', :message, '%') OR (stack_trace LIKE CONCAT('%', :message, '%'))) AND
       (:version IS NULL OR duelist_mod_version = :version)
-ORDER BY created_date DESC
+GROUP BY stack_trace
+ORDER BY MAX(created_date) DESC
 """, resultSetMapping = "loggedExceptionDtoMessageMapping")
 @SqlResultSetMapping(
         name = "loggedExceptionDtoMessageMapping",
@@ -65,11 +71,13 @@ ORDER BY created_date DESC
                 @ColumnResult(name = "message", type = String.class),
                 @ColumnResult(name = "stackTrace", type = String.class),
                 @ColumnResult(name = "uuid", type = String.class),
-                @ColumnResult(name = "createdDate", type = Date.class),
-                @ColumnResult(name = "formattedDate", type = String.class),
                 @ColumnResult(name = "duelistModVersion", type = String.class),
                 @ColumnResult(name = "devMessage", type = String.class),
-                @ColumnResult(name = "runUUID", type = String.class)})
+                @ColumnResult(name = "runUUID", type = String.class),
+                @ColumnResult(name = "occurrences", type = Integer.class),
+                @ColumnResult(name = "firstOccurrence", type = String.class),
+                @ColumnResult(name = "mostRecentOccurrence", type = String.class)
+        })
 )
 @NamedNativeQuery(name = "findLogsMatchingMessageByDaysLookup", query = """
 SELECT
@@ -77,16 +85,18 @@ SELECT
   message,
   stack_trace AS stackTrace,
   unique_player_id AS uuid,
-  created_date AS createdDate,
-  DATE_FORMAT(created_date, '%c/%d/%Y %h:%i %p') AS formattedDate,
   duelist_mod_version AS duelistModVersion,
   dev_message AS devMessage,
-  run_uuid AS runUUID
+  run_uuid AS runUUID,
+  COUNT(stack_trace) AS occurrences,
+  DATE_FORMAT(MIN(created_date), '%c/%d/%Y %h:%i %p') AS firstOccurrence,
+  DATE_FORMAT(MAX(created_date), '%c/%d/%Y %h:%i %p') AS mostRecentOccurrence
 FROM logged_exception
 WHERE (:message IS NULL OR message LIKE CONCAT('%', :message, '%') OR (stack_trace LIKE CONCAT('%', :message, '%'))) AND
       (DATEDIFF(created_date, CURDATE()) > ((:days) * -1)) AND
       (:version IS NULL OR duelist_mod_version = :version)
-ORDER BY created_date DESC
+GROUP BY stack_trace
+ORDER BY MAX(created_date) DESC
 """, resultSetMapping = "loggedExceptionDtoMessageByDaysMapping")
 @SqlResultSetMapping(
         name = "loggedExceptionDtoMessageByDaysMapping",
@@ -95,11 +105,13 @@ ORDER BY created_date DESC
                 @ColumnResult(name = "message", type = String.class),
                 @ColumnResult(name = "stackTrace", type = String.class),
                 @ColumnResult(name = "uuid", type = String.class),
-                @ColumnResult(name = "createdDate", type = Date.class),
-                @ColumnResult(name = "formattedDate", type = String.class),
                 @ColumnResult(name = "duelistModVersion", type = String.class),
                 @ColumnResult(name = "devMessage", type = String.class),
-                @ColumnResult(name = "runUUID", type = String.class)})
+                @ColumnResult(name = "runUUID", type = String.class),
+                @ColumnResult(name = "occurrences", type = Integer.class),
+                @ColumnResult(name = "firstOccurrence", type = String.class),
+                @ColumnResult(name = "mostRecentOccurrence", type = String.class)
+        })
 )
 public class LoggedException {
 

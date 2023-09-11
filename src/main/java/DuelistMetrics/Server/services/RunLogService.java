@@ -1,6 +1,7 @@
 package DuelistMetrics.Server.services;
 
 import DuelistMetrics.Server.models.*;
+import DuelistMetrics.Server.models.RunCountParams.RunCountParamType;
 import DuelistMetrics.Server.models.dto.RunDifficultyBreakdownDTO;
 import DuelistMetrics.Server.models.dto.RunLogDTO;
 import DuelistMetrics.Server.models.dto.UploadedRunsDTO;
@@ -11,7 +12,6 @@ import org.springframework.stereotype.*;
 
 import java.util.*;
 import java.util.logging.*;
-import java.util.stream.Collectors;
 
 @Service
 public class RunLogService {
@@ -19,9 +19,13 @@ public class RunLogService {
   private static final Logger logger = Logger.getLogger("DuelistMetrics.Server.RunLogService");
 
   private final RunLogRepo repo;
+  private final TopBundleRepo topBundleRepo;
 
   @Autowired
-  public RunLogService(RunLogRepo repo) { this.repo = repo; }
+  public RunLogService(RunLogRepo repo, TopBundleRepo topRepo) {
+    this.repo = repo;
+    this.topBundleRepo = topRepo;
+  }
 
   public List<RunLog> getAllById(List<Long> id) { return this.repo.findAllById(id); }
 
@@ -37,7 +41,32 @@ public class RunLogService {
 
   public List<String> getAllCharacters() { return this.repo.getAllCharacters(); }
 
-  public List<UploadedRunsDTO> getNumberOfRunsByPlayerIds() { return this.repo.getNumberOfRunsByPlayerIds(); }
+  public List<UploadedRunsDTO> getNumberOfRunsByPlayerIds() {
+    return this.fillFavoriteDecksAndCharacters(this.repo.getNumberOfRunsByPlayerIds());
+  }
+
+  public List<UploadedRunsDTO> getNumberOfDuelistRunsByPlayerIds() {
+    return this.fillFavoriteDecksAndCharacters(this.repo.getNumberOfDuelistRunsByPlayerId());
+  }
+
+  private List<UploadedRunsDTO> fillFavoriteDecksAndCharacters(List<UploadedRunsDTO> initialList) {
+    List<String> uuids = initialList == null ? new ArrayList<>() : initialList.stream().map(UploadedRunsDTO::uuid).toList();
+    var favoriteDecks = this.repo.getFavoriteDecksByPlayerIds(uuids);
+    var favoriteChars = this.repo.getFavoriteCharsByPlayerIds(uuids);
+    List<UploadedRunsDTO> output = new ArrayList<>();
+    if (initialList != null) {
+      for (var run : initialList) {
+        output.add(new UploadedRunsDTO(
+                run.uuid(),
+                run.runs(),
+                run.playerNames(),
+                favoriteDecks.stream().filter(d -> d.playerId().equals(run.uuid())).toList(),
+                favoriteChars.stream().filter(d -> d.playerId().equals(run.uuid())).toList()
+        ));
+      }
+    }
+    return output;
+  }
 
   public RunLog create(RunLog run) { return this.repo.save(run); }
 
@@ -81,17 +110,33 @@ public class RunLogService {
     int offset = pageNumber * pageSize;
     logger.info("filter params: " + params);
     if (params.noTypes) {
-      return this.repo.findAllWithParams(offset, pageSize).stream().map(RunLogDTO::new).collect(Collectors.toList());
+      Collection<RunLogDTO> initialResult = this.repo.findAllWithFilters(offset, pageSize, null, false, false, null,
+              null, null, null, null, null, null,
+              null, null, null, null, null, null);
+      return addExtensionDataToRunLogList(initialResult, null);
     }
-    var t = params.types;
-    if (params.types.uuid() != null && !params.types.uuid().isEmpty()) {
-      return this.repo.findAllByPlayerUUID(params.types.uuid(), offset, pageSize, t.character(), t.duelist(), t.nonDuelist(), t.timeStart(),
-              t.timeEnd(), t.host(), t.country(), t.ascensionStart(), t.ascensionEnd(), t.challengeStart(),
-              t.challengeEnd(), t.victory(), t.floorStart(), t.floorEnd(), t.deck(), t.killedBy());
-    }
-    return this.repo.findAllWithFilters(offset, pageSize, t.character(), t.duelist(), t.nonDuelist(), t.timeStart(),
+    RunCountParamType t = params.types;
+    Collection<RunLogDTO> initialResult =  this.repo.findAllWithFilters(offset, pageSize, t.character(), t.duelist(), t.nonDuelist(), t.timeStart(),
             t.timeEnd(), t.host(), t.country(), t.ascensionStart(), t.ascensionEnd(), t.challengeStart(),
-            t.challengeEnd(), t.victory(), t.floorStart(), t.floorEnd(), t.deck(), t.killedBy()).stream().map(RunLogDTO::new).collect(Collectors.toList());
+            t.challengeEnd(), t.victory(), t.floorStart(), t.floorEnd(), t.deck(), t.killedBy());
+    return addExtensionDataToRunLogList(initialResult, t.uuid());
+  }
+
+  private Collection<RunLogDTO> addExtensionDataToRunLogList(Collection<RunLogDTO> initialResult, String uuid) {
+    List<String> hosts = initialResult.stream().map(RunLogDTO::host).toList();
+    List<String> times = initialResult.stream().map(RunLogDTO::filterDate).toList();
+    var extensionData = this.topBundleRepo.getRunLogExtensionData(hosts, times, uuid);
+    List<RunLogDTO> output = new ArrayList<>();
+    for (var run : initialResult) {
+      var matchingExtensionData = extensionData.stream().filter(e -> e.time().equals(run.filterDate()) && e.host().equals(run.host()) && (uuid == null || e.uuid().equals(uuid))).toList();
+      if (!matchingExtensionData.isEmpty()) {
+        var match = matchingExtensionData.get(0);
+        output.add(new RunLogDTO(run, match.uuid(), match.utcTime()));
+      } else {
+        output.add(run);
+      }
+    }
+    return output;
   }
 
   public Page<RunLog> findAllPages(Pageable pageable) { return repo.findAll(pageable); }

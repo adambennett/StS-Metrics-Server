@@ -32,7 +32,7 @@ public interface BundleRepo extends JpaRepository<Bundle, Long> {
     FROM (
         SELECT COUNT(top_id)
         FROM bundle b
-        WHERE from_unixtime(b.timestamp) >= DATE_SUB(CURDATE(), INTERVAL 1 DAY) and from_unixtime(b.timestamp) <= DATE_ADD(CURDATE(), INTERVAL 1 DAY) and b.character_chosen = :character
+        WHERE from_unixtime(b.timestamp) >= DATE_SUB(CURDATE(), INTERVAL 1 DAY) and from_unixtime(b.timestamp) <= DATE_ADD(CURDATE(), INTERVAL 1 DAY) and (:character IS NULL OR b.character_chosen = :character)
         GROUP BY b.unique_player_id
     ) AS uniquePlayers
     """, nativeQuery = true)

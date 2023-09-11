@@ -1,7 +1,5 @@
 package DuelistMetrics.Server.models.dto;
 
-import DuelistMetrics.Server.models.RunLog;
-
 public record RunLogDTO(Long run_id,
                         Integer ascension,
                         Integer challenge,
@@ -15,8 +13,27 @@ public record RunLogDTO(Long run_id,
                         Boolean victory,
                         String country,
                         String filterDate,
-                        String language) {
-    public RunLogDTO(RunLog r) {
-        this(r.getRun_id(), r.getAscension(), r.getChallenge(), r.getCharacterName(), r.getDeck(), r.getFloor(), r.getHost(), r.getKaiba(), r.getKilledBy(), r.getTime(), r.getVictory(), r.getCountry(), r.getFilterDate(), r.getLanguage());
+                        String language,
+                        String uuid,
+                        String utcTime) {
+    public RunLogDTO(Long run_id,
+                     Integer ascension,
+                     Integer challenge,
+                     String characterName,
+                     String deck,
+                     Integer floor,
+                     String host,
+                     Boolean kaiba,
+                     String killedBy,
+                     String time,
+                     Boolean victory,
+                     String country,
+                     String filterDate,
+                     String language) {
+        this(run_id, ascension, challenge, characterName, deck, floor, host, kaiba, killedBy, time, victory, country, filterDate, language, null, null);
+    }
+
+    public RunLogDTO(RunLogDTO w, String uuid, String utcTime) {
+        this(w.run_id(), w.ascension(), w.challenge(), w.characterName(), w.deck(), w.floor(), w.host(), w.kaiba(), w.killedBy(), w.time(), w.victory(), w.country(), w.filterDate(), w.language(), uuid, utcTime);
     }
 }
