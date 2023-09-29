@@ -25,6 +25,7 @@ SELECT
     rl.language
 FROM run_log rl
 WHERE DATEDIFF(rl.filter_date, CURDATE()) < 14 AND
+      (:uuid IS NULL OR (:uuid IN (SELECT b.unique_player_id FROM bundle b WHERE b.top_id IN (SELECT event_top_id FROM top_bundle t WHERE t.host = rl.host) AND b.local_time = rl.filter_date))) AND
       (character_name = :character or :character IS null) AND
       (character_name = 'THE_DUELIST' or :isDuelist = false) AND
       (character_name != 'THE_DUELIST' or :nonDuelist = false) AND

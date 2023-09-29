@@ -1,6 +1,9 @@
 package DuelistMetrics.Server.controllers;
 
 import DuelistMetrics.Server.models.*;
+import DuelistMetrics.Server.models.dto.LeaderboardScoreWinnerDTO;
+import DuelistMetrics.Server.models.dto.LeaderboardWinnersResultDTO;
+import DuelistMetrics.Server.models.dto.WinsLeaderboardLookupDTO;
 import DuelistMetrics.Server.models.infoModels.*;
 import DuelistMetrics.Server.services.*;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -170,5 +173,27 @@ public class BundleController {
                     t.floorEnd(), t.deck(), t.killedBy());
         }
         return count;
+    }
+
+    @GetMapping("/score-leaderboard")
+    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    public ResponseEntity<List<LeaderboardScoreWinnerDTO>> getScoreLeaderboard() {
+        try {
+            return new ResponseEntity<>(bundles.getScoreLeaderboardWinners(), HttpStatus.OK);
+        } catch (Exception ex) {
+            logger.info("Exception fetching score leaderboard\n" + ExceptionUtils.getStackTrace(ex));
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PostMapping("/wins-leaderboard")
+    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    public ResponseEntity<List<LeaderboardWinnersResultDTO>> getWinsLeaderboard(@RequestBody WinsLeaderboardLookupDTO input) {
+        try {
+            return new ResponseEntity<>(bundles.getWinsLeaderboardWinners(input.character(), input.startDeck(), input.ascension()), HttpStatus.OK);
+        } catch (Exception ex) {
+            logger.info("Exception fetching wins leaderboard\n" + ExceptionUtils.getStackTrace(ex));
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
     }
 }

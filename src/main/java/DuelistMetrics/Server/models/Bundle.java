@@ -1,8 +1,12 @@
 package DuelistMetrics.Server.models;
 
+import DuelistMetrics.Server.models.dto.LeaderboardScoreWinnerDTO;
+import DuelistMetrics.Server.models.dto.LeaderboardWinnerDTO;
+import DuelistMetrics.Server.models.dto.PlayerNameListDTO;
 import DuelistMetrics.Server.models.infoModels.*;
 import DuelistMetrics.Server.util.*;
 import com.fasterxml.jackson.annotation.*;
+import jakarta.persistence.NamedNativeQuery;
 import org.hibernate.annotations.*;
 
 import jakarta.persistence.*;
@@ -12,6 +16,84 @@ import java.math.*;
 import java.util.*;
 
 @Entity
+@NamedNativeQuery(name = "getScoreLeaderboardWinnersLookup", query = """
+SELECT
+    MAX(bb.duelist_score) AS score,
+    bb.unique_player_id AS playerId,
+    (SELECT COUNT(b.top_id) FROM bundle b WHERE b.character_chosen = 'THE_DUELIST' AND b.unique_player_id = bb.unique_player_id) AS runs
+FROM bundle bb
+WHERE bb.unique_player_id IS NOT NULL
+GROUP BY bb.unique_player_id
+ORDER BY MAX(bb.duelist_score)
+LIMIT 50
+""", resultSetMapping = "leaderboardWinnerDtoScoreMapping")
+@SqlResultSetMapping(
+        name = "leaderboardWinnerDtoScoreMapping",
+        classes = @ConstructorResult(targetClass = LeaderboardScoreWinnerDTO.class,columns = {
+                @ColumnResult(name = "score", type = Integer.class),
+                @ColumnResult(name = "playerId", type = String.class),
+                @ColumnResult(name = "runs", type = Integer.class)
+        })
+)
+@NamedNativeQuery(name = "getWinsLeaderboardWinnersLookup", query = """
+SELECT
+    COUNT(top_id) AS wins,
+    unique_player_id AS playerId
+FROM bundle
+WHERE victory = 1 AND
+      unique_player_id IS NOT NULL AND
+      (:characterChosen IS NULL OR character_chosen = :characterChosen) AND
+      (:startDeck IS NULL OR starting_deck = :startDeck) AND
+      (:ascension IS NULL OR ((:ascension = 20 AND ascension_level = 20) OR ascension_level >= :ascension))
+GROUP BY unique_player_id
+ORDER BY COUNT(top_id) DESC
+LIMIT 50
+""", resultSetMapping = "leaderboardWinnerDtoWinsWinnersMapping")
+@SqlResultSetMapping(
+        name = "leaderboardWinnerDtoWinsWinnersMapping",
+        classes = @ConstructorResult(targetClass = LeaderboardWinnerDTO.class,columns = {
+                @ColumnResult(name = "wins", type = Integer.class),
+                @ColumnResult(name = "playerId", type = String.class)
+        })
+)
+@NamedNativeQuery(name = "getWinsLeaderboardWinnerDataLookup", query = """
+SELECT
+    COUNT(top_id) AS wins,
+    unique_player_id AS playerId,
+    starting_deck AS startDeck
+FROM bundle
+WHERE victory = 1 AND
+      unique_player_id IN :playerIds AND
+      (:characterChosen IS NULL OR character_chosen = :characterChosen) AND
+      (:startDeck IS NULL OR starting_deck = :startDeck) AND
+      (:ascension IS NULL OR ((:ascension = 20 AND ascension_level = 20) OR ascension_level >= :ascension))
+GROUP BY unique_player_id, starting_deck
+ORDER BY COUNT(top_id) DESC
+""", resultSetMapping = "leaderboardWinnerDtoWinsDataMapping")
+@SqlResultSetMapping(
+        name = "leaderboardWinnerDtoWinsDataMapping",
+        classes = @ConstructorResult(targetClass = LeaderboardWinnerDTO.class,columns = {
+                @ColumnResult(name = "wins", type = Integer.class),
+                @ColumnResult(name = "playerId", type = String.class),
+                @ColumnResult(name = "startDeck", type = String.class)
+        })
+)
+@NamedNativeQuery(name = "getPlayerNamesByIdsLookup", query = """
+SELECT
+    unique_player_id AS playerId,
+    GROUP_CONCAT(DISTINCT t.host SEPARATOR ', ') AS playerNames
+FROM bundle b
+JOIN top_bundle t ON t.event_top_id = b.top_id
+WHERE unique_player_id IN :playerIds
+GROUP BY unique_player_id
+""", resultSetMapping = "playerNameListDtoMapping")
+@SqlResultSetMapping(
+        name = "playerNameListDtoMapping",
+        classes = @ConstructorResult(targetClass = PlayerNameListDTO.class,columns = {
+                @ColumnResult(name = "playerId", type = String.class),
+                @ColumnResult(name = "playerNames", type = String.class)
+        })
+)
 public class Bundle {
 
   @Id

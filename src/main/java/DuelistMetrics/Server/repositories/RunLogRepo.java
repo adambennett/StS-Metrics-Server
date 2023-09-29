@@ -18,7 +18,7 @@ public interface RunLogRepo extends JpaRepository<RunLog, Long> {
                                            boolean nonDuelist, String timeStart, String timeEnd, String host,
                                            String country, Integer ascensionStart, Integer ascensionEnd,
                                            Integer challengeStart, Integer challengeEnd, Boolean victory,
-                                           Integer floorStart, Integer floorEnd, String deck, String killedBy);
+                                           Integer floorStart, Integer floorEnd, String deck, String killedBy, String uuid);
 
   @Query(value = "SELECT COUNT(*) FROM run_log rl WHERE DATEDIFF(rl.filter_date, CURDATE()) < 14", nativeQuery = true)
   Long countWithoutFilter();

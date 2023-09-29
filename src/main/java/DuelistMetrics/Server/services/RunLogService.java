@@ -112,13 +112,13 @@ public class RunLogService {
     if (params.noTypes) {
       Collection<RunLogDTO> initialResult = this.repo.findAllWithFilters(offset, pageSize, null, false, false, null,
               null, null, null, null, null, null,
-              null, null, null, null, null, null);
+              null, null, null, null, null, null, null);
       return addExtensionDataToRunLogList(initialResult, null);
     }
     RunCountParamType t = params.types;
     Collection<RunLogDTO> initialResult =  this.repo.findAllWithFilters(offset, pageSize, t.character(), t.duelist(), t.nonDuelist(), t.timeStart(),
             t.timeEnd(), t.host(), t.country(), t.ascensionStart(), t.ascensionEnd(), t.challengeStart(),
-            t.challengeEnd(), t.victory(), t.floorStart(), t.floorEnd(), t.deck(), t.killedBy());
+            t.challengeEnd(), t.victory(), t.floorStart(), t.floorEnd(), t.deck(), t.killedBy(), t.uuid());
     return addExtensionDataToRunLogList(initialResult, t.uuid());
   }
 

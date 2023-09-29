@@ -2,6 +2,11 @@ package DuelistMetrics.Server.services;
 
 import DuelistMetrics.Server.controllers.*;
 import DuelistMetrics.Server.models.*;
+import DuelistMetrics.Server.models.dto.LeaderboardScoreWinnerDTO;
+import DuelistMetrics.Server.models.dto.LeaderboardWinnerDTO;
+import DuelistMetrics.Server.models.dto.LeaderboardWinnerDeckListDTO;
+import DuelistMetrics.Server.models.dto.LeaderboardWinnersResultDTO;
+import DuelistMetrics.Server.models.dto.PlayerNameListDTO;
 import DuelistMetrics.Server.models.dto.RunMonthDTO;
 import DuelistMetrics.Server.models.tierScore.*;
 import DuelistMetrics.Server.repositories.*;
@@ -179,6 +184,58 @@ public class BundleService {
       sortedOutput.put(entry.getKey(), output.get(entry.getKey()));
     }
     return sortedOutput;
+  }
+
+  public List<LeaderboardScoreWinnerDTO> getScoreLeaderboardWinners() {
+    List<LeaderboardScoreWinnerDTO> output = new ArrayList<>();
+    var scoreWinners = this.innerRepo.getScoreLeaderboardWinners();
+    List<String> playerIds = scoreWinners.stream().map(LeaderboardScoreWinnerDTO::playerId).toList();
+    List<PlayerNameListDTO> playerNameList = this.innerRepo.getPlayerNamesByIds(playerIds);
+    HashMap<String, String> playerNameMap = new HashMap<>();
+    for (var e : playerNameList) {
+      playerNameMap.put(e.playerId(), e.playerNames());
+    }
+    for (var e : scoreWinners) {
+      output.add(new LeaderboardScoreWinnerDTO(e, playerNameMap.getOrDefault(e.playerId(), e.playerId())));
+    }
+    return output;
+  }
+
+  public List<LeaderboardWinnersResultDTO> getWinsLeaderboardWinners(String character, String startDeck, Integer ascension) {
+    character = character != null && character.equalsIgnoreCase("The Duelist") ? "THE_DUELIST" : character;
+    startDeck = character != null && character.equalsIgnoreCase("THE_DUELIST") ? startDeck : null;
+    List<LeaderboardWinnersResultDTO> output = new ArrayList<>();
+    List<LeaderboardWinnerDTO> winnerList = this.innerRepo.getWinsLeaderboardWinners(character, startDeck, ascension);
+    List<String> playerIds = winnerList.stream().map(LeaderboardWinnerDTO::playerId).toList();
+    List<LeaderboardWinnerDTO> allWinnerRunData = this.innerRepo.getWinsLeaderboardWinnerData(playerIds, character, startDeck, ascension);
+    HashMap<String, Integer> totalWinsByPlayer = new HashMap<>();
+    HashMap<String, HashSet<LeaderboardWinnerDeckListDTO>> deckWinsByPlayer = new HashMap<>();
+    List<PlayerNameListDTO> playerNameList = this.innerRepo.getPlayerNamesByIds(playerIds);
+    HashMap<String, String> playerNameMap = new HashMap<>();
+    for (var e : playerNameList) {
+      playerNameMap.put(e.playerId(), e.playerNames());
+    }
+
+    for (LeaderboardWinnerDTO entry : winnerList) {
+      allWinnerRunData.stream().filter(w -> w.playerId().equalsIgnoreCase(entry.playerId())).forEach(r -> {
+        totalWinsByPlayer.compute(entry.playerId(), (k, v) -> v == null ? r.wins() : v + r.wins());
+        HashSet<LeaderboardWinnerDeckListDTO> set = deckWinsByPlayer.getOrDefault(entry.playerId(), new HashSet<>());
+        set.add(new LeaderboardWinnerDeckListDTO(r.startDeck(), r.wins()));
+        deckWinsByPlayer.put(entry.playerId(), set);
+      });
+    }
+
+    int counter = 1;
+    for (LeaderboardWinnerDTO entry : winnerList) {
+      var allDeckWinsForPlayer = deckWinsByPlayer.getOrDefault(entry.playerId(), new HashSet<>());
+      List<String> formattedDeckWinInfo = new ArrayList<>();
+      for (var setEntry : allDeckWinsForPlayer) {
+        formattedDeckWinInfo.add(setEntry.deck()+ " (" + setEntry.wins() + ")");
+      }
+      output.add(new LeaderboardWinnersResultDTO(totalWinsByPlayer.getOrDefault(entry.playerId(), 0), entry.playerId(), playerNameMap.getOrDefault(entry.playerId(), entry.playerId()), counter, formattedDeckWinInfo));
+      counter++;
+    }
+    return output.stream().sorted(Comparator.comparing(LeaderboardWinnersResultDTO::rank)).toList();
   }
 
 }

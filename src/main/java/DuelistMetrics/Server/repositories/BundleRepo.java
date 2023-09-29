@@ -1,6 +1,9 @@
 package DuelistMetrics.Server.repositories;
 
 import DuelistMetrics.Server.models.*;
+import DuelistMetrics.Server.models.dto.LeaderboardScoreWinnerDTO;
+import DuelistMetrics.Server.models.dto.LeaderboardWinnerDTO;
+import DuelistMetrics.Server.models.dto.PlayerNameListDTO;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.stereotype.*;
 
@@ -37,5 +40,17 @@ public interface BundleRepo extends JpaRepository<Bundle, Long> {
     ) AS uniquePlayers
     """, nativeQuery = true)
     Integer numberOfUniquePlayersTodayByCharacter(String character);
+
+    @Query(name = "getScoreLeaderboardWinnersLookup", nativeQuery = true)
+    List<LeaderboardScoreWinnerDTO> getScoreLeaderboardWinners();
+
+    @Query(name = "getWinsLeaderboardWinnersLookup", nativeQuery = true)
+    List<LeaderboardWinnerDTO> getWinsLeaderboardWinners(String characterChosen, String startDeck, Integer ascension);
+
+    @Query(name = "getWinsLeaderboardWinnerDataLookup", nativeQuery = true)
+    List<LeaderboardWinnerDTO> getWinsLeaderboardWinnerData(List<String> playerIds, String characterChosen, String startDeck, Integer ascension);
+
+    @Query(name = "getPlayerNamesByIdsLookup", nativeQuery = true)
+    List<PlayerNameListDTO> getPlayerNamesByIds(List<String> playerIds);
 
 }
