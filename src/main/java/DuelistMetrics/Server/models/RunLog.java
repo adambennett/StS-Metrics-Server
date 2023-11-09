@@ -97,7 +97,8 @@ GROUP BY rl.challenge
 SELECT
     unique_player_id AS uuid,
     COUNT(*) AS runs,
-    GROUP_CONCAT(DISTINCT t.host SEPARATOR ', ') AS playerNames
+    GROUP_CONCAT(DISTINCT t.host SEPARATOR ', ') AS playerNames,
+    (SELECT DATE_FORMAT(MAX(bb.created_date), '%m/%d/%Y') FROM bundle bb WHERE bb.unique_player_id = b.unique_player_id) AS mostRecentRun
 FROM bundle b
 JOIN top_bundle t ON t.event_top_id = b.top_id
 WHERE unique_player_id IS NOT NULL
@@ -110,13 +111,16 @@ LIMIT 50
         classes = @ConstructorResult(targetClass = UploadedRunsDTO.class,columns = {
                 @ColumnResult(name = "uuid", type = String.class),
                 @ColumnResult(name = "runs", type = Integer.class),
-                @ColumnResult(name = "playerNames", type = String.class)})
+                @ColumnResult(name = "playerNames", type = String.class),
+                @ColumnResult(name = "mostRecentRun", type = String.class)
+        })
 )
 @NamedNativeQuery(name = "getNumberOfDuelistRunsByPlayerIdLookup", query = """
 SELECT
     unique_player_id AS uuid,
     COUNT(*) AS runs,
-    GROUP_CONCAT(DISTINCT t.host SEPARATOR ', ') AS playerNames
+    GROUP_CONCAT(DISTINCT t.host SEPARATOR ', ') AS playerNames,
+    (SELECT DATE_FORMAT(MAX(bb.created_date), '%m/%d/%Y') FROM bundle bb WHERE bb.unique_player_id = b.unique_player_id) AS mostRecentRun
 FROM bundle b
 JOIN top_bundle t ON t.event_top_id = b.top_id
 WHERE unique_player_id IS NOT NULL AND b.character_chosen = 'THE_DUELIST'
@@ -129,7 +133,9 @@ LIMIT 50
         classes = @ConstructorResult(targetClass = UploadedRunsDTO.class,columns = {
                 @ColumnResult(name = "uuid", type = String.class),
                 @ColumnResult(name = "runs", type = Integer.class),
-                @ColumnResult(name = "playerNames", type = String.class)})
+                @ColumnResult(name = "playerNames", type = String.class),
+                @ColumnResult(name = "mostRecentRun", type = String.class)
+        })
 )
 @NamedNativeQuery(name = "getFavoriteDecksByPlayerIdLookup", query = """
 SELECT

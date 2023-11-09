@@ -60,6 +60,7 @@ public class RunLogService {
                 run.uuid(),
                 run.runs(),
                 run.playerNames(),
+                run.mostRecentRun(),
                 favoriteDecks.stream().filter(d -> d.playerId().equals(run.uuid())).toList(),
                 favoriteChars.stream().filter(d -> d.playerId().equals(run.uuid())).toList()
         ));

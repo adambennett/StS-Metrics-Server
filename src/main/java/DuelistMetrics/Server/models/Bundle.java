@@ -42,7 +42,7 @@ SELECT
 FROM bundle
 WHERE victory = 1 AND
       unique_player_id IS NOT NULL AND
-      (:characterChosen IS NULL OR character_chosen = :characterChosen) AND
+      (:characterChosen IS NULL OR character_chosen = :characterChosen OR (:characterChosen = 'Non-Duelist' AND character_chosen != 'THE_DUELIST')) AND
       (:startDeck IS NULL OR starting_deck = :startDeck) AND
       (:ascension IS NULL OR ((:ascension = 20 AND ascension_level = 20) OR ascension_level >= :ascension))
 GROUP BY unique_player_id
@@ -64,7 +64,7 @@ SELECT
 FROM bundle
 WHERE victory = 1 AND
       unique_player_id IN :playerIds AND
-      (:characterChosen IS NULL OR character_chosen = :characterChosen) AND
+      (:characterChosen IS NULL OR character_chosen = :characterChosen OR (:characterChosen = 'Non-Duelist' AND character_chosen != 'THE_DUELIST')) AND
       (:startDeck IS NULL OR starting_deck = :startDeck) AND
       (:ascension IS NULL OR ((:ascension = 20 AND ascension_level = 20) OR ascension_level >= :ascension))
 GROUP BY unique_player_id, starting_deck
