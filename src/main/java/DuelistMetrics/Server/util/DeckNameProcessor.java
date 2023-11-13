@@ -42,6 +42,7 @@ public class DeckNameProcessor {
     decks.add("Warrior Deck");
     decks.add("Toon Deck");
     decks.add("Megatype Deck");
+    decks.add("Increment Deck");
     decks.add("Creator Deck");
     decks.add("Exodia Deck");
     decks.add("Ascended I");
@@ -58,7 +59,6 @@ public class DeckNameProcessor {
     decks.add("Metronome Deck");
     decks.add("Predaplant Deck");
     decks.add("Giant Deck");
-    decks.add("Increment Deck");
     decks.add("Ojama Deck");
 
     int i = 0;

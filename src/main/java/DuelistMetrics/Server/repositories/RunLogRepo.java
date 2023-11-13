@@ -90,7 +90,7 @@ public interface RunLogRepo extends JpaRepository<RunLog, Long> {
   @Query(value = "SELECT rl.deck, SUM(rl.victory = 1) AS yes FROM run_log rl GROUP BY rl.deck", nativeQuery = true)
   List<String> getWins();
 
-  @Query(value = "SELECT rl.deck, COUNT(*) FROM run_log rl WHERE rl.deck NOT IN ('Giant Deck', 'Increment Deck', 'Ojama Deck', 'Predaplant Deck') GROUP BY rl.deck", nativeQuery = true)
+  @Query(value = "SELECT rl.deck, COUNT(*) FROM run_log rl WHERE rl.deck NOT IN ('Giant Deck', 'Ojama Deck', 'Predaplant Deck') GROUP BY rl.deck", nativeQuery = true)
   List<String> getRuns();
 
   @Query(value = "SELECT rl.deck, MAX(rl.floor) FROM run_log rl GROUP BY rl.deck", nativeQuery = true)
