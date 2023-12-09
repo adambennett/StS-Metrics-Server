@@ -2,15 +2,15 @@ package DuelistMetrics.Server.models;
 
 import DuelistMetrics.Server.models.tierScore.*;
 
-public class TierScoreCompare {
+public class TierScoreCompare<T extends GeneralScoringCard> {
 
-    private String act0Difference;
-    private String act1Difference;
-    private String act2Difference;
-    private String act3Difference;
-    private String overallDifference;
+    private final String act0Difference;
+    private final String act1Difference;
+    private final String act2Difference;
+    private final String act3Difference;
+    private final String overallDifference;
 
-    public TierScoreCompare(TierScoreLookup oldCard, ScoredCard newCard, int act0Difference, int act1Difference, int act2Difference, int act3Difference, int overallDifference) {
+    public TierScoreCompare(TierScoreLookup oldCard, T newCard, int act0Difference, int act1Difference, int act2Difference, int act3Difference, int overallDifference) {
         String score0String = act0Difference + " (" + oldCard.getAct0_score() + " -> " + newCard.getAct0_score() + ")";
         String score1String = act1Difference + " (" + oldCard.getAct1_score() + " -> " + newCard.getAct1_score() + ")";
         String score2String = act2Difference + " (" + oldCard.getAct2_score() + " -> " + newCard.getAct2_score() + ")";
@@ -28,7 +28,7 @@ public class TierScoreCompare {
                 ? "0" : overallDifference > 0 ? "+" + scoreOverallString : "-" + scoreOverallString;
     }
 
-    public String print(ScoredCard card) {
+    public String print(T card) {
         return "TierScoreCompare (" + card.getCard_name() + " -- " + card.getPool_name() + ")\n" + this;
     }
 

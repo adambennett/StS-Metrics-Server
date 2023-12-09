@@ -1,13 +1,19 @@
 package DuelistMetrics.Server.models.tierScore;
 
 import DuelistMetrics.Server.models.TierScoreLookup;
-import DuelistMetrics.Server.models.dto.ConfigDifferenceDTO;
-import jakarta.persistence.*;
-import java.util.*;
+import jakarta.persistence.ColumnResult;
+import jakarta.persistence.ConstructorResult;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.IdClass;
+import jakarta.persistence.NamedNativeQuery;
+import jakarta.persistence.SqlResultSetMapping;
+
+import java.util.Objects;
 
 @Entity
 @IdClass(ScoredCardKey.class)
-@NamedNativeQuery(name = "getScoresJPALookup", query = """
+@NamedNativeQuery(name = "getV4ScoresJPALookup", query = """
 SELECT
     card_name,
     overall_score,
@@ -15,12 +21,12 @@ SELECT
     act1_score,
     act2_score,
     act3_score
-FROM scored_card
+FROM scored_card_v4
 WHERE card_id = :cardId AND
       pool_name = :pool
-""", resultSetMapping = "tierScoreLookupDtoMapping")
+""", resultSetMapping = "tierScoreV4LookupDtoMapping")
 @SqlResultSetMapping(
-        name = "tierScoreLookupDtoMapping",
+        name = "tierScoreV4LookupDtoMapping",
         classes = @ConstructorResult(targetClass = TierScoreLookup.class,columns = {
                 @ColumnResult(name = "card_name", type = String.class),
                 @ColumnResult(name = "overall_score", type = Integer.class),
@@ -30,7 +36,7 @@ WHERE card_id = :cardId AND
                 @ColumnResult(name = "act3_score", type = Integer.class)
         })
 )
-public class ScoredCard extends GeneralScoringCard {
+public class ScoredCardV4 extends GeneralScoringCard {
 
     @Id
     public String card_id;
@@ -38,22 +44,22 @@ public class ScoredCard extends GeneralScoringCard {
     @Id
     public String pool_name;
 
-    public ScoredCard() {}
+    public ScoredCardV4() {}
 
-    public ScoredCard(String card_id, String pool_name) {
+    public ScoredCardV4(String card_id, String pool_name) {
         this.card_id = card_id;
         this.pool_name = pool_name;
     }
 
     @Override
-    public ScoredCard generate(String card_id, String pool_name) {
-        return new ScoredCard(card_id, pool_name);
+    public ScoredCardV4 generate(String card_id, String pool_name) {
+        return new ScoredCardV4(card_id, pool_name);
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof ScoredCard that)) return false;
+        if (!(o instanceof ScoredCardV4 that)) return false;
         return card_id.equals(that.card_id) && pool_name.equals(that.pool_name);
     }
 

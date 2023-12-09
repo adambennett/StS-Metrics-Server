@@ -124,15 +124,7 @@ public class BundleService {
     }
   }
 
-  public Map<String, List<TierBundle>> getBundlesForTierScores(List<String> decks) {
-    return getBundlesForTierScores(decks, null, null);
-  }
-
-  public Map<String, List<TierBundle>> getBundlesForTierScores(List<String> decks, int ascensionFilter) {
-    return getBundlesForTierScores(decks, ascensionFilter, null);
-  }
-
-  public Map<String, List<TierBundle>> getBundlesForTierScores(List<String> decks, Integer ascensionFilter, Integer challengeFilter) {
+  public Map<String, List<TierBundle>> getLegacyBundlesForTierScores(List<String> decks, Integer ascensionFilter, Integer challengeFilter) {
     Map<String, List<TierBundle>> out = new HashMap<>();
     for (String deck : decks) {
       List<String> data;
@@ -144,6 +136,42 @@ public class BundleService {
         data = innerRepo.getBundlesForTierScores(challengeFilter, deck);
       } else {
         data = innerRepo.getBundlesForTierScores(deck);
+      }
+      processTierBundles(data, out);
+    }
+    return out;
+  }
+
+  public Map<String, List<TierBundle>> getV4BundlesForTierScores(List<String> decks, Integer ascensionFilter, Integer challengeFilter) {
+    Map<String, List<TierBundle>> out = new HashMap<>();
+    for (String deck : decks) {
+      List<String> data;
+      if (challengeFilter != null && ascensionFilter != null) {
+        data = innerRepo.getV4BundlesForTierScores(deck, ascensionFilter, challengeFilter);
+      } else if (ascensionFilter != null) {
+        data = innerRepo.getV4BundlesForTierScores(deck, ascensionFilter);
+      } else if (challengeFilter != null) {
+        data = innerRepo.getV4BundlesForTierScores(challengeFilter, deck);
+      } else {
+        data = innerRepo.getV4BundlesForTierScores(deck);
+      }
+      processTierBundles(data, out);
+    }
+    return out;
+  }
+
+  public Map<String, List<TierBundle>> getA20BundlesForTierScores(List<String> decks, Integer ascensionFilter, Integer challengeFilter) {
+    Map<String, List<TierBundle>> out = new HashMap<>();
+    for (String deck : decks) {
+      List<String> data;
+      if (challengeFilter != null && ascensionFilter != null) {
+        data = innerRepo.getA20BundlesForTierScores(deck, ascensionFilter, challengeFilter);
+      } else if (ascensionFilter != null) {
+        data = innerRepo.getA20BundlesForTierScores(deck, ascensionFilter);
+      } else if (challengeFilter != null) {
+        data = innerRepo.getA20BundlesForTierScores(challengeFilter, deck);
+      } else {
+        data = innerRepo.getA20BundlesForTierScores(deck);
       }
       processTierBundles(data, out);
     }

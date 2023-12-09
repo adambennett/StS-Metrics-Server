@@ -26,11 +26,13 @@ public class InfoService {
   private final EventRepo eventRepo;
   private final MiniModRepo miniModRepo;
   private final TierScoreRepo tierRepo;
+  private final TierScoreV4Repo tierScoreV4Repo;
+  private final TierScoreA20Repo tierScoreA20Repo;
   private final DuelistOrbInfoRepo orbRepo;
   private static final ArrayList<String> decks;
 
   @Autowired
-  public InfoService(InfoRepo repo, TopInfoBundleRepo bundleRepo, InfoCardRepo cardRepo, InfoRelicRepo relicRepo, InfoPotionRepo potionRepo, InfoCreatureRepo creatureRepo, MiniModRepo miniModRepo, EventRepo eventRepo, TierScoreRepo scoreRepo, DuelistOrbInfoRepo orbRepo) {
+  public InfoService(InfoRepo repo, TopInfoBundleRepo bundleRepo, InfoCardRepo cardRepo, InfoRelicRepo relicRepo, InfoPotionRepo potionRepo, InfoCreatureRepo creatureRepo, MiniModRepo miniModRepo, EventRepo eventRepo, TierScoreRepo scoreRepo, TierScoreV4Repo tierScoreV4Repo, TierScoreA20Repo tierScoreA20Repo, DuelistOrbInfoRepo orbRepo) {
     this.repo = repo;
     this.bundleRepo = bundleRepo;
     this.cardRepo = cardRepo;
@@ -40,6 +42,8 @@ public class InfoService {
     this.miniModRepo = miniModRepo;
     this.eventRepo = eventRepo;
     this.tierRepo = scoreRepo;
+    this.tierScoreV4Repo = tierScoreV4Repo;
+    this.tierScoreA20Repo = tierScoreA20Repo;
     this.orbRepo = orbRepo;
   }
 
@@ -159,7 +163,69 @@ public class InfoService {
     return duelistMods.size() > 0 ? duelistMods.get(duelistMods.size() - 1) : null;
   }
 
-  public Map<String, List<String>> getTrackedCardsForTierScores(String poolName) {
+  public Map<String, List<String>> getLegacyTrackedCardsForTierScores(String poolName) {
+    boolean filterPool = poolName != null && !poolName.equals("");
+    List<Long> duelistIds = bundleRepo.getModInfoBundleIdsForAllDuelistVersions();
+    List<String> cards;
+    if (filterPool) {
+      cards = cardRepo.getTrackedCardsForTierScores(poolName, duelistIds, poolName + " [Basic/Colorless]");
+    } else {
+      cards = cardRepo.getTrackedCardsForTierScores(duelistIds);
+    }
+    Map<String, List<String>> out = new HashMap<>();
+    for (String s : cards) {
+      String[] splice = s.split(",");
+      if (!out.containsKey(splice[1])) {
+        out.put(splice[1], new ArrayList<>());
+      }
+      out.get(splice[1]).add(splice[0]);
+    }
+    List<List<String>> globals = globalCardListData();
+    List<String> poolsWithGlobalCardLists = globals.get(0);
+    List<String> globalCardList = globals.get(1);
+    for (String globalPool : poolsWithGlobalCardLists) {
+      for (String s : globalCardList) {
+        if (!out.containsKey(globalPool)) {
+          out.put(globalPool, new ArrayList<>());
+        }
+        out.get(globalPool).add(s);
+      }
+    }
+    return out;
+  }
+
+  public Map<String, List<String>> getV4TrackedCardsForTierScores(String poolName) {
+    boolean filterPool = poolName != null && !poolName.equals("");
+    List<Long> duelistIds = bundleRepo.getModInfoBundleIdsForAllDuelistVersions();
+    List<String> cards;
+    if (filterPool) {
+      cards = cardRepo.getTrackedCardsForTierScores(poolName, duelistIds, poolName + " [Basic/Colorless]");
+    } else {
+      cards = cardRepo.getTrackedCardsForTierScores(duelistIds);
+    }
+    Map<String, List<String>> out = new HashMap<>();
+    for (String s : cards) {
+      String[] splice = s.split(",");
+      if (!out.containsKey(splice[1])) {
+        out.put(splice[1], new ArrayList<>());
+      }
+      out.get(splice[1]).add(splice[0]);
+    }
+    List<List<String>> globals = globalCardListData();
+    List<String> poolsWithGlobalCardLists = globals.get(0);
+    List<String> globalCardList = globals.get(1);
+    for (String globalPool : poolsWithGlobalCardLists) {
+      for (String s : globalCardList) {
+        if (!out.containsKey(globalPool)) {
+          out.put(globalPool, new ArrayList<>());
+        }
+        out.get(globalPool).add(s);
+      }
+    }
+    return out;
+  }
+
+  public Map<String, List<String>> getA20TrackedCardsForTierScores(String poolName) {
     boolean filterPool = poolName != null && !poolName.equals("");
     List<Long> duelistIds = bundleRepo.getModInfoBundleIdsForAllDuelistVersions();
     List<String> cards;
@@ -270,7 +336,9 @@ public class InfoService {
 
   public void createTierScore(ScoredCard scoredCard) { this.tierRepo.save(scoredCard); }
 
-  public List<ScoredCard> getTierDetails(String pool) { return this.tierRepo.getDetails(pool); }
+  public void createTierScore(ScoredCardV4 scoredCard) { this.tierScoreV4Repo.save(scoredCard); }
+
+  public void createTierScore(ScoredCardA20 scoredCard) { this.tierScoreA20Repo.save(scoredCard); }
 
   public List<Map<String, Object>> getTierScores(String pool) { return this.tierRepo.getScores(pool); }
 
@@ -338,8 +406,18 @@ public class InfoService {
 
   public List<Map<String, Object>> getTierScores(String cardId, String pool) { return this.tierRepo.getScores(cardId, pool); }
 
-  public TierScoreLookup getCardTierScores(String cardId, String pool) {
+  public TierScoreLookup getLegacyCardTierScores(String cardId, String pool) {
     List<TierScoreLookup> scores = this.tierRepo.getScoresJPA(cardId, pool);
+    return scores == null || scores.size() < 1 ? null : scores.get(0);
+  }
+
+  public TierScoreLookup getV4CardTierScores(String cardId, String pool) {
+    List<TierScoreLookup> scores = this.tierScoreV4Repo.getScoresJPA(cardId, pool);
+    return scores == null || scores.size() < 1 ? null : scores.get(0);
+  }
+
+  public TierScoreLookup getA20CardTierScores(String cardId, String pool) {
+    List<TierScoreLookup> scores = this.tierScoreA20Repo.getScoresJPA(cardId, pool);
     return scores == null || scores.size() < 1 ? null : scores.get(0);
   }
 

@@ -3,6 +3,7 @@ package DuelistMetrics.Server.controllers;
 
 import DuelistMetrics.Server.models.*;
 import DuelistMetrics.Server.models.builders.*;
+import DuelistMetrics.Server.models.enums.ScoringRunLookupType;
 import DuelistMetrics.Server.models.infoModels.*;
 import DuelistMetrics.Server.models.tierScore.*;
 import DuelistMetrics.Server.services.*;
@@ -275,9 +276,9 @@ public class InfoController {
     }
 
 
-    @GetMapping(value={"/calculateTierScores", "/calculateTierScores/{ascension}", "/calculateTierScores/{ascension}/{challenge}", "/calculateTierScores/{ascension}/{challenge}/{deckName}"})
+    @GetMapping(value={"/calculateTierScores", "/calculateTierScores/{ascension}", "/calculateTierScores/{ascension}/{challenge}", "/calculateTierScores/{ascension}/{challenge}/{deckName}", "/calculateTierScoresTyped/{type}", "/calculateTierScoresTyped/{type}/{ascension}", "/calculateTierScoresTyped/{type}/{ascension}/{challenge}", "/calculateTierScoresTyped/{type}/{ascension}/{challenge}/{deckName}"})
     @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
-    public ResponseEntity<?> getTierScores(@PathVariable(required = false) String challenge, @PathVariable(required = false)  String ascension,  @PathVariable(required = false) String deckName) {
+    public ResponseEntity<?> getTierScores(@PathVariable(required = false) String challenge, @PathVariable(required = false)  String ascension, @PathVariable(required = false) String deckName, @PathVariable(required = false) String type) {
         try {
             // Handle path variables
             int ascensionFilter = -1;
@@ -288,8 +289,18 @@ public class InfoController {
             boolean filteringDeckName  = deckName != null && !deckName.equalsIgnoreCase("any");
             deckFilter = filteringDeckName ? deckName : null;
 
+            ScoringRunLookupType lookupType = ScoringRunLookupType.LEGACY;
+            if (type != null) {
+                for (ScoringRunLookupType lookup : ScoringRunLookupType.values()) {
+                    if (lookup.toString().equalsIgnoreCase(type)) {
+                        lookupType = lookup;
+                        break;
+                    }
+                }
+            }
+
             // Calculate scores
-            Map<String, List<ScoredCard>> scoredOutput = calculateTierScores(challengeFilter, ascensionFilter, deckFilter);
+            Map<String, List<ScoredCard>> scoredOutput = calculateTierScores(challengeFilter, ascensionFilter, deckFilter, lookupType);
 
             // Format for readable response JSON
             Map<String,  List<MinimalScoredCard>> justScores = new HashMap<>();
@@ -383,8 +394,16 @@ public class InfoController {
         bundles.createTierScore(card);
     }
 
-    public static Map<String,List<String>> getTrackedCardsForTierScores(String poolName) {
-        Map<String,List<String>> data = bundles.getTrackedCardsForTierScores(poolName);
+    public static void saveTierScores(ScoredCardV4 card) {
+        bundles.createTierScore(card);
+    }
+
+    public static void saveTierScores(ScoredCardA20 card) {
+        bundles.createTierScore(card);
+    }
+
+    public static Map<String,List<String>> getLegacyTrackedCardsForTierScores(String poolName) {
+        Map<String,List<String>> data = bundles.getLegacyTrackedCardsForTierScores(poolName);
         List<String> keysToRemove = new ArrayList<>();
         for (Map.Entry<String, List<String>> entry : data.entrySet()) {
             String pool = entry.getKey();
@@ -404,7 +423,49 @@ public class InfoController {
         return data;
     }
 
-    public static Map<String, List<ScoredCard>> calculateTierScores(int challengeThreshold, int ascensionThreshold, String deckName) {
+    public static Map<String,List<String>> getV4TrackedCardsForTierScores(String poolName) {
+        Map<String,List<String>> data = bundles.getV4TrackedCardsForTierScores(poolName);
+        List<String> keysToRemove = new ArrayList<>();
+        for (Map.Entry<String, List<String>> entry : data.entrySet()) {
+            String pool = entry.getKey();
+            if (pool.contains("[Basic/Colorless]")) {
+                String[] splice = pool.split("\\[");
+                String basePool = splice[0].trim();
+                if (data.containsKey(basePool)) {
+                    List<String> cards = data.get(basePool);
+                    cards.addAll(entry.getValue());
+                    keysToRemove.add(pool);
+                }
+            }
+        }
+        for (String key : keysToRemove) {
+            data.remove(key);
+        }
+        return data;
+    }
+
+    public static Map<String,List<String>> getA20TrackedCardsForTierScores(String poolName) {
+        Map<String,List<String>> data = bundles.getA20TrackedCardsForTierScores(poolName);
+        List<String> keysToRemove = new ArrayList<>();
+        for (Map.Entry<String, List<String>> entry : data.entrySet()) {
+            String pool = entry.getKey();
+            if (pool.contains("[Basic/Colorless]")) {
+                String[] splice = pool.split("\\[");
+                String basePool = splice[0].trim();
+                if (data.containsKey(basePool)) {
+                    List<String> cards = data.get(basePool);
+                    cards.addAll(entry.getValue());
+                    keysToRemove.add(pool);
+                }
+            }
+        }
+        for (String key : keysToRemove) {
+            data.remove(key);
+        }
+        return data;
+    }
+
+    public static <T extends GeneralScoringCard> Map<String, List<T>> calculateTierScores(int challengeThreshold, int ascensionThreshold, String deckName, ScoringRunLookupType type) {
 
         /* Process parameters                                                                                         */
         Integer ascensionFilter = ascensionThreshold;
@@ -420,7 +481,7 @@ public class InfoController {
         /* Setup variables                                                                                            */
         // scored output
         //  (Pool)
-        Map<String, List<ScoredCard>> output = new HashMap<>();
+        Map<String, List<T>> output = new HashMap<>();
 
         // Holds data used to construct actual output
         //  (Pool)     (CardId)    (Floor)
@@ -449,7 +510,11 @@ public class InfoController {
         /* Fetch list of cards we are tracking for tier scoring                                                       */
         // holds reference to which cards we care about scoring
         //  (Pool)      (CardId)
-        Map<String, List<String>> cardsMap = getTrackedCardsForTierScores(deckFilter);
+        Map<String, List<String>> cardsMap = switch(type) {
+            case LEGACY -> getLegacyTrackedCardsForTierScores(deckFilter);
+            case V4 -> getV4TrackedCardsForTierScores(deckFilter);
+            case A20 -> getA20TrackedCardsForTierScores(deckFilter);
+        };
 
         // holds list of all deck names of decks we're tracking
         //  (Pool)
@@ -517,7 +582,11 @@ public class InfoController {
         /* Fetch all runs needed for scoring                                                                          */
         // sort runs by starting deck and filter runs we dont care about for scoring
         //  (Pool)
-        Map<String, List<TierBundle>> bundlesMap = bundleService.getBundlesForTierScores(startingDecks, ascensionFilter, challengeFilter);
+        Map<String, List<TierBundle>> bundlesMap = switch(type) {
+            case LEGACY -> bundleService.getLegacyBundlesForTierScores(startingDecks, ascensionFilter, challengeFilter);
+            case V4 -> bundleService.getV4BundlesForTierScores(startingDecks, ascensionFilter, challengeFilter);
+            case A20 -> bundleService.getA20BundlesForTierScores(startingDecks, ascensionFilter, challengeFilter);
+        };
 
         /* Begin processing and scoring                                                                               */
         // Use data to construct win rates for all tracked cards (by deck)
@@ -696,9 +765,13 @@ public class InfoController {
         for (Map.Entry<String, List<TierDataHolder>> entry : destructuredDataMap.entrySet()) {
             String deck = entry.getKey();
             String pool = deckToPoolConvert.get(deck);
-            Map<String, ScoredCard> toAddToCards = new HashMap<>();
+            Map<String, T> toAddToCards = new HashMap<>();
             for (TierDataHolder data : entry.getValue()) {
-                ScoredCard card = toAddToCards.getOrDefault(data.cardId, new ScoredCard(data.cardId, pool));
+                GeneralScoringCard card = switch (type) {
+                    case V4 -> new ScoredCardV4(data.cardId, pool);
+                    case A20 -> new ScoredCardA20(data.cardId, pool);
+                    default -> new ScoredCard(data.cardId, pool);
+                };
                 switch (data.act) {
                     case 0 -> {
                         card.setAct0_losses(card.getAct0_losses() + data.losses);
@@ -717,9 +790,9 @@ public class InfoController {
                         card.setAct3_wins(card.getAct3_wins() + data.wins);
                     }
                 }
-                toAddToCards.put(data.cardId, card);
+                toAddToCards.put(data.cardId, (T) card);
             }
-            List<ScoredCard> cards = new ArrayList<>(toAddToCards.values());
+            List<T> cards = new ArrayList<>(toAddToCards.values());
             if (!output.containsKey(pool)) {
                 output.put(pool, cards);
             } else {
@@ -729,11 +802,11 @@ public class InfoController {
 
         /* Scoring                                                                                                    */
         // Calculate actual win rate for individual cards within each pool
-        for (Map.Entry<String, List<ScoredCard>> entry : output.entrySet()) {
+        for (Map.Entry<String, List<T>> entry : output.entrySet()) {
 
             // Map of total win rates across all cards within a pool during different acts (a whole act win-rate column)
             PoolTotals pool = poolTotalsMap.get(entry.getKey());
-            for (ScoredCard card : entry.getValue()) {
+            for (T card : entry.getValue()) {
                 float a0_winrate = card.getAct0_losses() > 0 ? (float)card.getAct0_wins() / (card.getAct0_wins() + card.getAct0_losses()) : 0.0f;
                 float a1_winrate = card.getAct1_losses() > 0 ? (float)card.getAct1_wins() / (card.getAct1_wins() + card.getAct1_losses()) : 0.0f;
                 float a2_winrate = card.getAct2_losses() > 0 ? (float)card.getAct2_wins() / (card.getAct2_wins() + card.getAct2_losses()) : 0.0f;
@@ -753,15 +826,15 @@ public class InfoController {
         }
 
         // Final Scoring
-        for (Map.Entry<String, List<ScoredCard>> entry : output.entrySet()) {
+        for (Map.Entry<String, List<T>> entry : output.entrySet()) {
             PoolTotals pool = poolTotalsMap.get(entry.getKey());
             String poolName = entry.getKey();
-            for (ScoredCard card : entry.getValue()) {
-                PopsCard popData = cardPopularity.get(poolName).get(card.card_id);
-                PopsCard a0_popData = a0_cardPopularity.get(poolName).getOrDefault(card.card_id, new PopsCard(card.card_id));
-                PopsCard a1_popData = a1_cardPopularity.get(poolName).getOrDefault(card.card_id, new PopsCard(card.card_id));
-                PopsCard a2_popData = a2_cardPopularity.get(poolName).getOrDefault(card.card_id, new PopsCard(card.card_id));
-                PopsCard a3_popData = a3_cardPopularity.get(poolName).getOrDefault(card.card_id, new PopsCard(card.card_id));
+            for (T card : entry.getValue()) {
+                PopsCard popData = cardPopularity.get(poolName).get(card.getCard_id());
+                PopsCard a0_popData = a0_cardPopularity.get(poolName).getOrDefault(card.getCard_id(), new PopsCard(card.getCard_id()));
+                PopsCard a1_popData = a1_cardPopularity.get(poolName).getOrDefault(card.getCard_id(), new PopsCard(card.getCard_id()));
+                PopsCard a2_popData = a2_cardPopularity.get(poolName).getOrDefault(card.getCard_id(), new PopsCard(card.getCard_id()));
+                PopsCard a3_popData = a3_cardPopularity.get(poolName).getOrDefault(card.getCard_id(), new PopsCard(card.getCard_id()));
 
                 // Delta formula:
                 //  [act win rate] - [average act win rate for pool]
@@ -819,7 +892,7 @@ public class InfoController {
             // Calculate highest and lowest score of entire pool - overall and for each act
             int highestScore = -1; int highestA0Score = -1; int highestA1Score = -1; int highestA2Score = -1; int highestA3Score = -1;
             int lowestA0Score = 1; int lowestA1Score = 1; int lowestA2Score = 1; int lowestA3Score = 1; int lowestNegative = 1;
-            for (ScoredCard card : entry.getValue()) {
+            for (T card : entry.getValue()) {
                 if (card.getOverall_score() > highestScore) {
                     highestScore = card.getOverall_score();
                 }
@@ -853,7 +926,7 @@ public class InfoController {
             }
 
             // Adjust all scores to align with scale [-100 <---> 100]
-            for (ScoredCard card : entry.getValue()) {
+            for (T card : entry.getValue()) {
                 if (card.getOverall_score() >= 0) {
                     card.setOverall_score(Math.round((card.getOverall_score() / (float)highestScore) * 100));
                 } else {
