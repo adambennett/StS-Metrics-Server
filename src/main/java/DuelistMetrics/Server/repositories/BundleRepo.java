@@ -90,6 +90,7 @@ public interface BundleRepo extends JpaRepository<Bundle, Long> {
           sc.floor < 51 AND
           (customized_card_pool = false OR customized_card_pool IS NULL) AND
           (add_base_game_cards = false OR add_base_game_cards IS NULL) AND
+          ascension_level >= 20 AND
           (duelistmod_version NOT LIKE 'v1%' AND duelistmod_version NOT LIKE 'v2%' AND duelistmod_version NOT LIKE 'v3%')
     """, nativeQuery = true)
     List<String> getA20BundlesForTierScores(String deck);
@@ -102,7 +103,7 @@ public interface BundleRepo extends JpaRepository<Bundle, Long> {
           sc.floor < 51 AND
           (customized_card_pool = false OR customized_card_pool IS NULL) AND
           (add_base_game_cards = false OR add_base_game_cards IS NULL) AND
-          ascension_level >= :ascensionHigherThan AND
+           ascension_level >= 20 AND ascension_level >= :ascensionHigherThan AND
           (duelistmod_version NOT LIKE 'v1%' AND duelistmod_version NOT LIKE 'v2%' AND duelistmod_version NOT LIKE 'v3%')
     """, nativeQuery = true)
     List<String> getA20BundlesForTierScores(String deck, int ascensionHigherThan);
@@ -115,6 +116,7 @@ public interface BundleRepo extends JpaRepository<Bundle, Long> {
           sc.floor < 51 AND
           (customized_card_pool = false OR customized_card_pool IS NULL) AND
           (add_base_game_cards = false OR add_base_game_cards IS NULL) AND
+          ascension_level >= 20 AND
           challenge_level >= :challengeHigherThan AND
           (duelistmod_version NOT LIKE 'v1%' AND duelistmod_version NOT LIKE 'v2%' AND duelistmod_version NOT LIKE 'v3%')
     """, nativeQuery = true)
@@ -128,7 +130,7 @@ public interface BundleRepo extends JpaRepository<Bundle, Long> {
           sc.floor < 51 AND
           (customized_card_pool = false OR customized_card_pool IS NULL) AND
           (add_base_game_cards = false OR add_base_game_cards IS NULL) AND
-          ascension_level >= :ascensionHigherThan AND
+          ascension_level >= 20 AND ascension_level >= :ascensionHigherThan AND
           challenge_level >= :challengeHigherThan AND
           (duelistmod_version NOT LIKE 'v1%' AND duelistmod_version NOT LIKE 'v2%' AND duelistmod_version NOT LIKE 'v3%')
     """, nativeQuery = true)
