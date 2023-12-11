@@ -3,6 +3,8 @@ package DuelistMetrics.Server.controllers;
 
 import DuelistMetrics.Server.models.*;
 import DuelistMetrics.Server.models.builders.*;
+import DuelistMetrics.Server.models.dto.LookupPotion;
+import DuelistMetrics.Server.models.dto.LookupRelic;
 import DuelistMetrics.Server.models.enums.ScoringRunLookupType;
 import DuelistMetrics.Server.models.infoModels.*;
 import DuelistMetrics.Server.models.tierScore.*;
@@ -58,110 +60,150 @@ public class InfoController {
     @GetMapping("/cardLookup/{card}")
     @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
     public ResponseEntity<?> cardLookup(@PathVariable String card) {
+        if (card == null) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
         boolean duelist = card.startsWith("theDuelist:");
         int magic = 17;
         List<String> toParse = bundles.getCardDataFromId(card, duelist);
-        List<String> modData = bundles.getModDataFromId(card, duelist);
-        if (toParse == null || toParse.size() < 1) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-        List<String> cardProps;
-        String[] splice = toParse.get(0).split(",");
-        cardProps = new ArrayList<>(Arrays.asList(splice));
-        if (duelist) {
-            for (int i = 1; i < toParse.size(); i++) {
-                cardProps.add(toParse.get(i));
-            }
-        }
-        if (cardProps.size() > magic) {
-            LookupCardBuilder lookupCard = new LookupCardBuilder()
-                    .setBlock(Integer.parseInt(cardProps.get(0)))
-                    .setCard_id(cardProps.get(1))
-                    .setColor(cardProps.get(2))
-                    .setCost(cardProps.get(3))
-                    .setDamage(Integer.parseInt(cardProps.get(4)))
-                    .setDuelistType(cardProps.get(5))
-                    .setEntomb(Integer.parseInt(cardProps.get(6)))
-                    .setIsDuelistCard(Boolean.parseBoolean(cardProps.get(7)))
-                    .setMagicNumber(Integer.parseInt(cardProps.get(8)))
-                    .setName(cardProps.get(9))
-                    .setRarity(cardProps.get(10))
-                    .setSecondMag(Integer.parseInt(cardProps.get(11)))
-                    .setSummons(Integer.parseInt(cardProps.get(12)))
-                    .setThirdMag(Integer.parseInt(cardProps.get(13)))
-                    .setTributes(Integer.parseInt(cardProps.get(14)))
-                    .setType(cardProps.get(15));
-            lookupCard.setModule(modData.get(0));
-            lookupCard.setAuthors(modData.get(1));
-            try {
-                lookupCard.setMaxUpgrades(Integer.parseInt(cardProps.get(16)));
-            } catch (Exception ex) {
-                lookupCard.setMaxUpgrades(-1);
-                magic = cardProps.get(16).equals("null") ? 17 : 16;
-            }
-            StringBuilder allText = new StringBuilder();
-            StringBuilder nlText = new StringBuilder();
-            if (duelist) {
-                List<String> pools = new ArrayList<>();
-                int i = magic;
-                for (;!cardProps.get(i).equals("TEXT"); i++) {
-                    pools.add(cardProps.get(i));
-                }
-                i++;
-                lookupCard.setPools(pools);
 
-                for (;!cardProps.get(i).equals("NEWLINETEXT");i++) {
-                    allText.append(cardProps.get(i));
-                    if (i + 1 < cardProps.size()) {
-                        allText.append(",");
-                    }
-                }
-                i++;
-                for (;i<cardProps.size();i++) {
-                    nlText.append(cardProps.get(i));
-                    if (i + 1 < cardProps.size()) {
-                        nlText.append(",");
-                    }
+        if (toParse == null || toParse.size() < 1) {
+            if (card.contains("+")) {
+                int indexOfPlus = card.indexOf("+");
+                card = card.substring(0, indexOfPlus);
+                toParse = bundles.getCardDataFromId(card, duelist);
+                if (toParse == null || toParse.size() < 1) {
+                    return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
                 }
             } else {
-                for (int i = magic; i < cardProps.size(); i++) {
-                    allText.append(cardProps.get(i));
-                    if (i + 1 < cardProps.size()) {
-                        allText.append(",");
-                    }
+                return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        }
+        List<String> modData = bundles.getModDataFromId(card, duelist);
+        List<String> cardProps;
+        try {
+            String[] splice = toParse.get(0).split(",");
+            cardProps = new ArrayList<>(Arrays.asList(splice));
+            if (duelist) {
+                for (int i = 1; i < toParse.size(); i++) {
+                    cardProps.add(toParse.get(i));
                 }
             }
-            lookupCard.setText(allText.toString());
-            lookupCard.setNewLineText(nlText.toString());
-            LookupCard lookup = lookupCard.createLookupCard();
-            return new ResponseEntity<>(lookup, HttpStatus.OK);
-        } else if (cardProps.size() == magic) {
-            LookupCardBuilder lookupCard = new LookupCardBuilder()
-                    .setBlock(Integer.parseInt(cardProps.get(0)))
-                    .setCard_id(cardProps.get(1))
-                    .setColor(cardProps.get(2))
-                    .setCost(cardProps.get(3))
-                    .setDamage(Integer.parseInt(cardProps.get(4)))
-                    .setDuelistType(cardProps.get(5))
-                    .setEntomb(Integer.parseInt(cardProps.get(6)))
-                    .setIsDuelistCard(Boolean.parseBoolean(cardProps.get(7)))
-                    .setMagicNumber(Integer.parseInt(cardProps.get(8)))
-                    .setName(cardProps.get(9))
-                    .setRarity(cardProps.get(10))
-                    .setSecondMag(Integer.parseInt(cardProps.get(11)))
-                    .setSummons(Integer.parseInt(cardProps.get(12)))
-                    .setThirdMag(Integer.parseInt(cardProps.get(13)))
-                    .setTributes(Integer.parseInt(cardProps.get(14)))
-                    .setType(cardProps.get(15))
-                    .setText("No text found.");
-            try {
-                lookupCard.setMaxUpgrades(Integer.parseInt(cardProps.get(16)));
-            } catch (Exception ex) {
-                lookupCard.setMaxUpgrades(-1);
+            if (cardProps.size() > magic) {
+                LookupCardBuilder lookupCard = new LookupCardBuilder()
+                        .setBlock(Integer.parseInt(cardProps.get(0)))
+                        .setCard_id(cardProps.get(1))
+                        .setColor(cardProps.get(2))
+                        .setCost(cardProps.get(3))
+                        .setDamage(Integer.parseInt(cardProps.get(4)))
+                        .setDuelistType(cardProps.get(5))
+                        .setEntomb(Integer.parseInt(cardProps.get(6)))
+                        .setIsDuelistCard(Boolean.parseBoolean(cardProps.get(7)))
+                        .setMagicNumber(Integer.parseInt(cardProps.get(8)))
+                        .setName(cardProps.get(9))
+                        .setRarity(cardProps.get(10))
+                        .setSecondMag(Integer.parseInt(cardProps.get(11)))
+                        .setSummons(Integer.parseInt(cardProps.get(12)))
+                        .setThirdMag(Integer.parseInt(cardProps.get(13)))
+                        .setTributes(Integer.parseInt(cardProps.get(14)))
+                        .setType(cardProps.get(15));
+                lookupCard.setModule(modData.get(0));
+                lookupCard.setAuthors(modData.get(1));
+                try {
+                    lookupCard.setMaxUpgrades(Integer.parseInt(cardProps.get(16)));
+                } catch (Exception ex) {
+                    lookupCard.setMaxUpgrades(-1);
+                    magic = cardProps.get(16).equals("null") ? 17 : 16;
+                }
+                StringBuilder allText = new StringBuilder();
+                StringBuilder nlText = new StringBuilder();
+                if (duelist) {
+                    List<String> pools = new ArrayList<>();
+                    int i = magic;
+                    for (;!cardProps.get(i).equals("TEXT"); i++) {
+                        pools.add(cardProps.get(i));
+                    }
+                    i++;
+                    lookupCard.setPools(pools);
+
+                    for (;!cardProps.get(i).equals("NEWLINETEXT");i++) {
+                        allText.append(cardProps.get(i));
+                        if (i + 1 < cardProps.size()) {
+                            allText.append(",");
+                        }
+                    }
+                    i++;
+                    for (;i<cardProps.size();i++) {
+                        nlText.append(cardProps.get(i));
+                        if (i + 1 < cardProps.size()) {
+                            nlText.append(",");
+                        }
+                    }
+                } else {
+                    for (int i = magic; i < cardProps.size(); i++) {
+                        allText.append(cardProps.get(i));
+                        if (i + 1 < cardProps.size()) {
+                            allText.append(",");
+                        }
+                    }
+                }
+                lookupCard.setText(allText.toString());
+                lookupCard.setNewLineText(nlText.toString());
+                LookupCard lookup = lookupCard.createLookupCard();
+                return new ResponseEntity<>(lookup, HttpStatus.OK);
+            } else if (cardProps.size() == magic) {
+                LookupCardBuilder lookupCard = new LookupCardBuilder()
+                        .setBlock(Integer.parseInt(cardProps.get(0)))
+                        .setCard_id(cardProps.get(1))
+                        .setColor(cardProps.get(2))
+                        .setCost(cardProps.get(3))
+                        .setDamage(Integer.parseInt(cardProps.get(4)))
+                        .setDuelistType(cardProps.get(5))
+                        .setEntomb(Integer.parseInt(cardProps.get(6)))
+                        .setIsDuelistCard(Boolean.parseBoolean(cardProps.get(7)))
+                        .setMagicNumber(Integer.parseInt(cardProps.get(8)))
+                        .setName(cardProps.get(9))
+                        .setRarity(cardProps.get(10))
+                        .setSecondMag(Integer.parseInt(cardProps.get(11)))
+                        .setSummons(Integer.parseInt(cardProps.get(12)))
+                        .setThirdMag(Integer.parseInt(cardProps.get(13)))
+                        .setTributes(Integer.parseInt(cardProps.get(14)))
+                        .setType(cardProps.get(15))
+                        .setText("No text found.");
+                try {
+                    lookupCard.setMaxUpgrades(Integer.parseInt(cardProps.get(16)));
+                } catch (Exception ex) {
+                    lookupCard.setMaxUpgrades(-1);
+                }
+                return new ResponseEntity<>(lookupCard.createLookupCard(), HttpStatus.OK);
             }
-            return new ResponseEntity<>(lookupCard.createLookupCard(), HttpStatus.OK);
+        } catch (Exception ex) {
+            logger.info("Exception during card lookup\n" + ExceptionUtils.getStackTrace(ex));
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<>(cardProps, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @GetMapping("/relicLookup/{relic}")
+    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    public ResponseEntity<LookupRelic> relicLookup(@PathVariable String relic) {
+        try {
+            return new ResponseEntity<>(bundles.getRelicDataFromId(relic, relic.startsWith("theDuelist:")), HttpStatus.OK);
+        } catch (Exception ex) {
+            logger.info("Error looking up relic by ID - " + relic + "\n" + ExceptionUtils.getStackTrace(ex));
+        }
+        return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @GetMapping("/potionLookup/{potion}")
+    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    public ResponseEntity<LookupPotion> potionLookup(@PathVariable String potion) {
+        try {
+            return new ResponseEntity<>(bundles.getPotionDataFromId(potion, potion.startsWith("theDuelist:")), HttpStatus.OK);
+        } catch (Exception ex) {
+            logger.info("Error looking up potion by ID - " + potion + "\n" + ExceptionUtils.getStackTrace(ex));
+        }
+        return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @PostMapping("/dataupload")

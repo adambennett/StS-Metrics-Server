@@ -1,6 +1,8 @@
 package DuelistMetrics.Server.services;
 
 import DuelistMetrics.Server.models.*;
+import DuelistMetrics.Server.models.dto.LookupPotion;
+import DuelistMetrics.Server.models.dto.LookupRelic;
 import DuelistMetrics.Server.models.dto.OrbInfoDTO;
 import DuelistMetrics.Server.models.infoModels.*;
 import DuelistMetrics.Server.models.tierScore.*;
@@ -138,6 +140,47 @@ public class InfoService {
     return out;
   }
 
+  public record InfoObjectModData(String module, List<String> authors) {}
+  public InfoObjectModData getModDataFromRelicId(String relic_id, boolean duelist) {
+    if (duelist) {
+      return new InfoObjectModData("Duelist Mod", List.of("Nyoxide"));
+    }
+
+    Long modId = relicRepo.getAnyBundleIdByRelicId(relic_id);
+    List<String> modInfo = bundleRepo.getModInfoFromInfoId(modId);
+    if (modInfo.size() < 1) {
+      return new InfoObjectModData("Unknown", List.of("Unknown"));
+    }
+
+    String modName = modInfo.getFirst().split(",")[0];
+    Set<String> uniqueAuthors = new HashSet<>();
+    for (String s : modInfo) {
+        String[] splice = s.split(",");
+        uniqueAuthors.add(splice[1]);
+    }
+    return new InfoObjectModData(modName, new ArrayList<>(uniqueAuthors));
+  }
+
+  public InfoObjectModData getModDataFromPotionId(String potion_id, boolean duelist) {
+    if (duelist) {
+      return new InfoObjectModData("Duelist Mod", List.of("Nyoxide"));
+    }
+
+    Long modId = potionRepo.getAnyBundleIdByPotionId(potion_id);
+    List<String> modInfo = bundleRepo.getModInfoFromInfoId(modId);
+    if (modInfo.size() < 1) {
+      return new InfoObjectModData("Unknown", List.of("Unknown"));
+    }
+
+    String modName = modInfo.getFirst().split(",")[0];
+    Set<String> uniqueAuthors = new HashSet<>();
+    for (String s : modInfo) {
+      String[] splice = s.split(",");
+      uniqueAuthors.add(splice[1]);
+    }
+    return new InfoObjectModData(modName, new ArrayList<>(uniqueAuthors));
+  }
+
   public List<String> getCardDataFromId(String card_id, boolean duelist) {
     if (duelist) {
       Long id = getMostRecentDuelistVersion();
@@ -152,10 +195,92 @@ public class InfoService {
     return this.cardRepo.getCardData(card_id);
   }
 
+  public LookupRelic getRelicDataFromId(String relic_id, boolean duelist) {
+    List<LookupRelic> output = new ArrayList<>();
+    List<InfoRelic> relics;
+    boolean isBaseGame = false;
+    if (duelist) {
+      relics = this.relicRepo.getAllDuelistRelicDataById(relic_id, getMostRecentDuelistVersion());
+    } else {
+      Long baseGameCheck = this.relicRepo.getIdOfProperBaseGameRelic(relic_id);
+      if (baseGameCheck != null) {
+        relics = List.of(this.relicRepo.getInfoRelicById(baseGameCheck));
+        isBaseGame = true;
+      } else {
+        relics = this.relicRepo.getAllRelicDataById(relic_id);
+      }
+    }
+
+    InfoObjectModData moduleInfo = getModDataFromRelicId(relic_id, duelist);
+    if (isBaseGame) {
+      moduleInfo = new InfoObjectModData("Slay the Spire", List.of("MegaCrit"));
+    }
+    for (InfoRelic relic : relics) {
+      output.add(LookupRelic.builder()
+              .description(relic.getDescription())
+              .descriptionPlain(relic.getDescriptionPlain())
+              .tier(relic.getTier())
+              .flavor(relic.getFlavorText())
+              .id(relic.getRelic_id())
+              .name(relic.getName())
+              .pools(getPoolsFromDuelistRelicId(relic.getInfo_relic_id()))
+              .authors(moduleInfo.authors())
+              .module(moduleInfo.module())
+              .isDuelist(duelist)
+              .build());
+    }
+    return output.isEmpty() ? null : output.getFirst();
+  }
+
+  public LookupPotion getPotionDataFromId(String potion_id, boolean duelist) {
+    List<LookupPotion> output = new ArrayList<>();
+    List<InfoPotion> potions;
+    boolean isBaseGame = false;
+    if (duelist) {
+      potions = this.potionRepo.getAllDuelistPotionDataById(potion_id, getMostRecentDuelistVersion());
+    } else {
+      Long baseGameCheck = this.potionRepo.getIdOfProperBaseGamePotion(potion_id);
+      if (baseGameCheck != null) {
+        potions = List.of(this.potionRepo.getInfoPotionById(baseGameCheck));
+        isBaseGame = true;
+      } else {
+        potions = this.potionRepo.getAllPotionDataById(potion_id);
+      }
+    }
+
+    InfoObjectModData moduleInfo = getModDataFromPotionId(potion_id, duelist);
+    if (isBaseGame) {
+      moduleInfo = new InfoObjectModData("Slay the Spire", List.of("MegaCrit"));
+    }
+    for (InfoPotion potion : potions) {
+      output.add(LookupPotion.builder()
+              .description(potion.getDescription())
+              .descriptionPlain(potion.getDescriptionPlain())
+              .rarity(potion.getRarity())
+              .playerClass(potion.getPlayerClass())
+              .id(potion.getPotion_id())
+              .name(potion.getName())
+              .pools(getPoolsFromDuelistPotionId(potion.getInfo_potion_id()))
+              .authors(moduleInfo.authors())
+              .module(moduleInfo.module())
+              .isDuelist(duelist)
+              .build());
+    }
+    return output.isEmpty() ? null : output.getFirst();
+  }
+
   public List<String> getPoolsFromDuelistCardId(String card_id) {
     Long duelistModId = getMostRecentDuelistVersion();
     Long infoCardId = cardRepo.getInfoCardIdForPools(card_id, duelistModId);
     return cardRepo.getPoolsFromDuelistCard(infoCardId);
+  }
+
+  public List<String> getPoolsFromDuelistRelicId(Long infoRelicId) {
+    return relicRepo.getPoolsFromDuelistRelic(infoRelicId).stream().sorted(String::compareTo).toList();
+  }
+
+  public List<String> getPoolsFromDuelistPotionId(Long infoPotionId) {
+    return potionRepo.getPoolsFromDuelistPotion(infoPotionId).stream().sorted(String::compareTo).toList();
   }
 
   public Long getMostRecentDuelistVersion() {
