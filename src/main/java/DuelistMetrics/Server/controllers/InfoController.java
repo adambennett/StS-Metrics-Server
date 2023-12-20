@@ -46,7 +46,7 @@ public class InfoController {
 
 
     @GetMapping("/allTrackedDuelistVersions")
-    @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"http://duelistmetrics.com", "http://dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public ResponseEntity<?> allTrackedDuelistVersions() {
         return new ResponseEntity<>(bundles.getAllTrackedDuelistVersions(), HttpStatus.OK);
     }
