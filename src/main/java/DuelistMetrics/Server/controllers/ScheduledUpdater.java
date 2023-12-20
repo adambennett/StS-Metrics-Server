@@ -40,7 +40,7 @@ public class ScheduledUpdater {
     }
 
     @GetMapping("/checkScheduler")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public ResponseEntity<?> isSchedulerRunning() {
         return new ResponseEntity<>(isUpdating, HttpStatus.OK);
     }

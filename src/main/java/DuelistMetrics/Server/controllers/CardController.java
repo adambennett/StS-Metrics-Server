@@ -27,7 +27,7 @@ public class CardController {
   }
 
   @GetMapping("/cards")
-  @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+  @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
   public static Collection<DisplayCard> getCards(){
     Collection<DisplayCard> output = new ArrayList<>();
     for (String s : serv.getAll()) {
@@ -37,13 +37,13 @@ public class CardController {
   }
 
   @GetMapping("/cards-new")
-  @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+  @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
   public static Collection<WebsiteDuelistCard> getCardsV2(){
     return infoService.getAllDuelistCardsForWebview();
   }
 
   @GetMapping("/cards/{deck}")
-  @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+  @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
   public static Collection<DisplayCard> getCards(@PathVariable String deck){
     Collection<DisplayCard> output = new ArrayList<>();
     for (String s : cards.getAllFromDeck(DeckNameProcessor.getProperDeckName(deck))) {
@@ -53,7 +53,7 @@ public class CardController {
   }
 
   @GetMapping("/cards-new/{decks}")
-  @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+  @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
   public static Collection<WebsiteDuelistCard> getCardsV2(@PathVariable String decks){
     if (decks == null || decks.equals("")) {
       return new ArrayList<>();

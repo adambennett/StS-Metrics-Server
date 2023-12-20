@@ -46,19 +46,19 @@ public class InfoController {
 
 
     @GetMapping("/allTrackedDuelistVersions")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public ResponseEntity<?> allTrackedDuelistVersions() {
         return new ResponseEntity<>(bundles.getAllTrackedDuelistVersions(), HttpStatus.OK);
     }
 
     @GetMapping("/orbInfo")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public ResponseEntity<?> orbInfo() {
         return new ResponseEntity<>(bundles.getOrbInfo(), HttpStatus.OK);
     }
 
     @GetMapping("/cardLookup/{card}")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public ResponseEntity<?> cardLookup(@PathVariable String card) {
         if (card == null) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
@@ -185,7 +185,7 @@ public class InfoController {
     }
 
     @GetMapping("/relicLookup/{relic}")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public ResponseEntity<LookupRelic> relicLookup(@PathVariable String relic) {
         try {
             return new ResponseEntity<>(bundles.getRelicDataFromId(relic, relic.startsWith("theDuelist:")), HttpStatus.OK);
@@ -196,7 +196,7 @@ public class InfoController {
     }
 
     @GetMapping("/potionLookup/{potion}")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public ResponseEntity<LookupPotion> potionLookup(@PathVariable String potion) {
         try {
             return new ResponseEntity<>(bundles.getPotionDataFromId(potion, potion.startsWith("theDuelist:")), HttpStatus.OK);
@@ -207,7 +207,7 @@ public class InfoController {
     }
 
     @PostMapping("/dataupload")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public ResponseEntity<?> infoUpload(@RequestBody TopInfoBundle list){
         try {
             if (list != null) {
@@ -231,7 +231,7 @@ public class InfoController {
     }
 
     @PostMapping("/orbInfoUpload")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public ResponseEntity<?> infoUpload(@RequestBody List<DuelistOrbInfo> list){
         try {
             if (list != null) {
@@ -250,14 +250,14 @@ public class InfoController {
     }
 
     @GetMapping("/allModuleVersions")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public ResponseEntity<?> getTrackedVersions() {
         List<String> versions = bundles.getAllModuleVersions();
         return new ResponseEntity<>(versions, HttpStatus.OK);
     }
 
     @GetMapping("/anubisScoreAverage")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public ResponseEntity<?> getAnubisScoreAverage() {
         String visits = bundles.getAnubisVisits();
         Integer totalVisits = 0;
@@ -277,7 +277,7 @@ public class InfoController {
     }
 
     @GetMapping("/modlist")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public ResponseEntity<?> getAllMods() {
         List<String> versions = bundles.getModList();
         List<Country> mods = new ArrayList<>();
@@ -292,13 +292,13 @@ public class InfoController {
     }
 
     @GetMapping("/modlist-v2")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public ResponseEntity<?> getAllModsNew() {
         return new ResponseEntity<>(bundles.getModListNew(), HttpStatus.OK);
     }
 
     @GetMapping(value={"/tierScores", "/tierScores/{pool}", "/tierScores/{pool}/{cardId}"})
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public ResponseEntity<?> checkTierScores(@PathVariable(required = false) String pool, @PathVariable(required = false) String cardId) {
         if (pool == null) {
             return new ResponseEntity<>(bundles.getAllTierScores(), HttpStatus.OK);
@@ -319,7 +319,7 @@ public class InfoController {
 
 
     @GetMapping(value={"/calculateTierScores", "/calculateTierScores/{ascension}", "/calculateTierScores/{ascension}/{challenge}", "/calculateTierScores/{ascension}/{challenge}/{deckName}", "/calculateTierScoresTyped/{type}", "/calculateTierScoresTyped/{type}/{ascension}", "/calculateTierScoresTyped/{type}/{ascension}/{challenge}", "/calculateTierScoresTyped/{type}/{ascension}/{challenge}/{deckName}"})
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public ResponseEntity<?> getTierScores(@PathVariable(required = false) String challenge, @PathVariable(required = false)  String ascension, @PathVariable(required = false) String deckName, @PathVariable(required = false) String type) {
         try {
             // Handle path variables

@@ -66,7 +66,7 @@ public class RunLogController {
     public static RunLogService getService() { return bundles; }
 
     @PostMapping("/runupload")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public ResponseEntity<?> upload(@RequestBody String body) {
         if (body != null) {
             try {
@@ -104,7 +104,7 @@ public class RunLogController {
     public enum SimpleCardExtendedType { Card, Relic, Potion, Unknown }
 
     @PostMapping("/run/details")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public static ResponseEntity<?> getRunDetails(@RequestBody RunDetailsID runDetailsInfo) {
         var host = runDetailsInfo.host;
         var localTime = runDetailsInfo.localTime;
@@ -293,13 +293,13 @@ public class RunLogController {
     }
 
     @GetMapping("/run/{id}")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public static ResponseEntity<?> getRunDetails(@PathVariable Long id){
         return runDetailsLogic(realBundles.findById(id).orElse(null));
     }
 
     @PostMapping("/count-runs")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public static ResponseEntity<?> getBundles(@RequestBody RunCountParams params) {
         try {
             Long runs = bundles.countRuns(params);
@@ -311,7 +311,7 @@ public class RunLogController {
     }
 
     @PostMapping("/runs")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public Collection<RunLogDTO> getBundlesNew(@RequestBody RunCountParams options) {
         try {
             return bundles.findAll(options.pageNumber, options.pageSize, options);
@@ -322,13 +322,13 @@ public class RunLogController {
     }
 
     @GetMapping("/runs/{character}")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public static Collection<RunLog> getBundles(@PathVariable String character){
         return bundles.getAllByChar(character);
     }
 
     @GetMapping("/runs-id/{ids}")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public static Collection<RunLog> getRunsById(@PathVariable String ids){
         String[] splice = ids.split(",");
         List<Integer> idList = new ArrayList<>();
@@ -355,62 +355,62 @@ public class RunLogController {
     }
 
     @GetMapping("/runs-country/{country}")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public static Collection<RunLog> getRunsByCountry(@PathVariable String country){
         return bundles.getAllByCountry(country);
     }
 
     @GetMapping("/runs-host/{host}")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public static Collection<RunLog> getRunsByHost(@PathVariable String host){
         return bundles.getAllByHost(host);
     }
 
     @GetMapping("/runs-time/{time}/{time2}")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public static Collection<RunLog> getRunsByTime(@PathVariable String time, @PathVariable String time2){
         return bundles.getAllByTime(time, time2);
     }
 
     @GetMapping("/runs-nonduelist")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public static Collection<RunLog> getAllNonDuelistCharacterRuns(){
         return bundles.getAllByAnyOtherChar("THE_DUELIST");
     }
 
     @GetMapping({"/runs-today", "/runs-today/{character}"})
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public static Integer getRunsTodayByCharacter(@PathVariable(required = false) String character) {
         return realBundles.countRunsByCharacterToday(character);
     }
 
 
     @GetMapping({"/wins-today", "/wins-today/{character}"})
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public static Integer getWinsTodayByCharacter(@PathVariable(required = false) String character) {
         return realBundles.countWinsByCharacterToday(character);
     }
 
     @GetMapping({"/players-today", "/players-today/{character}"})
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public static Integer getUniquePlayersTodayByCharacter(@PathVariable(required = false) String character) {
         return realBundles.countUniquePlayersByCharacterToday(character);
     }
 
     @GetMapping("/runs-this-year")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public static List<RunMonthDTO> getRunsThisYear() {
         return realBundles.countRunsThisYear();
     }
 
     @GetMapping("/runs-this-year/{character}")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public static List<RunMonthDTO> getRunsThisYearByCharacter(@PathVariable String character) {
         return realBundles.countRunsByCharacterThisYear(character);
     }
 
     @GetMapping("/allCharacters")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public static Collection<String> getCharacters() {
         List<String> out = bundles.getAllCharacters();
         Collections.sort(out);
@@ -418,25 +418,25 @@ public class RunLogController {
     }
 
     @GetMapping("/ascensionBreakdownData")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public static Map<String, List<RunDifficultyBreakdownDTO>> getAscensionBreakdownData() {
         return bundles.getAscensionBreakdownDataByCharacterName();
     }
 
     @GetMapping("/challengeBreakdownData")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public static List<RunDifficultyBreakdownDTO> getChallengeBreakdownData() {
         return bundles.getChallengeBreakdownData();
     }
 
     @GetMapping("/runsUploadedByPlayerID")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public static List<UploadedRunsDTO> getNumberOfRunsByPlayerIds() {
         return bundles.getNumberOfRunsByPlayerIds();
     }
 
     @GetMapping("/duelistRunsUploadedByPlayerID")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public static List<UploadedRunsDTO> getNumberOfDuelistRunsByPlayerIds() {
         return bundles.getNumberOfDuelistRunsByPlayerIds();
     }
@@ -455,7 +455,7 @@ public class RunLogController {
     }
 
     @GetMapping("/decks")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public static Collection<DisplayDeckV2> getDeckCompare() {
       var allRuns = getService().getRunsAll();
       var allWins = getService().getWinsAll();
@@ -577,7 +577,7 @@ public class RunLogController {
     }
 
     @GetMapping("/deckPopularity")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public static ResponseEntity<?> getDeckPopularity(){
         List<String> data = bundles.getDataForPopularity();
         Map<String, Integer> amts = new HashMap<>();

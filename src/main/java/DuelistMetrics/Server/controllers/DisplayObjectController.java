@@ -28,19 +28,19 @@ public class DisplayObjectController {
   }
 
   @GetMapping("/relics")
-  @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+  @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
   public static Collection<FullInfoDisplayObject> getRelics(){
     return relics.getAll();
   }
 
   @GetMapping("/potions")
-  @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+  @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
   public static Collection<FullInfoDisplayObject> getPotions(){
     return pots.getAll();
   }
 
   @GetMapping("/neow")
-  @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+  @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
   public static Collection<DisplayObject> getNeows(){
     Collection<DisplayObject> output = new ArrayList<>();
     for (String s : neo.getAll()) {
@@ -50,7 +50,7 @@ public class DisplayObjectController {
   }
 
   @GetMapping("/keywords/duelist")
-  @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+  @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
   public static Collection<FormattedKeywordDTO> getKeywords(){
     var kw = keywords.getDuelistKeywordListLookup();
     var list = new ArrayList<FormattedKeywordDTO>();
@@ -61,19 +61,19 @@ public class DisplayObjectController {
   }
 
   @GetMapping("/relics/{deck}")
-  @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+  @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
   public static Collection<FullInfoDisplayObject> getRelics(@PathVariable String deck){
     return relics.getAllFromDeck(DeckNameProcessor.getProperDeckName(deck));
   }
 
   @GetMapping("/potions/{deck}")
-  @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+  @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
   public static Collection<FullInfoDisplayObject> getPotions(@PathVariable String deck){
     return pots.getAllFromDeck(DeckNameProcessor.getProperDeckName(deck));
   }
 
   @GetMapping("/neow/{deck}")
-  @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+  @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
   public static Collection<DisplayObject> getCards(@PathVariable String deck){
     Collection<DisplayObject> output = new ArrayList<>();
     for (String s : neo.getAllFromDeck(DeckNameProcessor.getProperDeckName(deck))) {
