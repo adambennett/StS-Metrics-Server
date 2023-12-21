@@ -2,7 +2,7 @@ package DuelistMetrics.Server.models.infoModels;
 
 import com.fasterxml.jackson.annotation.*;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.*;
 
 @Entity

@@ -1,20 +1,31 @@
 package DuelistMetrics.Server.services;
 
 import DuelistMetrics.Server.models.*;
+import DuelistMetrics.Server.models.RunCountParams.RunCountParamType;
+import DuelistMetrics.Server.models.dto.RunDifficultyBreakdownDTO;
+import DuelistMetrics.Server.models.dto.RunLogDTO;
+import DuelistMetrics.Server.models.dto.UploadedRunsDTO;
 import DuelistMetrics.Server.repositories.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.*;
 
 import java.util.*;
+import java.util.logging.*;
 
 @Service
 public class RunLogService {
 
-  private RunLogRepo repo;
+  private static final Logger logger = Logger.getLogger("DuelistMetrics.Server.RunLogService");
+
+  private final RunLogRepo repo;
+  private final TopBundleRepo topBundleRepo;
 
   @Autowired
-  public RunLogService(RunLogRepo repo) { this.repo = repo; }
+  public RunLogService(RunLogRepo repo, TopBundleRepo topRepo) {
+    this.repo = repo;
+    this.topBundleRepo = topRepo;
+  }
 
   public List<RunLog> getAllById(List<Long> id) { return this.repo.findAllById(id); }
 
@@ -30,63 +41,103 @@ public class RunLogService {
 
   public List<String> getAllCharacters() { return this.repo.getAllCharacters(); }
 
+  public List<UploadedRunsDTO> getNumberOfRunsByPlayerIds() {
+    return this.fillFavoriteDecksAndCharacters(this.repo.getNumberOfRunsByPlayerIds());
+  }
+
+  public List<UploadedRunsDTO> getNumberOfDuelistRunsByPlayerIds() {
+    return this.fillFavoriteDecksAndCharacters(this.repo.getNumberOfDuelistRunsByPlayerId());
+  }
+
+  private List<UploadedRunsDTO> fillFavoriteDecksAndCharacters(List<UploadedRunsDTO> initialList) {
+    List<String> uuids = initialList == null ? new ArrayList<>() : initialList.stream().map(UploadedRunsDTO::uuid).toList();
+    var favoriteDecks = this.repo.getFavoriteDecksByPlayerIds(uuids);
+    var favoriteChars = this.repo.getFavoriteCharsByPlayerIds(uuids);
+    List<UploadedRunsDTO> output = new ArrayList<>();
+    if (initialList != null) {
+      for (var run : initialList) {
+        output.add(new UploadedRunsDTO(
+                run.uuid(),
+                run.runs(),
+                run.playerNames(),
+                run.mostRecentRun(),
+                favoriteDecks.stream().filter(d -> d.playerId().equals(run.uuid())).toList(),
+                favoriteChars.stream().filter(d -> d.playerId().equals(run.uuid())).toList()
+        ));
+      }
+    }
+    return output;
+  }
+
   public RunLog create(RunLog run) { return this.repo.save(run); }
 
   public Collection<RunLog> findAll() { return repo.findAll(); }
 
-  public Long countRuns(RunCountParams params) {
-    if (params.type == null) {
-      return this.repo.count();
+  public Map<String, List<RunDifficultyBreakdownDTO>> getAscensionBreakdownDataByCharacterName() {
+    List<RunDifficultyBreakdownDTO> ascensionData = this.repo.getAscensionRunBreakdownData();
+    Map<String, List<RunDifficultyBreakdownDTO>> organized = new HashMap<>();
+    for (var run : ascensionData) {
+      if (organized.containsKey(run.characterName())) {
+        organized.get(run.characterName()).add(run);
+      } else {
+        List<RunDifficultyBreakdownDTO> list = new ArrayList<>();
+        list.add(run);
+        organized.put(run.characterName(), list);
+      }
     }
-    switch (params.type) {
-      case "Character":
-        return this.repo.countAllWithParamsChar(params.secondType);
-      case "Country":
-        return this.repo.countAllWithParamsCountry(params.secondType);
-      case "Time":
-        String[] split = params.secondType.split("~~");
-        return this.repo.countAllWithParamsTime(split[0], split[1]);
-      case "Duelist":
-        return this.repo.countAllWithParamsChar("THE_DUELIST");
-      case "Non-Duelist":
-        return this.repo.countAllWithParamsNonDuelist();
-      case "Host":
-        return this.repo.countAllWithParamsHost(params.secondType);
-      default:
-        return this.repo.count();
-    }
+    return organized;
   }
 
-  public Collection<RunLog> findAll(Integer pageNumber, Integer pageSize, RunLogCriteria options) {
+  public List<RunDifficultyBreakdownDTO> getChallengeBreakdownData() {
+    return this.repo.getChallengeRunBreakdownData();
+  }
+
+  public Long countRuns(RunCountParams params) {
+    if (params.noTypes) {
+      return this.repo.countWithoutFilter();
+    }
+    var t = params.types;
+    if (params.types.uuid() != null && !params.types.uuid().isEmpty()) {
+      return this.repo.countAllByPlayerUUID(params.types.uuid(), t.character(), t.duelist(), t.nonDuelist(), t.timeStart(), t.timeEnd(),
+              t.host(), t.country(), t.ascensionStart(), t.ascensionEnd(), t.challengeStart(), t.challengeEnd(),
+              t.victory(), t.floorStart(), t.floorEnd(), t.deck(), t.killedBy());
+    }
+    return this.repo.countAllWithFilters(t.character(), t.duelist(), t.nonDuelist(), t.timeStart(), t.timeEnd(),
+            t.host(), t.country(), t.ascensionStart(), t.ascensionEnd(), t.challengeStart(), t.challengeEnd(),
+            t.victory(), t.floorStart(), t.floorEnd(), t.deck(), t.killedBy());
+  }
+
+  public Collection<RunLogDTO> findAll(Integer pageNumber, Integer pageSize, RunCountParams params) {
     int offset = pageNumber * pageSize;
-
-    if (options.filter.isNonDuelist) {
-      return this.repo.findAllWithParamsNonDuelist(offset, pageSize);
+    logger.info("filter params: " + params);
+    if (params.noTypes) {
+      Collection<RunLogDTO> initialResult = this.repo.findAllWithFilters(offset, pageSize, null, false, false, null,
+              null, null, null, null, null, null,
+              null, null, null, null, null, null, null);
+      return addExtensionDataToRunLogList(initialResult, null);
     }
+    RunCountParamType t = params.types;
+    Collection<RunLogDTO> initialResult =  this.repo.findAllWithFilters(offset, pageSize, t.character(), t.duelist(), t.nonDuelist(), t.timeStart(),
+            t.timeEnd(), t.host(), t.country(), t.ascensionStart(), t.ascensionEnd(), t.challengeStart(),
+            t.challengeEnd(), t.victory(), t.floorStart(), t.floorEnd(), t.deck(), t.killedBy(), t.uuid());
+    return addExtensionDataToRunLogList(initialResult, t.uuid());
+  }
 
-    else if (!options.filter.host.equals("")) {
-      return this.repo.findAllWithParamsHost(offset, pageSize, options.filter.host);
+  private Collection<RunLogDTO> addExtensionDataToRunLogList(Collection<RunLogDTO> initialResult, String uuid) {
+    List<String> hosts = initialResult.stream().map(RunLogDTO::host).toList();
+    List<String> times = initialResult.stream().map(RunLogDTO::filterDate).toList();
+    var extensionData = this.topBundleRepo.getRunLogExtensionData(hosts, times, uuid);
+    List<RunLogDTO> output = new ArrayList<>();
+    for (var run : initialResult) {
+      var matchingExtensionData = extensionData.stream().filter(e -> e.time().equals(run.filterDate()) && e.host().equals(run.host()) && (uuid == null || e.uuid().equals(uuid))).toList();
+      if (!matchingExtensionData.isEmpty()) {
+        var match = matchingExtensionData.get(0);
+        output.add(new RunLogDTO(run, match.uuid(), match.utcTime()));
+      } else {
+        output.add(run);
+      }
     }
-
-    else if (!options.filter.character.equals("")) {
-      return this.repo.findAllWithParamsChar(offset, pageSize, options.filter.character);
-    }
-
-    else if (!options.filter.country.equals("")) {
-      return this.repo.findAllWithParamsCountry(offset, pageSize, options.filter.country);
-    }
-
-    else if (!options.filter.timeStart.equals("") && !options.filter.timeEnd.equals("")) {
-      return this.repo.findAllWithParamsTime(offset, pageSize, options.filter.timeStart, options.filter.timeEnd);
-    }
-
-    else if (!options.filter.ids.isEmpty()) {
-      return this.repo.findAllWithParamsIds(offset, pageSize, options.filter.ids);
-    }
-
-    else {
-      return this.repo.findAllWithParams(offset, pageSize);
-    }
+    return output;
   }
 
   public Page<RunLog> findAllPages(Pageable pageable) { return repo.findAll(pageable); }
@@ -154,6 +205,12 @@ public class RunLogService {
   public Map<String, Integer> getA20Wins() {
     return getIntegers(this.repo.getA20Wins());
   }
+
+  public List<Integer> getCardsBasedOnDeckSet(String deckSet) { return this.repo.getCardsBasedOnDeckSet(deckSet); }
+
+  public List<Integer> getRelicsBasedOnDeckSet(String deckSet) { return this.repo.getRelicsBasedOnDeckSet(deckSet); }
+
+  public List<Integer> getPotionsBasedOnDeckSet(String deckSet) { return this.repo.getPotionsBasedOnDeckSet(deckSet); }
 
   private Map<String, Integer> getIntegers(List<String> a20WinsByDeck) {
     Map<String, Integer> output = new HashMap<>();

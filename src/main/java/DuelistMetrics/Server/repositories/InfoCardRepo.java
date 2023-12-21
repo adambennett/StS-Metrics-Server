@@ -39,18 +39,61 @@ public interface InfoCardRepo extends JpaRepository<InfoCard, Long> {
     @Query(value = "SELECT ic.card_id FROM info_card ic WHERE ic.info_info_bundle_id = :duelist_version AND ic.card_id LIKE '%theDuelist:%'", nativeQuery = true)
     List<String> getGlobalListOfTrackedCardsForTierScores(Long duelist_version);
 
-    @Query(value = "SELECT ic.card_id, icp.pools FROM info_card ic JOIN info_card_pools icp on ic.info_card_id = icp.info_card_info_card_id WHERE (ic.info_info_bundle_id IN (:duelist_version)) AND ic.card_id LIKE '%theDuelist:%' AND icp.pools IN ('Standard Pool',  'Standard Pool [Basic/Colorless]', 'Dragon Pool',  'Dragon Pool [Basic/Colorless]', 'Naturia Pool',  'Naturia Pool [Basic/Colorless]', 'Spellcaster Pool',  'Spellcaster Pool [Basic/Colorless]', 'Toon Pool',  'Toon Pool [Basic/Colorless]', 'Zombie Pool',  'Zombie Pool [Basic/Colorless]', 'Aqua Pool',  'Aqua Pool [Basic/Colorless]', 'Fiend Pool',  'Fiend Pool [Basic/Colorless]', 'Machine Pool', 'Machine Pool [Basic/Colorless]', 'Warrior Pool', 'Warrior Pool [Basic/Colorless]', 'Insect Pool', 'Insect Pool [Basic/Colorless]', 'Plant Pool', 'Plant Pool [Basic/Colorless]', 'Megatype Pool', 'Megatype Pool [Basic/Colorless]', 'Increment Pool', 'Increment Pool [Basic/Colorless]', 'Creator Pool', 'Creator Pool [Basic/Colorless]', 'Ojama Pool', 'Ojama Pool [Basic/Colorless]', 'Ascended I Pool', 'Ascended I Pool [Basic/Colorless]', 'Ascended II Pool',  'Ascended II Pool [Basic/Colorless]',  'Metronome Pool', 'Metronome Pool [Basic/Colorless]')", nativeQuery = true)
+    @Query(value = "SELECT ic.card_id, icp.pools FROM info_card ic JOIN info_card_pools icp on ic.info_card_id = icp.info_card_info_card_id WHERE (ic.info_info_bundle_id IN (:duelist_version)) AND ic.card_id LIKE '%theDuelist:%' AND icp.pools IN (SELECT DISTINCT value FROM configurations WHERE name = 'Scored Deck' and active = 1)", nativeQuery = true)
     List<String> getTrackedCardsForTierScores(List<Long> duelist_version);
 
     @Query(value = "SELECT ic.card_id, icp.pools FROM info_card ic JOIN info_card_pools icp on ic.info_card_id = icp.info_card_info_card_id WHERE (ic.info_info_bundle_id IN (:duelist_version)) AND ic.card_id LIKE '%theDuelist:%' AND icp.pools IN (:pool_name, :pool_basic)", nativeQuery = true)
     List<String> getTrackedCardsForTierScores(String pool_name, List<Long> duelist_version, String pool_basic);
 
+    @Query(value = "SELECT ic.card_id, icp.pools FROM info_card ic JOIN info_card_pools icp on ic.info_card_id = icp.info_card_info_card_id WHERE ic.info_info_bundle_id >= (SELECT MAX(info_bundle_id) FROM mod_info_bundle WHERE is_duelist = true) AND (ic.info_info_bundle_id IN (:duelist_version)) AND icp.pools IN (SELECT DISTINCT value FROM configurations WHERE name = 'Scored Deck' and active = 1)", nativeQuery = true)
+    List<String> getTrackedCardsForTierScoresAfterV4(List<Long> duelist_version);
+
+    @Query(value = "SELECT ic.card_id, icp.pools FROM info_card ic JOIN info_card_pools icp on ic.info_card_id = icp.info_card_info_card_id WHERE ic.info_info_bundle_id >= (SELECT MAX(info_bundle_id) FROM mod_info_bundle WHERE is_duelist = true) AND (ic.info_info_bundle_id IN (:duelist_version)) AND icp.pools IN (:pool_name, :pool_basic)", nativeQuery = true)
+    List<String> getTrackedCardsForTierScoresAfterV4(String pool_name, List<Long> duelist_version, String pool_basic);
+
     @Query(value = "SELECT DISTINCT card_id, name FROM info_card WHERE info_info_bundle_id IN (:info_bundle_ids) GROUP BY card_id", nativeQuery = true)
-    List<String> cardIdMappingArchive(List<Long> info_bundle_ids);
+    List<Object[]> cardIdMappingArchive(List<Long> info_bundle_ids);
 
     @Query(value = "SELECT card_id, name FROM info_card WHERE info_info_bundle_id = :duelist_version AND card_id IN (:card_ids)", nativeQuery = true)
     Map<String, String> lookupDuelistCardNames(List<String> card_ids, Long duelist_version);
 
     @Query(value = "SELECT DISTINCT card_id, name FROM info_card JOIN info_card_pools icp on info_card.info_card_id = icp.info_card_info_card_id WHERE icp.pools = :pool OR icp.pools = :pool_basic", nativeQuery = true)
     List<String> getDuelistCardsFromPool(String pool, String pool_basic);
+
+    @Query(value = "SELECT " +
+            "sc.pool_name as scorePool, icp.pools as infoPool, ic.block as block, ic.card_id as cardId, ic.color as color, ic.cost as cost, ic.damage as damage, ic.duelist_type as duelistType, " +
+            "ic.entomb as entomb, ic.magic_number as magicNumber, ic.name as name, ic.rarity as rarity, ic.second_mag as secondMagic, ic.summons as summons, " +
+            "ic.text as text, ic.third_mag as thirdMagic, ic.tributes as tributes, ic.type as type, ic.new_line_text as formattedText, ic.max_upgrades as maxUpgrades, " +
+            "sc.act0_score as act0score, sc.act1_score as act1score, sc.act2_score as act2Score, sc.act3_score as act3Score, sc.overall_score as overallScore, sc.last_updated as scoreLastUpdated " +
+            "FROM info_card ic " +
+            "JOIN info_card_pools icp on ic.info_card_id = icp.info_card_info_card_id " +
+            "LEFT JOIN scored_card sc on ic.card_id = sc.card_id and sc.pool_name = :poolName " +
+            "WHERE ic.info_info_bundle_id = :version and (icp.pools = :poolName or icp.pools = CONCAT(:poolName, ' [Basic/Colorless]')) ORDER BY scorePool, cardId", nativeQuery = true)
+    List<Object[]> getDuelistCardsByPool(String poolName, long version);
+
+    @Query(value = "SELECT " +
+            "sc.pool_name as scorePool, icp.pools as infoPool, ic.block as block, ic.card_id as cardId, ic.color as color, ic.cost as cost, ic.damage as damage, ic.duelist_type as duelistType, " +
+            "ic.entomb as entomb, ic.magic_number as magicNumber, ic.name as name, ic.rarity as rarity, ic.second_mag as secondMagic, ic.summons as summons, " +
+            "ic.text as text, ic.third_mag as thirdMagic, ic.tributes as tributes, ic.type as type, ic.new_line_text as formattedText, ic.max_upgrades as maxUpgrades, " +
+            "sc.act0_score as act0score, sc.act1_score as act1score, sc.act2_score as act2Score, sc.act3_score as act3Score, sc.overall_score as overallScore, sc.last_updated as scoreLastUpdated " +
+            "FROM info_card ic " +
+            "JOIN info_card_pools icp on ic.info_card_id = icp.info_card_info_card_id " +
+            "LEFT JOIN scored_card sc on ic.card_id = sc.card_id " +
+            "WHERE ic.info_info_bundle_id = :version and (sc.pool_name = icp.pools or (substring_index(sc.pool_name, ' ', 2) = substring_index(icp.pools, ' ', 2) and icp.pools not like '% Deck%')) " +
+            "ORDER BY scorePool, cardId", nativeQuery = true)
+    List<Object[]> getAllDuelistCards(long version);
+
+    @Query(value = "SELECT DISTINCT " +
+            "icp.pools as pool " +
+            "FROM info_card ic " +
+            "JOIN info_card_pools icp on ic.info_card_id = icp.info_card_info_card_id " +
+            "WHERE icp.pools != 'Unknown' and icp.pools like '%Pool%' and ic.card_id = :cardId", nativeQuery = true)
+    List<String> getAllPoolsForCard(String cardId);
+
+    @Query(value = "SELECT DISTINCT " +
+            "icp.pools as pool, ic.card_id as cardId " +
+            "FROM info_card ic " +
+            "JOIN info_card_pools icp on ic.info_card_id = icp.info_card_info_card_id " +
+            "WHERE icp.pools != 'Unknown' and icp.pools like '%Pool%' and ic.card_id in :cardIds", nativeQuery = true)
+    List<String[]> getAllPoolsForCards(List<String> cardIds);
 }

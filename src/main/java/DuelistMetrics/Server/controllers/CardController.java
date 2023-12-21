@@ -2,7 +2,6 @@ package DuelistMetrics.Server.controllers;
 
 import DuelistMetrics.Server.models.*;
 import DuelistMetrics.Server.models.builders.*;
-import DuelistMetrics.Server.models.infoModels.*;
 import DuelistMetrics.Server.repositories.*;
 import DuelistMetrics.Server.services.*;
 import DuelistMetrics.Server.util.*;
@@ -17,12 +16,18 @@ public class CardController {
   private static CardRepo cards;
   private static CardService serv;
   private static InfoCardRepo infoCardRepo;
+  private static InfoService infoService;
 
   @Autowired
-  public CardController(CardRepo card, InfoCardRepo infoRepo, CardService service) { cards = card; infoCardRepo = infoRepo; serv = service; }
+  public CardController(CardRepo card, InfoCardRepo infoRepo, CardService service, InfoService infoServ) {
+    infoService = infoServ;
+    cards = card;
+    infoCardRepo = infoRepo;
+    serv = service;
+  }
 
   @GetMapping("/cards")
-  @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+  @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
   public static Collection<DisplayCard> getCards(){
     Collection<DisplayCard> output = new ArrayList<>();
     for (String s : serv.getAll()) {
@@ -31,14 +36,29 @@ public class CardController {
     return sortDuelistCards(output);
   }
 
+  @GetMapping("/cards-new")
+  @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
+  public static Collection<WebsiteDuelistCard> getCardsV2(){
+    return infoService.getAllDuelistCardsForWebview();
+  }
+
   @GetMapping("/cards/{deck}")
-  @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+  @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
   public static Collection<DisplayCard> getCards(@PathVariable String deck){
     Collection<DisplayCard> output = new ArrayList<>();
     for (String s : cards.getAllFromDeck(DeckNameProcessor.getProperDeckName(deck))) {
       createDisplayCard(output, s);
     }
     return sortDuelistCards(output);
+  }
+
+  @GetMapping("/cards-new/{decks}")
+  @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
+  public static Collection<WebsiteDuelistCard> getCardsV2(@PathVariable String decks){
+    if (decks == null || decks.equals("")) {
+      return new ArrayList<>();
+    }
+    return infoService.getAllCardsByDeckForWebview(new ArrayList<>(Arrays.asList(decks.split(","))));
   }
 
   private static Collection<DisplayCard> sortDuelistCards(Collection<DisplayCard> output) {

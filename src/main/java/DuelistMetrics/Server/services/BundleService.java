@@ -2,12 +2,19 @@ package DuelistMetrics.Server.services;
 
 import DuelistMetrics.Server.controllers.*;
 import DuelistMetrics.Server.models.*;
+import DuelistMetrics.Server.models.dto.LeaderboardScoreWinnerDTO;
+import DuelistMetrics.Server.models.dto.LeaderboardWinnerDTO;
+import DuelistMetrics.Server.models.dto.LeaderboardWinnerDeckListDTO;
+import DuelistMetrics.Server.models.dto.LeaderboardWinnersResultDTO;
+import DuelistMetrics.Server.models.dto.PlayerNameListDTO;
+import DuelistMetrics.Server.models.dto.RunMonthDTO;
 import DuelistMetrics.Server.models.tierScore.*;
 import DuelistMetrics.Server.repositories.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.*;
 
+import java.math.*;
 import java.util.*;
 
 @Service
@@ -29,7 +36,47 @@ public class BundleService {
 
   public Optional<TopBundle> findById(long infoID) { return this.repo.findById(infoID); }
 
+  public Integer countRunsByCharacterToday(String character) { return this.repo.getRunsByCharacterFromToday(character); }
+
+  public Integer countWinsByCharacterToday(String character) { return this.repo.getWinsByCharacterFromToday(character); }
+
+  public Integer countUniquePlayersByCharacterToday(String character) { return this.innerRepo.numberOfUniquePlayersTodayByCharacter(character); }
+
+  public List<RunMonthDTO> countRunsThisYear() { return this.repo.getRunsByCharacterFromThisYear(null); }
+
+  public List<RunMonthDTO> countRunsByCharacterThisYear(String character) { return this.repo.getRunsByCharacterFromThisYear(character); }
+
+  public TopBundle findByHostAndLocalTime(String host, BigDecimal localTime) {
+    var list = this.repo.findByHostAndLocalTime(host, localTime);
+    if (list != null && list.size() > 0) {
+      return list.get(0);
+    }
+    return null;
+  }
+
+  public String findTopBundleTimeByHostAndLocalTime(String host, BigDecimal localTime) {
+    return this.repo.findTimeByHostAndLocalTime(host, localTime).toString();
+  }
+
   public Optional<Bundle> findByIdInner(long ID) { return this.innerRepo.findById(ID); }
+
+  public Integer countRunsInTimeFrame(int endInterval, int startInterval) {
+    return this.repo.countRunsInTimeFrame(endInterval, startInterval);
+  }
+
+  public Integer countRunsInTimeFrame(int endInterval, int startInterval, String character, boolean isDuelist,
+                                      boolean nonDuelist, String timeStart, String timeEnd, String host,
+                                      String country, Integer ascensionStart, Integer ascensionEnd,
+                                      Integer challengeStart, Integer challengeEnd, Boolean victory,
+                                      Integer floorStart, Integer floorEnd, String deck, String killedBy) {
+    return this.repo.countRunsInTimeFrameWithFilters(endInterval, startInterval, character, isDuelist, nonDuelist,
+            timeStart, timeEnd, host, country, ascensionStart, ascensionEnd, challengeStart, challengeEnd, victory,
+            floorStart, floorEnd, deck, killedBy);
+  }
+
+  public Date getTimeFrame(int start) {
+    return this.repo.getTimeFrameDate(start + 1, start);
+  }
 
   public List<String> getCountries() {
     return innerRepo.getCountries();
@@ -77,15 +124,7 @@ public class BundleService {
     }
   }
 
-  public Map<String, List<TierBundle>> getBundlesForTierScores(List<String> decks) {
-    return getBundlesForTierScores(decks, null, null);
-  }
-
-  public Map<String, List<TierBundle>> getBundlesForTierScores(List<String> decks, int ascensionFilter) {
-    return getBundlesForTierScores(decks, ascensionFilter, null);
-  }
-
-  public Map<String, List<TierBundle>> getBundlesForTierScores(List<String> decks, Integer ascensionFilter, Integer challengeFilter) {
+  public Map<String, List<TierBundle>> getLegacyBundlesForTierScores(List<String> decks, Integer ascensionFilter, Integer challengeFilter) {
     Map<String, List<TierBundle>> out = new HashMap<>();
     for (String deck : decks) {
       List<String> data;
@@ -97,6 +136,42 @@ public class BundleService {
         data = innerRepo.getBundlesForTierScores(challengeFilter, deck);
       } else {
         data = innerRepo.getBundlesForTierScores(deck);
+      }
+      processTierBundles(data, out);
+    }
+    return out;
+  }
+
+  public Map<String, List<TierBundle>> getV4BundlesForTierScores(List<String> decks, Integer ascensionFilter, Integer challengeFilter) {
+    Map<String, List<TierBundle>> out = new HashMap<>();
+    for (String deck : decks) {
+      List<String> data;
+      if (challengeFilter != null && ascensionFilter != null) {
+        data = innerRepo.getV4BundlesForTierScores(deck, ascensionFilter, challengeFilter);
+      } else if (ascensionFilter != null) {
+        data = innerRepo.getV4BundlesForTierScores(deck, ascensionFilter);
+      } else if (challengeFilter != null) {
+        data = innerRepo.getV4BundlesForTierScores(challengeFilter, deck);
+      } else {
+        data = innerRepo.getV4BundlesForTierScores(deck);
+      }
+      processTierBundles(data, out);
+    }
+    return out;
+  }
+
+  public Map<String, List<TierBundle>> getA20BundlesForTierScores(List<String> decks, Integer ascensionFilter, Integer challengeFilter) {
+    Map<String, List<TierBundle>> out = new HashMap<>();
+    for (String deck : decks) {
+      List<String> data;
+      if (challengeFilter != null && ascensionFilter != null) {
+        data = innerRepo.getA20BundlesForTierScores(deck, ascensionFilter, challengeFilter);
+      } else if (ascensionFilter != null) {
+        data = innerRepo.getA20BundlesForTierScores(deck, ascensionFilter);
+      } else if (challengeFilter != null) {
+        data = innerRepo.getA20BundlesForTierScores(challengeFilter, deck);
+      } else {
+        data = innerRepo.getA20BundlesForTierScores(deck);
       }
       processTierBundles(data, out);
     }
@@ -137,6 +212,58 @@ public class BundleService {
       sortedOutput.put(entry.getKey(), output.get(entry.getKey()));
     }
     return sortedOutput;
+  }
+
+  public List<LeaderboardScoreWinnerDTO> getScoreLeaderboardWinners() {
+    List<LeaderboardScoreWinnerDTO> output = new ArrayList<>();
+    var scoreWinners = this.innerRepo.getScoreLeaderboardWinners();
+    List<String> playerIds = scoreWinners.stream().map(LeaderboardScoreWinnerDTO::playerId).toList();
+    List<PlayerNameListDTO> playerNameList = this.innerRepo.getPlayerNamesByIds(playerIds);
+    HashMap<String, String> playerNameMap = new HashMap<>();
+    for (var e : playerNameList) {
+      playerNameMap.put(e.playerId(), e.playerNames());
+    }
+    for (var e : scoreWinners) {
+      output.add(new LeaderboardScoreWinnerDTO(e, playerNameMap.getOrDefault(e.playerId(), e.playerId())));
+    }
+    return output;
+  }
+
+  public List<LeaderboardWinnersResultDTO> getWinsLeaderboardWinners(String character, String startDeck, Integer ascension) {
+    character = character != null && character.equalsIgnoreCase("The Duelist") ? "THE_DUELIST" : character;
+    startDeck = character != null && character.equalsIgnoreCase("THE_DUELIST") ? startDeck : null;
+    List<LeaderboardWinnersResultDTO> output = new ArrayList<>();
+    List<LeaderboardWinnerDTO> winnerList = this.innerRepo.getWinsLeaderboardWinners(character, startDeck, ascension);
+    List<String> playerIds = winnerList.stream().map(LeaderboardWinnerDTO::playerId).toList();
+    List<LeaderboardWinnerDTO> allWinnerRunData = this.innerRepo.getWinsLeaderboardWinnerData(playerIds, character, startDeck, ascension);
+    HashMap<String, Integer> totalWinsByPlayer = new HashMap<>();
+    HashMap<String, HashSet<LeaderboardWinnerDeckListDTO>> deckWinsByPlayer = new HashMap<>();
+    List<PlayerNameListDTO> playerNameList = this.innerRepo.getPlayerNamesByIds(playerIds);
+    HashMap<String, String> playerNameMap = new HashMap<>();
+    for (var e : playerNameList) {
+      playerNameMap.put(e.playerId(), e.playerNames());
+    }
+
+    for (LeaderboardWinnerDTO entry : winnerList) {
+      allWinnerRunData.stream().filter(w -> w.playerId().equalsIgnoreCase(entry.playerId())).forEach(r -> {
+        totalWinsByPlayer.compute(entry.playerId(), (k, v) -> v == null ? r.wins() : v + r.wins());
+        HashSet<LeaderboardWinnerDeckListDTO> set = deckWinsByPlayer.getOrDefault(entry.playerId(), new HashSet<>());
+        set.add(new LeaderboardWinnerDeckListDTO(r.startDeck(), r.wins()));
+        deckWinsByPlayer.put(entry.playerId(), set);
+      });
+    }
+
+    int counter = 1;
+    for (LeaderboardWinnerDTO entry : winnerList) {
+      var allDeckWinsForPlayer = deckWinsByPlayer.getOrDefault(entry.playerId(), new HashSet<>());
+      List<String> formattedDeckWinInfo = new ArrayList<>();
+      for (var setEntry : allDeckWinsForPlayer) {
+        formattedDeckWinInfo.add(setEntry.deck()+ " (" + setEntry.wins() + ")");
+      }
+      output.add(new LeaderboardWinnersResultDTO(totalWinsByPlayer.getOrDefault(entry.playerId(), 0), entry.playerId(), playerNameMap.getOrDefault(entry.playerId(), entry.playerId()), counter, formattedDeckWinInfo));
+      counter++;
+    }
+    return output.stream().sorted(Comparator.comparing(LeaderboardWinnersResultDTO::rank)).toList();
   }
 
 }

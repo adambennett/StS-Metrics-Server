@@ -1,12 +1,16 @@
 package DuelistMetrics.Server.services;
 
 import DuelistMetrics.Server.models.*;
+import DuelistMetrics.Server.models.dto.LookupPotion;
+import DuelistMetrics.Server.models.dto.LookupRelic;
+import DuelistMetrics.Server.models.dto.OrbInfoDTO;
 import DuelistMetrics.Server.models.infoModels.*;
 import DuelistMetrics.Server.models.tierScore.*;
 import DuelistMetrics.Server.repositories.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.stereotype.*;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.*;
 import java.util.logging.*;
 
@@ -24,10 +28,13 @@ public class InfoService {
   private final EventRepo eventRepo;
   private final MiniModRepo miniModRepo;
   private final TierScoreRepo tierRepo;
+  private final TierScoreV4Repo tierScoreV4Repo;
+  private final TierScoreA20Repo tierScoreA20Repo;
+  private final DuelistOrbInfoRepo orbRepo;
   private static final ArrayList<String> decks;
 
   @Autowired
-  public InfoService(InfoRepo repo, TopInfoBundleRepo bundleRepo, InfoCardRepo cardRepo, InfoRelicRepo relicRepo, InfoPotionRepo potionRepo, InfoCreatureRepo creatureRepo, MiniModRepo miniModRepo, EventRepo eventRepo, TierScoreRepo scoreRepo) {
+  public InfoService(InfoRepo repo, TopInfoBundleRepo bundleRepo, InfoCardRepo cardRepo, InfoRelicRepo relicRepo, InfoPotionRepo potionRepo, InfoCreatureRepo creatureRepo, MiniModRepo miniModRepo, EventRepo eventRepo, TierScoreRepo scoreRepo, TierScoreV4Repo tierScoreV4Repo, TierScoreA20Repo tierScoreA20Repo, DuelistOrbInfoRepo orbRepo) {
     this.repo = repo;
     this.bundleRepo = bundleRepo;
     this.cardRepo = cardRepo;
@@ -37,6 +44,17 @@ public class InfoService {
     this.miniModRepo = miniModRepo;
     this.eventRepo = eventRepo;
     this.tierRepo = scoreRepo;
+    this.tierScoreV4Repo = tierScoreV4Repo;
+    this.tierScoreA20Repo = tierScoreA20Repo;
+    this.orbRepo = orbRepo;
+  }
+
+  public List<String> getAllTrackedDuelistVersions() {
+    return this.bundleRepo.getAllTrackedDuelistVersion();
+  }
+
+  public List<OrbInfoDTO> getOrbInfo() {
+    return orbRepo.getOrbInfo(orbRepo.getLatestVersion());
   }
 
   public String getCardName(String card_id, boolean duelist) {
@@ -65,14 +83,13 @@ public class InfoService {
     return getStringStringMap(this.potionRepo.potionIdMappingArchive(infoBundleIds));
   }
 
-  private Map<String, String> getStringStringMap(List<String> strings) {
+  private Map<String, String> getStringStringMap(List<Object[]> strings) {
     Map<String, String> out = new HashMap<>();
-    for (String s : strings) {
-      String[] splice = s.split(",");
-      if (!out.containsKey(splice[0])) {
-        out.put(splice[0], splice[1]);
-      } else {
-        logger.info("Duplicate id while getting map of names - ID: " + splice[0]);
+    for (Object[] s : strings) {
+      String zero = s.length > 0 ? s[0]+"" : "";
+      String one = s.length > 1 ? s[1]+"" : "";
+      if (!out.containsKey(zero)) {
+        out.put(zero, one);
       }
     }
     return out;
@@ -123,6 +140,47 @@ public class InfoService {
     return out;
   }
 
+  public record InfoObjectModData(String module, List<String> authors) {}
+  public InfoObjectModData getModDataFromRelicId(String relic_id, boolean duelist) {
+    if (duelist) {
+      return new InfoObjectModData("Duelist Mod", List.of("Nyoxide"));
+    }
+
+    Long modId = relicRepo.getAnyBundleIdByRelicId(relic_id);
+    List<String> modInfo = bundleRepo.getModInfoFromInfoId(modId);
+    if (modInfo.size() < 1) {
+      return new InfoObjectModData("Unknown", List.of("Unknown"));
+    }
+
+    String modName = modInfo.getFirst().split(",")[0];
+    Set<String> uniqueAuthors = new HashSet<>();
+    for (String s : modInfo) {
+        String[] splice = s.split(",");
+        uniqueAuthors.add(splice[1]);
+    }
+    return new InfoObjectModData(modName, new ArrayList<>(uniqueAuthors));
+  }
+
+  public InfoObjectModData getModDataFromPotionId(String potion_id, boolean duelist) {
+    if (duelist) {
+      return new InfoObjectModData("Duelist Mod", List.of("Nyoxide"));
+    }
+
+    Long modId = potionRepo.getAnyBundleIdByPotionId(potion_id);
+    List<String> modInfo = bundleRepo.getModInfoFromInfoId(modId);
+    if (modInfo.size() < 1) {
+      return new InfoObjectModData("Unknown", List.of("Unknown"));
+    }
+
+    String modName = modInfo.getFirst().split(",")[0];
+    Set<String> uniqueAuthors = new HashSet<>();
+    for (String s : modInfo) {
+      String[] splice = s.split(",");
+      uniqueAuthors.add(splice[1]);
+    }
+    return new InfoObjectModData(modName, new ArrayList<>(uniqueAuthors));
+  }
+
   public List<String> getCardDataFromId(String card_id, boolean duelist) {
     if (duelist) {
       Long id = getMostRecentDuelistVersion();
@@ -137,10 +195,92 @@ public class InfoService {
     return this.cardRepo.getCardData(card_id);
   }
 
+  public LookupRelic getRelicDataFromId(String relic_id, boolean duelist) {
+    List<LookupRelic> output = new ArrayList<>();
+    List<InfoRelic> relics;
+    boolean isBaseGame = false;
+    if (duelist) {
+      relics = this.relicRepo.getAllDuelistRelicDataById(relic_id, getMostRecentDuelistVersion());
+    } else {
+      Long baseGameCheck = this.relicRepo.getIdOfProperBaseGameRelic(relic_id);
+      if (baseGameCheck != null) {
+        relics = List.of(this.relicRepo.getInfoRelicById(baseGameCheck));
+        isBaseGame = true;
+      } else {
+        relics = this.relicRepo.getAllRelicDataById(relic_id);
+      }
+    }
+
+    InfoObjectModData moduleInfo = getModDataFromRelicId(relic_id, duelist);
+    if (isBaseGame) {
+      moduleInfo = new InfoObjectModData("Slay the Spire", List.of("MegaCrit"));
+    }
+    for (InfoRelic relic : relics) {
+      output.add(LookupRelic.builder()
+              .description(relic.getDescription())
+              .descriptionPlain(relic.getDescriptionPlain())
+              .tier(relic.getTier())
+              .flavor(relic.getFlavorText())
+              .id(relic.getRelic_id())
+              .name(relic.getName())
+              .pools(getPoolsFromDuelistRelicId(relic.getInfo_relic_id()))
+              .authors(moduleInfo.authors())
+              .module(moduleInfo.module())
+              .isDuelist(duelist)
+              .build());
+    }
+    return output.isEmpty() ? null : output.getFirst();
+  }
+
+  public LookupPotion getPotionDataFromId(String potion_id, boolean duelist) {
+    List<LookupPotion> output = new ArrayList<>();
+    List<InfoPotion> potions;
+    boolean isBaseGame = false;
+    if (duelist) {
+      potions = this.potionRepo.getAllDuelistPotionDataById(potion_id, getMostRecentDuelistVersion());
+    } else {
+      Long baseGameCheck = this.potionRepo.getIdOfProperBaseGamePotion(potion_id);
+      if (baseGameCheck != null) {
+        potions = List.of(this.potionRepo.getInfoPotionById(baseGameCheck));
+        isBaseGame = true;
+      } else {
+        potions = this.potionRepo.getAllPotionDataById(potion_id);
+      }
+    }
+
+    InfoObjectModData moduleInfo = getModDataFromPotionId(potion_id, duelist);
+    if (isBaseGame) {
+      moduleInfo = new InfoObjectModData("Slay the Spire", List.of("MegaCrit"));
+    }
+    for (InfoPotion potion : potions) {
+      output.add(LookupPotion.builder()
+              .description(potion.getDescription())
+              .descriptionPlain(potion.getDescriptionPlain())
+              .rarity(potion.getRarity())
+              .playerClass(potion.getPlayerClass())
+              .id(potion.getPotion_id())
+              .name(potion.getName())
+              .pools(getPoolsFromDuelistPotionId(potion.getInfo_potion_id()))
+              .authors(moduleInfo.authors())
+              .module(moduleInfo.module())
+              .isDuelist(duelist)
+              .build());
+    }
+    return output.isEmpty() ? null : output.getFirst();
+  }
+
   public List<String> getPoolsFromDuelistCardId(String card_id) {
     Long duelistModId = getMostRecentDuelistVersion();
     Long infoCardId = cardRepo.getInfoCardIdForPools(card_id, duelistModId);
     return cardRepo.getPoolsFromDuelistCard(infoCardId);
+  }
+
+  public List<String> getPoolsFromDuelistRelicId(Long infoRelicId) {
+    return relicRepo.getPoolsFromDuelistRelic(infoRelicId).stream().sorted(String::compareTo).toList();
+  }
+
+  public List<String> getPoolsFromDuelistPotionId(Long infoPotionId) {
+    return potionRepo.getPoolsFromDuelistPotion(infoPotionId).stream().sorted(String::compareTo).toList();
   }
 
   public Long getMostRecentDuelistVersion() {
@@ -148,7 +288,7 @@ public class InfoService {
     return duelistMods.size() > 0 ? duelistMods.get(duelistMods.size() - 1) : null;
   }
 
-  public Map<String, List<String>> getTrackedCardsForTierScores(String poolName) {
+  public Map<String, List<String>> getLegacyTrackedCardsForTierScores(String poolName) {
     boolean filterPool = poolName != null && !poolName.equals("");
     List<Long> duelistIds = bundleRepo.getModInfoBundleIdsForAllDuelistVersions();
     List<String> cards;
@@ -156,6 +296,68 @@ public class InfoService {
       cards = cardRepo.getTrackedCardsForTierScores(poolName, duelistIds, poolName + " [Basic/Colorless]");
     } else {
       cards = cardRepo.getTrackedCardsForTierScores(duelistIds);
+    }
+    Map<String, List<String>> out = new HashMap<>();
+    for (String s : cards) {
+      String[] splice = s.split(",");
+      if (!out.containsKey(splice[1])) {
+        out.put(splice[1], new ArrayList<>());
+      }
+      out.get(splice[1]).add(splice[0]);
+    }
+    List<List<String>> globals = globalCardListData();
+    List<String> poolsWithGlobalCardLists = globals.get(0);
+    List<String> globalCardList = globals.get(1);
+    for (String globalPool : poolsWithGlobalCardLists) {
+      for (String s : globalCardList) {
+        if (!out.containsKey(globalPool)) {
+          out.put(globalPool, new ArrayList<>());
+        }
+        out.get(globalPool).add(s);
+      }
+    }
+    return out;
+  }
+
+  public Map<String, List<String>> getV4TrackedCardsForTierScores(String poolName) {
+    boolean filterPool = poolName != null && !poolName.equals("");
+    List<Long> duelistIds = bundleRepo.getModInfoBundleIdsForAllDuelistVersions();
+    List<String> cards;
+    if (filterPool) {
+      cards = cardRepo.getTrackedCardsForTierScoresAfterV4(poolName, duelistIds, poolName + " [Basic/Colorless]");
+    } else {
+      cards = cardRepo.getTrackedCardsForTierScoresAfterV4(duelistIds);
+    }
+    Map<String, List<String>> out = new HashMap<>();
+    for (String s : cards) {
+      String[] splice = s.split(",");
+      if (!out.containsKey(splice[1])) {
+        out.put(splice[1], new ArrayList<>());
+      }
+      out.get(splice[1]).add(splice[0]);
+    }
+    List<List<String>> globals = globalCardListData();
+    List<String> poolsWithGlobalCardLists = globals.get(0);
+    List<String> globalCardList = globals.get(1);
+    for (String globalPool : poolsWithGlobalCardLists) {
+      for (String s : globalCardList) {
+        if (!out.containsKey(globalPool)) {
+          out.put(globalPool, new ArrayList<>());
+        }
+        out.get(globalPool).add(s);
+      }
+    }
+    return out;
+  }
+
+  public Map<String, List<String>> getA20TrackedCardsForTierScores(String poolName) {
+    boolean filterPool = poolName != null && !poolName.equals("");
+    List<Long> duelistIds = bundleRepo.getModInfoBundleIdsForAllDuelistVersions();
+    List<String> cards;
+    if (filterPool) {
+      cards = cardRepo.getTrackedCardsForTierScoresAfterV4(poolName, duelistIds, poolName + " [Basic/Colorless]");
+    } else {
+      cards = cardRepo.getTrackedCardsForTierScoresAfterV4(duelistIds);
     }
     Map<String, List<String>> out = new HashMap<>();
     for (String s : cards) {
@@ -187,7 +389,14 @@ public class InfoService {
 
   public List<MiniMod> getModListFromBundleId(Long id) { return this.miniModRepo.getByBundleId(id); }
 
-  public Long getModInfoBundleFromMiniMod(String modid, String version) { return this.miniModRepo.getBundleId(modid, version); }
+  public Long getModInfoBundleFromMiniMod(String modid, String version) {
+    var longs = this.miniModRepo.getBundleId(modid, version);
+    if (longs.size() > 0) {
+      if (longs.size() > 1) logger.info("Got multiple results from miniModRepo by modid and version. ModId=" + modid + ", version=" + version + ", longs=" + longs);
+      return longs.get(0);
+    }
+    return null;
+  }
 
   public List<ModInfoBundle> getAllMods() { return this.bundleRepo.findAll(); }
 
@@ -252,7 +461,9 @@ public class InfoService {
 
   public void createTierScore(ScoredCard scoredCard) { this.tierRepo.save(scoredCard); }
 
-  public List<ScoredCard> getTierDetails(String pool) { return this.tierRepo.getDetails(pool); }
+  public void createTierScore(ScoredCardV4 scoredCard) { this.tierScoreV4Repo.save(scoredCard); }
+
+  public void createTierScore(ScoredCardA20 scoredCard) { this.tierScoreA20Repo.save(scoredCard); }
 
   public List<Map<String, Object>> getTierScores(String pool) { return this.tierRepo.getScores(pool); }
 
@@ -320,14 +531,49 @@ public class InfoService {
 
   public List<Map<String, Object>> getTierScores(String cardId, String pool) { return this.tierRepo.getScores(cardId, pool); }
 
+  public TierScoreLookup getLegacyCardTierScores(String cardId, String pool) {
+    List<TierScoreLookup> scores = this.tierRepo.getScoresJPA(cardId, pool);
+    return scores == null || scores.size() < 1 ? null : scores.get(0);
+  }
+
+  public TierScoreLookup getV4CardTierScores(String cardId, String pool) {
+    List<TierScoreLookup> scores = this.tierScoreV4Repo.getScoresJPA(cardId, pool);
+    return scores == null || scores.size() < 1 ? null : scores.get(0);
+  }
+
+  public TierScoreLookup getA20CardTierScores(String cardId, String pool) {
+    List<TierScoreLookup> scores = this.tierScoreA20Repo.getScoresJPA(cardId, pool);
+    return scores == null || scores.size() < 1 ? null : scores.get(0);
+  }
+
   public List<String> getAllModuleVersions() { return this.bundleRepo.getAllModuleVersions(); }
 
   public List<String> getModList() { return this.bundleRepo.getMods(); }
+
+  private record ModInfo(String modId, String displayName, List<String> versions, List<String> authors){}
+  public List<ModInfo> getModListNew() {
+    var mods = this.bundleRepo.getAllMods();
+    var output = new ArrayList<ModInfo>();
+    for (var mod : mods) {
+      var id = mod[0].toString();
+      var displayName = mod[1].toString();
+      var versionSplice = mod[2].toString().split(",");
+      var authorSplice = mod[3].toString().split(",");
+      var versions = new ArrayList<>(Arrays.asList(versionSplice));
+      var authors = new ArrayList<>(Arrays.asList(authorSplice));
+      output.add(new ModInfo(id, displayName, versions, authors));
+    }
+    return output;
+  }
 
   public Optional<ModInfoBundle> getModInfo(String id, String version) { return this.bundleRepo.findByModIDAndVersion(id, version); }
 
   public ModInfoBundle updateQuickFields(ModInfoBundle mod) {
     return this.bundleRepo.save(mod);
+  }
+
+  public DuelistOrbInfo createOrbInfo(DuelistOrbInfo info) throws SQLIntegrityConstraintViolationException {
+    return orbRepo.save(info);
   }
 
   public ModInfoBundle createBundle(ModInfoBundle mod) {
@@ -351,6 +597,149 @@ public class InfoService {
       c.setInfo(mod);
     }
     return this.bundleRepo.save(mod);
+  }
+
+  public List<WebsiteDuelistCard> getDuelistCardsForWebview(String pool) {
+    return null;
+  }
+
+  public List<WebsiteDuelistCard> getAllCardsByDeckForWebview(List<String> pools) {
+    var duelistModId = getMostRecentDuelistVersion();
+    var repoCards = new ArrayList<Object[]>();
+    for (var pool : pools) {
+      repoCards.addAll(this.cardRepo.getDuelistCardsByPool(pool, duelistModId));
+    }
+    return getCardsForWebView(repoCards);
+  }
+
+  public List<WebsiteDuelistCard> getAllDuelistCardsForWebview() {
+    var duelistModId = getMostRecentDuelistVersion();
+    var repoCards = this.cardRepo.getAllDuelistCards(duelistModId);
+    return getCardsForWebView(repoCards);
+  }
+
+  private List<WebsiteDuelistCard> getCardsForWebView(List<Object[]> repoCards) {
+    var output = new ArrayList<WebsiteDuelistCard>();
+    var cardIds = new ArrayList<String>();
+    var scoreMap = new HashMap<String, List<Integer>>();
+    for (var card : repoCards) {
+      var webCard = new WebsiteDuelistCard();
+      var cardId = scv(3, card);
+      var scorePool = scv(0, card);
+      var infoPool = scv(1, card);
+      var overallScore = ncv(24, card);
+      if (!ignorePoolForAverageScore(infoPool)) {
+        var scoreList = scoreMap.containsKey(cardId) ? scoreMap.get(cardId) : new ArrayList<Integer>();
+        scoreList.add(overallScore);
+        scoreMap.put(cardId, scoreList);
+      }
+      cardIds.add(cardId);
+      webCard.scorePool = scorePool;
+      webCard.infoPool = infoPool;
+      webCard.displayPool = getPoolDisplayName(scorePool);
+      webCard.isColoredPool = webCard.infoPool != null && !webCard.infoPool.contains("[Basic/Colorless]");
+      webCard.poolType = webCard.isColoredPool ? "Colored" : "Basic/Colorless";
+      webCard.block = ncv(2, card);
+      webCard.cardId = cardId;
+      webCard.color = scv(4, card);
+      webCard.cost = scv(5, card);
+      webCard.damage = ncv(6, card);
+      webCard.duelistType = scv(7, card);
+      webCard.entomb = ncv(8, card);
+      webCard.magicNumber = ncv(9, card);
+      webCard.name = scv(10, card);
+      webCard.rarity = scv(11, card);
+      webCard.secondMagic = ncv(12, card);
+      webCard.summons = ncv(13, card);
+      webCard.text = scv(14, card);
+      webCard.thirdMagic = ncv(15, card);
+      webCard.tributes = ncv(16, card);
+      webCard.type = scv(17, card);
+      webCard.formattedText = scv(18, card);
+      webCard.maxUpgrades = ncv(19, card);
+      webCard.act0score = ncv(20, card);
+      webCard.act1score = ncv(21, card);
+      webCard.act2score = ncv(22, card);
+      webCard.act3score = ncv(23, card);
+      webCard.overallScore = overallScore;
+      webCard.lastUpdated = scv(25, card);
+      output.add(webCard);
+    }
+    var allPools = this.cardRepo.getAllPoolsForCards(cardIds);
+    var poolsByCard = new HashMap<String, List<String>>();
+    for (var pool : allPools) {
+      var poolName = pool[0];
+      var cardId = pool[1];
+      var list = poolsByCard.containsKey(cardId) ? poolsByCard.get(cardId) : new ArrayList<String>();
+      if (!list.contains(poolName)) {
+        list.add(poolName);
+        poolsByCard.put(cardId, list);
+      }
+    }
+    for (var card : output) {
+      if (poolsByCard.containsKey(card.cardId)) {
+        card.pools = poolsByCard.get(card.cardId);
+      }
+      if (scoreMap.containsKey(card.cardId)) {
+        var list = scoreMap.get(card.cardId);
+        var sum = 0;
+        for (var i : list) {
+          if (i != null) {
+            sum += i;
+          }
+        }
+        card.averageScore = sum / list.size();
+      } else {
+        card.averageScore = -1;
+      }
+    }
+    return output;
+  }
+
+  private Boolean ignorePoolForAverageScore(String poolName) {
+    var badDecks = new ArrayList<String>();
+    badDecks.add("Ascended I");
+    badDecks.add("Ascended II");
+    badDecks.add("Ascended III");
+    badDecks.add("Pharaoh I");
+    badDecks.add("Pharaoh II");
+    badDecks.add("Pharaoh III");
+    badDecks.add("Pharaoh IV");
+    badDecks.add("Pharaoh V");
+    badDecks.add("Random (Small) Pool");
+    badDecks.add("Random (Big) Pool");
+    badDecks.add("Upgrade Pool");
+    badDecks.add("Metronome Pool");
+    badDecks.add("Giant Pool");
+    badDecks.add("Predaplant Pool");
+    return badDecks.contains(poolName);
+  }
+
+  private String getPoolDisplayName(String poolName) {
+    return poolName;
+  }
+
+  private String scv(int index, Object[] card) {
+    if (card.length > index) {
+      return card[index] != null ? card[index].toString() : null;
+    }
+    return null;
+  }
+
+  private Integer ncv(int index, Object[] card) {
+    try {
+      if (card.length > index) {
+        return card[index] != null ? Integer.parseInt(card[index].toString()) : null;
+      }
+    } catch (Exception ignored) {}
+    return null;
+  }
+
+  private Boolean bcv(int index, Object[] card) {
+    if (card.length > index) {
+      return card[index] != null ? card[index].equals(true) : null;
+    }
+    return null;
   }
 
   static {
@@ -386,6 +775,7 @@ public class InfoService {
     decks.add("Metronome Deck");
     decks.add("Giant Deck");
     decks.add("Predaplant Deck");
+    decks.add("Beast Deck");
   }
 
 }

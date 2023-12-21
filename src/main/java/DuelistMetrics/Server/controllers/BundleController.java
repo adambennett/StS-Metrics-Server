@@ -1,12 +1,14 @@
 package DuelistMetrics.Server.controllers;
 
 import DuelistMetrics.Server.models.*;
+import DuelistMetrics.Server.models.dto.LeaderboardScoreWinnerDTO;
+import DuelistMetrics.Server.models.dto.LeaderboardWinnersResultDTO;
+import DuelistMetrics.Server.models.dto.WinsLeaderboardLookupDTO;
 import DuelistMetrics.Server.models.infoModels.*;
 import DuelistMetrics.Server.services.*;
-import DuelistMetrics.Server.util.*;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
-import org.springframework.scheduling.annotation.*;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.*;
@@ -27,7 +29,7 @@ public class BundleController {
     public static BundleService getService() { return bundles; }
 
     @GetMapping("/runCountByCountry")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public ResponseEntity<?> getBundles() {
         try {
             TreeMap<String, Integer> output = bundles.getCountryCounts();
@@ -43,7 +45,7 @@ public class BundleController {
     }
 
     @GetMapping("/countries")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public ResponseEntity<?> getCountries() {
         try {
             Map<String, String> query = bundles.getCountryNameAndID();
@@ -58,6 +60,7 @@ public class BundleController {
         }
     }
 
+    @SuppressWarnings("ComparatorMethodParameterNotUsed")
     public static <K,V extends Comparable<? super V>> SortedSet<Map.Entry<K,V>> entriesSortedByValues(Map<K,V> map) {
         SortedSet<Map.Entry<K,V>> sortedEntries = new TreeSet<>((e1, e2) -> {
             int res = e2.getValue().compareTo(e1.getValue());
@@ -81,7 +84,7 @@ public class BundleController {
     }
 
     @GetMapping("/fullmods/{id}")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public ResponseEntity<?> getFullModsFromBundle(@PathVariable Long id) {
         Optional<Bundle> bnd = bundles.findByIdInner(id);
         if (bnd.isPresent()) {
@@ -94,5 +97,103 @@ public class BundleController {
             return new ResponseEntity<>(fullModList, HttpStatus.OK);
         }
         return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+    }
+
+    private record RunTimeFrameData(Integer runs, String date){}
+
+    @PostMapping("/runs-in-time-frame/{weeks}")
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
+    public ResponseEntity<?> getRunsInTimeFrame(@PathVariable String weeks, @RequestBody RunCountParams params) {
+        try {
+            boolean isParams = params != null;
+            var output = new ArrayList<RunTimeFrameData>();
+            var numWeeks = Integer.parseInt(weeks);
+            if (numWeeks > 0) {
+                var start = 0;
+                var end = 168;
+                while (numWeeks > 0) {
+                    Integer count = countRunsInTimeFrame(params, isParams, start, end);
+                    var startDate = bundles.getTimeFrame(start);
+                    var endDate = bundles.getTimeFrame(end - 1);
+                    if (startDate == null) {
+                        startDate = new Date();
+                    }
+                    var startDateTime = new SimpleDateFormat("MM/dd").format(startDate);
+                    var endDateTime = new SimpleDateFormat("MM/dd").format(endDate);
+                    var date = endDateTime + " - " + startDateTime;
+                    output.add(new RunTimeFrameData(count, date));
+                    start += 168;
+                    end += 168;
+                    numWeeks--;
+                }
+                return new ResponseEntity<>(output, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            }
+        } catch (Exception ex) {
+            logger.info("Exception fetching run timeframe data\n" + ExceptionUtils.getStackTrace(ex));
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PostMapping("/runs-in-week")
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
+    public ResponseEntity<?> getRunsInOneWeek(@RequestBody RunCountParams params) {
+        try {
+            boolean isParams = params != null;
+            var output = new ArrayList<RunTimeFrameData>();
+            var numDays = 7;
+            var start = 0;
+            var end = 24;
+            while (numDays > 0) {
+                Integer count = countRunsInTimeFrame(params, isParams, start, end);
+                var midDate = bundles.getTimeFrame(start + 12);
+                var date = new SimpleDateFormat("EEEE - MM/dd/yyyy").format(midDate);
+                output.add(new RunTimeFrameData(count, date));
+                start += 24;
+                end += 24;
+                numDays--;
+            }
+            return new ResponseEntity<>(output, HttpStatus.OK);
+        } catch (Exception ex) {
+            logger.info("Exception fetching run timeframe data for 1 week\n" + ExceptionUtils.getStackTrace(ex));
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    private static Integer countRunsInTimeFrame(@RequestBody RunCountParams params, boolean isParams, int start, int end) {
+        Integer count;
+        if (!isParams || params.noTypes) {
+            count = bundles.countRunsInTimeFrame(end, start);
+        } else {
+            var t = params.types;
+            count = bundles.countRunsInTimeFrame(end, start, t.character(), t.duelist(),
+                    t.nonDuelist(), t.timeStart(), t.timeEnd(), t.host(), t.country(), t.ascensionStart(),
+                    t.ascensionEnd(), t.challengeStart(), t.challengeEnd(), t.victory(), t.floorStart(),
+                    t.floorEnd(), t.deck(), t.killedBy());
+        }
+        return count;
+    }
+
+    @GetMapping("/score-leaderboard")
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
+    public ResponseEntity<List<LeaderboardScoreWinnerDTO>> getScoreLeaderboard() {
+        try {
+            return new ResponseEntity<>(bundles.getScoreLeaderboardWinners(), HttpStatus.OK);
+        } catch (Exception ex) {
+            logger.info("Exception fetching score leaderboard\n" + ExceptionUtils.getStackTrace(ex));
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PostMapping("/wins-leaderboard")
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
+    public ResponseEntity<List<LeaderboardWinnersResultDTO>> getWinsLeaderboard(@RequestBody WinsLeaderboardLookupDTO input) {
+        try {
+            return new ResponseEntity<>(bundles.getWinsLeaderboardWinners(input.character(), input.startDeck(), input.ascension()), HttpStatus.OK);
+        } catch (Exception ex) {
+            logger.info("Exception fetching wins leaderboard\n" + ExceptionUtils.getStackTrace(ex));
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
     }
 }

@@ -2,7 +2,7 @@ package DuelistMetrics.Server.models.infoModels;
 
 import com.fasterxml.jackson.annotation.*;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.*;
 
 @Entity
@@ -29,6 +29,9 @@ public class InfoRelic {
 
     @Column(length = 4028)
     private String descriptionPlain;
+
+    @ElementCollection
+    private List<String> pools;
 
     public InfoRelic() {}
 
@@ -102,6 +105,14 @@ public class InfoRelic {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public List<String> getPools() {
+        return pools;
+    }
+
+    public void setPools(List<String> pools) {
+        this.pools = pools;
     }
 
     @Override

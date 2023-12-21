@@ -10,10 +10,10 @@ import java.util.*;
 @Repository
 public interface NeowRepo extends JpaRepository<OfferNeow, Long> {
 
-  @Query("SELECT oc.name, SUM(oc.picked), SUM(oc.pickVic) FROM OfferNeow oc GROUP BY oc.name")
+  @Query(value = "SELECT oc.name, SUM(oc.picked), SUM(oc.pick_vic) FROM offer_neow oc GROUP BY oc.name", nativeQuery = true)
   List<String> getAll();
 
-  @Query("SELECT oc.name, SUM(oc.picked), SUM(oc.pickVic) FROM OfferNeow oc LEFT JOIN PickInfo pi ON oc.info.id = pi.id WHERE pi.deck = :deck GROUP BY oc.name")
+  @Query(value = "SELECT oc.name, SUM(oc.picked), SUM(oc.pick_vic) FROM offer_neow oc LEFT JOIN pick_info pi ON oc.info_id = pi.id WHERE pi.deck = :deck GROUP BY oc.name", nativeQuery = true)
   List<String> getAllFromDeck(@Param("deck") String deck);
 
 }

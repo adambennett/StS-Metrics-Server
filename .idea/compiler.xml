@@ -8,14 +8,16 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="StS-Metrics-Server" />
+        <module name="Duelist-Metrics-Server" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel target="8">
-      <module name="StS-Metrics-Server" target="1.8" />
+      <module name="StS-Metrics-Server" target="18" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="Duelist-Metrics-Server" options="-parameters" />
       <module name="StS-Metrics-Server" options="-parameters" />
     </option>
   </component>

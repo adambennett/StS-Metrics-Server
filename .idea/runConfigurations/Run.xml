@@ -1,8 +1,7 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="SpringApp (Heroku 512mb)" type="Application" factoryName="Application">
-    <option name="MAIN_CLASS_NAME" value="DuelistMetrics.Server.SpringApp" />
-    <module name="StS-Metrics-Server" />
-    <option name="PROGRAM_PARAMETERS" value="-Xms512M -Xmx512M" />
+  <configuration default="false" name="Run" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="DuelistMetrics.Server.DuelistMetricsServer" />
+    <module name="Duelist-Metrics-Server" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="DuelistMetrics.Server.*" />

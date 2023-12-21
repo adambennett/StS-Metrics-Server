@@ -3,15 +3,21 @@ package DuelistMetrics.Server.controllers;
 
 import DuelistMetrics.Server.models.*;
 import DuelistMetrics.Server.models.builders.*;
+import DuelistMetrics.Server.models.dto.LookupPotion;
+import DuelistMetrics.Server.models.dto.LookupRelic;
+import DuelistMetrics.Server.models.enums.ScoringRunLookupType;
 import DuelistMetrics.Server.models.infoModels.*;
 import DuelistMetrics.Server.models.tierScore.*;
 import DuelistMetrics.Server.services.*;
 import DuelistMetrics.Server.util.*;
 import com.vdurmont.semver4j.*;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.*;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.*;
 import java.util.logging.*;
 
@@ -32,148 +38,226 @@ public class InfoController {
 
     public static InfoService getService() { return bundles; }
 
+    @GetMapping("/isAlive")
+    public HttpStatus isAlive() {
+        return HttpStatus.OK;
+    }
+
+
+
+    @GetMapping("/allTrackedDuelistVersions")
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
+    public ResponseEntity<?> allTrackedDuelistVersions() {
+        return new ResponseEntity<>(bundles.getAllTrackedDuelistVersions(), HttpStatus.OK);
+    }
+
+    @GetMapping("/orbInfo")
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
+    public ResponseEntity<?> orbInfo() {
+        return new ResponseEntity<>(bundles.getOrbInfo(), HttpStatus.OK);
+    }
+
     @GetMapping("/cardLookup/{card}")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public ResponseEntity<?> cardLookup(@PathVariable String card) {
+        if (card == null) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
         boolean duelist = card.startsWith("theDuelist:");
         int magic = 17;
         List<String> toParse = bundles.getCardDataFromId(card, duelist);
-        List<String> modData = bundles.getModDataFromId(card, duelist);
-        if (toParse == null || toParse.size() < 1) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-        List<String> cardProps;
-        String[] splice = toParse.get(0).split(",");
-        cardProps = new ArrayList<>(Arrays.asList(splice));
-        if (duelist) {
-            for (int i = 1; i < toParse.size(); i++) {
-                cardProps.add(toParse.get(i));
-            }
-        }
-        if (cardProps.size() > magic) {
-            LookupCardBuilder lookupCard = new LookupCardBuilder()
-                    .setBlock(Integer.parseInt(cardProps.get(0)))
-                    .setCard_id(cardProps.get(1))
-                    .setColor(cardProps.get(2))
-                    .setCost(cardProps.get(3))
-                    .setDamage(Integer.parseInt(cardProps.get(4)))
-                    .setDuelistType(cardProps.get(5))
-                    .setEntomb(Integer.parseInt(cardProps.get(6)))
-                    .setIsDuelistCard(Boolean.parseBoolean(cardProps.get(7)))
-                    .setMagicNumber(Integer.parseInt(cardProps.get(8)))
-                    .setName(cardProps.get(9))
-                    .setRarity(cardProps.get(10))
-                    .setSecondMag(Integer.parseInt(cardProps.get(11)))
-                    .setSummons(Integer.parseInt(cardProps.get(12)))
-                    .setThirdMag(Integer.parseInt(cardProps.get(13)))
-                    .setTributes(Integer.parseInt(cardProps.get(14)))
-                    .setType(cardProps.get(15));
-            lookupCard.setModule(modData.get(0));
-            lookupCard.setAuthors(modData.get(1));
-            try {
-                lookupCard.setMaxUpgrades(Integer.parseInt(cardProps.get(16)));
-            } catch (Exception ex) {
-                lookupCard.setMaxUpgrades(-1);
-                magic = cardProps.get(16).equals("null") ? 17 : 16;
-            }
-            StringBuilder allText = new StringBuilder();
-            StringBuilder nlText = new StringBuilder();
-            if (duelist) {
-                List<String> pools = new ArrayList<>();
-                int i = magic;
-                for (;!cardProps.get(i).equals("TEXT"); i++) {
-                    pools.add(cardProps.get(i));
-                }
-                i++;
-                lookupCard.setPools(pools);
 
-                for (;!cardProps.get(i).equals("NEWLINETEXT");i++) {
-                    allText.append(cardProps.get(i));
-                    if (i + 1 < cardProps.size()) {
-                        allText.append(",");
-                    }
-                }
-                i++;
-                for (;i<cardProps.size();i++) {
-                    nlText.append(cardProps.get(i));
-                    if (i + 1 < cardProps.size()) {
-                        nlText.append(",");
-                    }
+        if (toParse == null || toParse.size() < 1) {
+            if (card.contains("+")) {
+                int indexOfPlus = card.indexOf("+");
+                card = card.substring(0, indexOfPlus);
+                toParse = bundles.getCardDataFromId(card, duelist);
+                if (toParse == null || toParse.size() < 1) {
+                    return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
                 }
             } else {
-                for (int i = magic; i < cardProps.size(); i++) {
-                    allText.append(cardProps.get(i));
-                    if (i + 1 < cardProps.size()) {
-                        allText.append(",");
-                    }
+                return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        }
+        List<String> modData = bundles.getModDataFromId(card, duelist);
+        List<String> cardProps;
+        try {
+            String[] splice = toParse.get(0).split(",");
+            cardProps = new ArrayList<>(Arrays.asList(splice));
+            if (duelist) {
+                for (int i = 1; i < toParse.size(); i++) {
+                    cardProps.add(toParse.get(i));
                 }
             }
-            lookupCard.setText(allText.toString());
-            lookupCard.setNewLineText(nlText.toString());
-            LookupCard lookup = lookupCard.createLookupCard();
-            return new ResponseEntity<>(lookup, HttpStatus.OK);
-        } else if (cardProps.size() == magic) {
-            LookupCardBuilder lookupCard = new LookupCardBuilder()
-                    .setBlock(Integer.parseInt(cardProps.get(0)))
-                    .setCard_id(cardProps.get(1))
-                    .setColor(cardProps.get(2))
-                    .setCost(cardProps.get(3))
-                    .setDamage(Integer.parseInt(cardProps.get(4)))
-                    .setDuelistType(cardProps.get(5))
-                    .setEntomb(Integer.parseInt(cardProps.get(6)))
-                    .setIsDuelistCard(Boolean.parseBoolean(cardProps.get(7)))
-                    .setMagicNumber(Integer.parseInt(cardProps.get(8)))
-                    .setName(cardProps.get(9))
-                    .setRarity(cardProps.get(10))
-                    .setSecondMag(Integer.parseInt(cardProps.get(11)))
-                    .setSummons(Integer.parseInt(cardProps.get(12)))
-                    .setThirdMag(Integer.parseInt(cardProps.get(13)))
-                    .setTributes(Integer.parseInt(cardProps.get(14)))
-                    .setType(cardProps.get(15))
-                    .setText("No text found.");
-            try {
-                lookupCard.setMaxUpgrades(Integer.parseInt(cardProps.get(16)));
-            } catch (Exception ex) {
-                lookupCard.setMaxUpgrades(-1);
+            if (cardProps.size() > magic) {
+                LookupCardBuilder lookupCard = new LookupCardBuilder()
+                        .setBlock(Integer.parseInt(cardProps.get(0)))
+                        .setCard_id(cardProps.get(1))
+                        .setColor(cardProps.get(2))
+                        .setCost(cardProps.get(3))
+                        .setDamage(Integer.parseInt(cardProps.get(4)))
+                        .setDuelistType(cardProps.get(5))
+                        .setEntomb(Integer.parseInt(cardProps.get(6)))
+                        .setIsDuelistCard(Boolean.parseBoolean(cardProps.get(7)))
+                        .setMagicNumber(Integer.parseInt(cardProps.get(8)))
+                        .setName(cardProps.get(9))
+                        .setRarity(cardProps.get(10))
+                        .setSecondMag(Integer.parseInt(cardProps.get(11)))
+                        .setSummons(Integer.parseInt(cardProps.get(12)))
+                        .setThirdMag(Integer.parseInt(cardProps.get(13)))
+                        .setTributes(Integer.parseInt(cardProps.get(14)))
+                        .setType(cardProps.get(15));
+                lookupCard.setModule(modData.get(0));
+                lookupCard.setAuthors(modData.get(1));
+                try {
+                    lookupCard.setMaxUpgrades(Integer.parseInt(cardProps.get(16)));
+                } catch (Exception ex) {
+                    lookupCard.setMaxUpgrades(-1);
+                    magic = cardProps.get(16).equals("null") ? 17 : 16;
+                }
+                StringBuilder allText = new StringBuilder();
+                StringBuilder nlText = new StringBuilder();
+                if (duelist) {
+                    List<String> pools = new ArrayList<>();
+                    int i = magic;
+                    for (;!cardProps.get(i).equals("TEXT"); i++) {
+                        pools.add(cardProps.get(i));
+                    }
+                    i++;
+                    lookupCard.setPools(pools);
+
+                    for (;!cardProps.get(i).equals("NEWLINETEXT");i++) {
+                        allText.append(cardProps.get(i));
+                        if (i + 1 < cardProps.size()) {
+                            allText.append(",");
+                        }
+                    }
+                    i++;
+                    for (;i<cardProps.size();i++) {
+                        nlText.append(cardProps.get(i));
+                        if (i + 1 < cardProps.size()) {
+                            nlText.append(",");
+                        }
+                    }
+                } else {
+                    for (int i = magic; i < cardProps.size(); i++) {
+                        allText.append(cardProps.get(i));
+                        if (i + 1 < cardProps.size()) {
+                            allText.append(",");
+                        }
+                    }
+                }
+                lookupCard.setText(allText.toString());
+                lookupCard.setNewLineText(nlText.toString());
+                LookupCard lookup = lookupCard.createLookupCard();
+                return new ResponseEntity<>(lookup, HttpStatus.OK);
+            } else if (cardProps.size() == magic) {
+                LookupCardBuilder lookupCard = new LookupCardBuilder()
+                        .setBlock(Integer.parseInt(cardProps.get(0)))
+                        .setCard_id(cardProps.get(1))
+                        .setColor(cardProps.get(2))
+                        .setCost(cardProps.get(3))
+                        .setDamage(Integer.parseInt(cardProps.get(4)))
+                        .setDuelistType(cardProps.get(5))
+                        .setEntomb(Integer.parseInt(cardProps.get(6)))
+                        .setIsDuelistCard(Boolean.parseBoolean(cardProps.get(7)))
+                        .setMagicNumber(Integer.parseInt(cardProps.get(8)))
+                        .setName(cardProps.get(9))
+                        .setRarity(cardProps.get(10))
+                        .setSecondMag(Integer.parseInt(cardProps.get(11)))
+                        .setSummons(Integer.parseInt(cardProps.get(12)))
+                        .setThirdMag(Integer.parseInt(cardProps.get(13)))
+                        .setTributes(Integer.parseInt(cardProps.get(14)))
+                        .setType(cardProps.get(15))
+                        .setText("No text found.");
+                try {
+                    lookupCard.setMaxUpgrades(Integer.parseInt(cardProps.get(16)));
+                } catch (Exception ex) {
+                    lookupCard.setMaxUpgrades(-1);
+                }
+                return new ResponseEntity<>(lookupCard.createLookupCard(), HttpStatus.OK);
             }
-            return new ResponseEntity<>(lookupCard.createLookupCard(), HttpStatus.OK);
+        } catch (Exception ex) {
+            logger.info("Exception during card lookup\n" + ExceptionUtils.getStackTrace(ex));
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<>(cardProps, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @PostMapping("/dataupload")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
-    public ResponseEntity<?> infoUpload(@RequestBody TopInfoBundle list){
-        if (list != null) {
-            Map<String, List<String>> output = recheckModules();
-            List<ModInfoBundle> saved = new ArrayList<>(list.getInfo().size());
-            for (ModInfoBundle mod : list.getInfo()) {
-                if (output.containsKey(mod.getModID())) {
-                    if (!output.get(mod.getModID()).contains(mod.getVersion())) {
-                        saved.add(bundles.createBundle(mod));
-                    }
-                } else {
-                    saved.add(bundles.createBundle(mod));
-                }
-            }
-            if (saved.size() > 0) {
-                return new ResponseEntity<>(saved, HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>(list, HttpStatus.NO_CONTENT);
-            }
+    @GetMapping("/relicLookup/{relic}")
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
+    public ResponseEntity<LookupRelic> relicLookup(@PathVariable String relic) {
+        try {
+            return new ResponseEntity<>(bundles.getRelicDataFromId(relic, relic.startsWith("theDuelist:")), HttpStatus.OK);
+        } catch (Exception ex) {
+            logger.info("Error looking up relic by ID - " + relic + "\n" + ExceptionUtils.getStackTrace(ex));
         }
         return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @GetMapping("/potionLookup/{potion}")
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
+    public ResponseEntity<LookupPotion> potionLookup(@PathVariable String potion) {
+        try {
+            return new ResponseEntity<>(bundles.getPotionDataFromId(potion, potion.startsWith("theDuelist:")), HttpStatus.OK);
+        } catch (Exception ex) {
+            logger.info("Error looking up potion by ID - " + potion + "\n" + ExceptionUtils.getStackTrace(ex));
+        }
+        return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @PostMapping("/dataupload")
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
+    public ResponseEntity<?> infoUpload(@RequestBody TopInfoBundle list){
+        try {
+            if (list != null) {
+                Map<String, List<String>> output = recheckModules();
+                List<ModInfoBundle> saved = new ArrayList<>(list.getInfo().size());
+                for (ModInfoBundle mod : list.getInfo()) {
+                    if (output.containsKey(mod.getModID())) {
+                        if (!output.get(mod.getModID()).contains(mod.getVersion())) {
+                            saved.add(bundles.createBundle(mod));
+                        }
+                    } else {
+                        saved.add(bundles.createBundle(mod));
+                    }
+                }
+                return new ResponseEntity<>(saved, HttpStatus.OK);
+            }
+        } catch (Exception ex) {
+            logger.info("Exception saving uploaded module info\n" + ExceptionUtils.getStackTrace(ex));
+        }
+        return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @PostMapping("/orbInfoUpload")
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
+    public ResponseEntity<?> infoUpload(@RequestBody List<DuelistOrbInfo> list){
+        try {
+            if (list != null) {
+                for (DuelistOrbInfo orb : list) {
+                    try {
+                        bundles.createOrbInfo(orb);
+                    } catch (SQLIntegrityConstraintViolationException | DataIntegrityViolationException ignored) {}
+                    catch (Exception ex) {
+                        logger.info("Exception saving duelist orb info\n" + ExceptionUtils.getStackTrace(ex));
+                    }
+                }
+                return new ResponseEntity<>(null, HttpStatus.OK);
+            }
+        } catch (Exception ignored) {}
+        return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
     @GetMapping("/allModuleVersions")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public ResponseEntity<?> getTrackedVersions() {
         List<String> versions = bundles.getAllModuleVersions();
         return new ResponseEntity<>(versions, HttpStatus.OK);
     }
 
     @GetMapping("/anubisScoreAverage")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public ResponseEntity<?> getAnubisScoreAverage() {
         String visits = bundles.getAnubisVisits();
         Integer totalVisits = 0;
@@ -193,7 +277,7 @@ public class InfoController {
     }
 
     @GetMapping("/modlist")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public ResponseEntity<?> getAllMods() {
         List<String> versions = bundles.getModList();
         List<Country> mods = new ArrayList<>();
@@ -207,8 +291,14 @@ public class InfoController {
         return new ResponseEntity<>(mods, HttpStatus.OK);
     }
 
+    @GetMapping("/modlist-v2")
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
+    public ResponseEntity<?> getAllModsNew() {
+        return new ResponseEntity<>(bundles.getModListNew(), HttpStatus.OK);
+    }
+
     @GetMapping(value={"/tierScores", "/tierScores/{pool}", "/tierScores/{pool}/{cardId}"})
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public ResponseEntity<?> checkTierScores(@PathVariable(required = false) String pool, @PathVariable(required = false) String cardId) {
         if (pool == null) {
             return new ResponseEntity<>(bundles.getAllTierScores(), HttpStatus.OK);
@@ -228,9 +318,9 @@ public class InfoController {
     }
 
 
-    @GetMapping(value={"/calculateTierScores", "/calculateTierScores/{ascension}", "/calculateTierScores/{ascension}/{challenge}", "/calculateTierScores/{ascension}/{challenge}/{deckName}"})
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
-    public ResponseEntity<?> getTierScores(@PathVariable(required = false) String challenge, @PathVariable(required = false)  String ascension,  @PathVariable(required = false) String deckName) {
+    @GetMapping(value={"/calculateTierScores", "/calculateTierScores/{ascension}", "/calculateTierScores/{ascension}/{challenge}", "/calculateTierScores/{ascension}/{challenge}/{deckName}", "/calculateTierScoresTyped/{type}", "/calculateTierScoresTyped/{type}/{ascension}", "/calculateTierScoresTyped/{type}/{ascension}/{challenge}", "/calculateTierScoresTyped/{type}/{ascension}/{challenge}/{deckName}"})
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
+    public ResponseEntity<?> getTierScores(@PathVariable(required = false) String challenge, @PathVariable(required = false)  String ascension, @PathVariable(required = false) String deckName, @PathVariable(required = false) String type) {
         try {
             // Handle path variables
             int ascensionFilter = -1;
@@ -241,8 +331,18 @@ public class InfoController {
             boolean filteringDeckName  = deckName != null && !deckName.equalsIgnoreCase("any");
             deckFilter = filteringDeckName ? deckName : null;
 
+            ScoringRunLookupType lookupType = ScoringRunLookupType.LEGACY;
+            if (type != null) {
+                for (ScoringRunLookupType lookup : ScoringRunLookupType.values()) {
+                    if (lookup.toString().equalsIgnoreCase(type)) {
+                        lookupType = lookup;
+                        break;
+                    }
+                }
+            }
+
             // Calculate scores
-            Map<String, List<ScoredCard>> scoredOutput = calculateTierScores(challengeFilter, ascensionFilter, deckFilter);
+            Map<String, List<ScoredCard>> scoredOutput = calculateTierScores(challengeFilter, ascensionFilter, deckFilter, lookupType);
 
             // Format for readable response JSON
             Map<String,  List<MinimalScoredCard>> justScores = new HashMap<>();
@@ -336,8 +436,16 @@ public class InfoController {
         bundles.createTierScore(card);
     }
 
-    public static Map<String,List<String>> getTrackedCardsForTierScores(String poolName) {
-        Map<String,List<String>> data = bundles.getTrackedCardsForTierScores(poolName);
+    public static void saveTierScores(ScoredCardV4 card) {
+        bundles.createTierScore(card);
+    }
+
+    public static void saveTierScores(ScoredCardA20 card) {
+        bundles.createTierScore(card);
+    }
+
+    public static Map<String,List<String>> getLegacyTrackedCardsForTierScores(String poolName) {
+        Map<String,List<String>> data = bundles.getLegacyTrackedCardsForTierScores(poolName);
         List<String> keysToRemove = new ArrayList<>();
         for (Map.Entry<String, List<String>> entry : data.entrySet()) {
             String pool = entry.getKey();
@@ -357,7 +465,49 @@ public class InfoController {
         return data;
     }
 
-    public static Map<String, List<ScoredCard>> calculateTierScores(int challengeThreshold, int ascensionThreshold, String deckName) {
+    public static Map<String,List<String>> getV4TrackedCardsForTierScores(String poolName) {
+        Map<String,List<String>> data = bundles.getV4TrackedCardsForTierScores(poolName);
+        List<String> keysToRemove = new ArrayList<>();
+        for (Map.Entry<String, List<String>> entry : data.entrySet()) {
+            String pool = entry.getKey();
+            if (pool.contains("[Basic/Colorless]")) {
+                String[] splice = pool.split("\\[");
+                String basePool = splice[0].trim();
+                if (data.containsKey(basePool)) {
+                    List<String> cards = data.get(basePool);
+                    cards.addAll(entry.getValue());
+                    keysToRemove.add(pool);
+                }
+            }
+        }
+        for (String key : keysToRemove) {
+            data.remove(key);
+        }
+        return data;
+    }
+
+    public static Map<String,List<String>> getA20TrackedCardsForTierScores(String poolName) {
+        Map<String,List<String>> data = bundles.getA20TrackedCardsForTierScores(poolName);
+        List<String> keysToRemove = new ArrayList<>();
+        for (Map.Entry<String, List<String>> entry : data.entrySet()) {
+            String pool = entry.getKey();
+            if (pool.contains("[Basic/Colorless]")) {
+                String[] splice = pool.split("\\[");
+                String basePool = splice[0].trim();
+                if (data.containsKey(basePool)) {
+                    List<String> cards = data.get(basePool);
+                    cards.addAll(entry.getValue());
+                    keysToRemove.add(pool);
+                }
+            }
+        }
+        for (String key : keysToRemove) {
+            data.remove(key);
+        }
+        return data;
+    }
+
+    public static <T extends GeneralScoringCard> Map<String, List<T>> calculateTierScores(int challengeThreshold, int ascensionThreshold, String deckName, ScoringRunLookupType type) {
 
         /* Process parameters                                                                                         */
         Integer ascensionFilter = ascensionThreshold;
@@ -370,15 +520,10 @@ public class InfoController {
         challengeFilter = filteringChallenge ? challengeFilter : null;
         deckFilter = filteringDeckName ? deckName : null;
 
-        /* Global card list for random/upgrade/exodia pools                                                           */
-        List<List<String>> globals = bundles.globalCardListData();
-        List<String> poolsWithGlobalCardLists = globals.get(0);
-        List<String> globalCardList = globals.get(1);
-
         /* Setup variables                                                                                            */
         // scored output
         //  (Pool)
-        Map<String, List<ScoredCard>> output = new HashMap<>();
+        Map<String, List<T>> output = new HashMap<>();
 
         // Holds data used to construct actual output
         //  (Pool)     (CardId)    (Floor)
@@ -407,7 +552,11 @@ public class InfoController {
         /* Fetch list of cards we are tracking for tier scoring                                                       */
         // holds reference to which cards we care about scoring
         //  (Pool)      (CardId)
-        Map<String, List<String>> cardsMap = getTrackedCardsForTierScores(deckFilter);
+        Map<String, List<String>> cardsMap = switch(type) {
+            case LEGACY -> getLegacyTrackedCardsForTierScores(deckFilter);
+            case V4 -> getV4TrackedCardsForTierScores(deckFilter);
+            case A20 -> getA20TrackedCardsForTierScores(deckFilter);
+        };
 
         // holds list of all deck names of decks we're tracking
         //  (Pool)
@@ -475,7 +624,11 @@ public class InfoController {
         /* Fetch all runs needed for scoring                                                                          */
         // sort runs by starting deck and filter runs we dont care about for scoring
         //  (Pool)
-        Map<String, List<TierBundle>> bundlesMap = bundleService.getBundlesForTierScores(startingDecks, ascensionFilter, challengeFilter);
+        Map<String, List<TierBundle>> bundlesMap = switch(type) {
+            case LEGACY -> bundleService.getLegacyBundlesForTierScores(startingDecks, ascensionFilter, challengeFilter);
+            case V4 -> bundleService.getV4BundlesForTierScores(startingDecks, ascensionFilter, challengeFilter);
+            case A20 -> bundleService.getA20BundlesForTierScores(startingDecks, ascensionFilter, challengeFilter);
+        };
 
         /* Begin processing and scoring                                                                               */
         // Use data to construct win rates for all tracked cards (by deck)
@@ -538,34 +691,34 @@ public class InfoController {
                                         PopsCard toUpdate = popsCardMap.get(card_id);
                                         toUpdate.numberOfPicks++;
                                         switch (act) {
-                                            case 0:
+                                            case 0 -> {
                                                 if (!a0_popsCardMap.containsKey(card_id)) {
                                                     a0_popsCardMap.put(card_id, new PopsCard(card_id));
                                                 }
                                                 PopsCard a0_toUpdate = a0_popsCardMap.get(card_id);
                                                 a0_toUpdate.numberOfPicks++;
-                                                break;
-                                            case 1:
+                                            }
+                                            case 1 -> {
                                                 if (!a1_popsCardMap.containsKey(card_id)) {
                                                     a1_popsCardMap.put(card_id, new PopsCard(card_id));
                                                 }
                                                 PopsCard a1_toUpdate = a1_popsCardMap.get(card_id);
                                                 a1_toUpdate.numberOfPicks++;
-                                                break;
-                                            case 2:
+                                            }
+                                            case 2 -> {
                                                 if (!a2_popsCardMap.containsKey(card_id)) {
                                                     a2_popsCardMap.put(card_id, new PopsCard(card_id));
                                                 }
                                                 PopsCard a2_toUpdate = a2_popsCardMap.get(card_id);
                                                 a2_toUpdate.numberOfPicks++;
-                                                break;
-                                            case 3:
+                                            }
+                                            case 3 -> {
                                                 if (!a3_popsCardMap.containsKey(card_id)) {
                                                     a3_popsCardMap.put(card_id, new PopsCard(card_id));
                                                 }
                                                 PopsCard a3_toUpdate = a3_popsCardMap.get(card_id);
                                                 a3_toUpdate.numberOfPicks++;
-                                                break;
+                                            }
                                         }
                                     }
 
@@ -578,26 +731,26 @@ public class InfoController {
                                         toCreate.numberOfPicks++;
                                         popsCardMap.put(card_id, toCreate);
                                         switch (act) {
-                                            case 0:
+                                            case 0 -> {
                                                 PopsCard a0_toCreate = new PopsCard(card_id);
                                                 a0_toCreate.numberOfPicks++;
                                                 a0_popsCardMap.put(card_id, a0_toCreate);
-                                                break;
-                                            case 1:
+                                            }
+                                            case 1 -> {
                                                 PopsCard a1_toCreate = new PopsCard(card_id);
                                                 a1_toCreate.numberOfPicks++;
                                                 a1_popsCardMap.put(card_id, a1_toCreate);
-                                                break;
-                                            case 2:
+                                            }
+                                            case 2 -> {
                                                 PopsCard a2_toCreate = new PopsCard(card_id);
                                                 a2_toCreate.numberOfPicks++;
                                                 a2_popsCardMap.put(card_id, a2_toCreate);
-                                                break;
-                                            case 3:
+                                            }
+                                            case 3 -> {
                                                 PopsCard a3_toCreate = new PopsCard(card_id);
                                                 a3_toCreate.numberOfPicks++;
                                                 a3_popsCardMap.put(card_id, a3_toCreate);
-                                                break;
+                                            }
                                         }
                                     }
 
@@ -654,30 +807,34 @@ public class InfoController {
         for (Map.Entry<String, List<TierDataHolder>> entry : destructuredDataMap.entrySet()) {
             String deck = entry.getKey();
             String pool = deckToPoolConvert.get(deck);
-            Map<String, ScoredCard> toAddToCards = new HashMap<>();
+            Map<String, T> toAddToCards = new HashMap<>();
             for (TierDataHolder data : entry.getValue()) {
-                ScoredCard card = toAddToCards.getOrDefault(data.cardId, new ScoredCard(data.cardId, pool));
+                GeneralScoringCard card = switch (type) {
+                    case V4 -> new ScoredCardV4(data.cardId, pool);
+                    case A20 -> new ScoredCardA20(data.cardId, pool);
+                    default -> new ScoredCard(data.cardId, pool);
+                };
                 switch (data.act) {
-                    case 0:
+                    case 0 -> {
                         card.setAct0_losses(card.getAct0_losses() + data.losses);
                         card.setAct0_wins(card.getAct0_wins() + data.wins);
-                        break;
-                    case 1:
+                    }
+                    case 1 -> {
                         card.setAct1_losses(card.getAct1_losses() + data.losses);
                         card.setAct1_wins(card.getAct1_wins() + data.wins);
-                        break;
-                    case 2:
+                    }
+                    case 2 -> {
                         card.setAct2_losses(card.getAct2_losses() + data.losses);
                         card.setAct2_wins(card.getAct2_wins() + data.wins);
-                        break;
-                    case 3:
+                    }
+                    case 3 -> {
                         card.setAct3_losses(card.getAct3_losses() + data.losses);
                         card.setAct3_wins(card.getAct3_wins() + data.wins);
-                        break;
+                    }
                 }
-                toAddToCards.put(data.cardId, card);
+                toAddToCards.put(data.cardId, (T) card);
             }
-            List<ScoredCard> cards = new ArrayList<>(toAddToCards.values());
+            List<T> cards = new ArrayList<>(toAddToCards.values());
             if (!output.containsKey(pool)) {
                 output.put(pool, cards);
             } else {
@@ -687,11 +844,11 @@ public class InfoController {
 
         /* Scoring                                                                                                    */
         // Calculate actual win rate for individual cards within each pool
-        for (Map.Entry<String, List<ScoredCard>> entry : output.entrySet()) {
+        for (Map.Entry<String, List<T>> entry : output.entrySet()) {
 
             // Map of total win rates across all cards within a pool during different acts (a whole act win-rate column)
             PoolTotals pool = poolTotalsMap.get(entry.getKey());
-            for (ScoredCard card : entry.getValue()) {
+            for (T card : entry.getValue()) {
                 float a0_winrate = card.getAct0_losses() > 0 ? (float)card.getAct0_wins() / (card.getAct0_wins() + card.getAct0_losses()) : 0.0f;
                 float a1_winrate = card.getAct1_losses() > 0 ? (float)card.getAct1_wins() / (card.getAct1_wins() + card.getAct1_losses()) : 0.0f;
                 float a2_winrate = card.getAct2_losses() > 0 ? (float)card.getAct2_wins() / (card.getAct2_wins() + card.getAct2_losses()) : 0.0f;
@@ -711,15 +868,15 @@ public class InfoController {
         }
 
         // Final Scoring
-        for (Map.Entry<String, List<ScoredCard>> entry : output.entrySet()) {
+        for (Map.Entry<String, List<T>> entry : output.entrySet()) {
             PoolTotals pool = poolTotalsMap.get(entry.getKey());
             String poolName = entry.getKey();
-            for (ScoredCard card : entry.getValue()) {
-                PopsCard popData = cardPopularity.get(poolName).get(card.card_id);
-                PopsCard a0_popData = a0_cardPopularity.get(poolName).getOrDefault(card.card_id, new PopsCard(card.card_id));
-                PopsCard a1_popData = a1_cardPopularity.get(poolName).getOrDefault(card.card_id, new PopsCard(card.card_id));
-                PopsCard a2_popData = a2_cardPopularity.get(poolName).getOrDefault(card.card_id, new PopsCard(card.card_id));
-                PopsCard a3_popData = a3_cardPopularity.get(poolName).getOrDefault(card.card_id, new PopsCard(card.card_id));
+            for (T card : entry.getValue()) {
+                PopsCard popData = cardPopularity.get(poolName).get(card.getCard_id());
+                PopsCard a0_popData = a0_cardPopularity.get(poolName).getOrDefault(card.getCard_id(), new PopsCard(card.getCard_id()));
+                PopsCard a1_popData = a1_cardPopularity.get(poolName).getOrDefault(card.getCard_id(), new PopsCard(card.getCard_id()));
+                PopsCard a2_popData = a2_cardPopularity.get(poolName).getOrDefault(card.getCard_id(), new PopsCard(card.getCard_id()));
+                PopsCard a3_popData = a3_cardPopularity.get(poolName).getOrDefault(card.getCard_id(), new PopsCard(card.getCard_id()));
 
                 // Delta formula:
                 //  [act win rate] - [average act win rate for pool]
@@ -777,7 +934,7 @@ public class InfoController {
             // Calculate highest and lowest score of entire pool - overall and for each act
             int highestScore = -1; int highestA0Score = -1; int highestA1Score = -1; int highestA2Score = -1; int highestA3Score = -1;
             int lowestA0Score = 1; int lowestA1Score = 1; int lowestA2Score = 1; int lowestA3Score = 1; int lowestNegative = 1;
-            for (ScoredCard card : entry.getValue()) {
+            for (T card : entry.getValue()) {
                 if (card.getOverall_score() > highestScore) {
                     highestScore = card.getOverall_score();
                 }
@@ -811,7 +968,7 @@ public class InfoController {
             }
 
             // Adjust all scores to align with scale [-100 <---> 100]
-            for (ScoredCard card : entry.getValue()) {
+            for (T card : entry.getValue()) {
                 if (card.getOverall_score() >= 0) {
                     card.setOverall_score(Math.round((card.getOverall_score() / (float)highestScore) * 100));
                 } else {

@@ -9,6 +9,7 @@ public class CustomProperties {
 
     public Boolean enableAutomaticUpdates = true;
     public Boolean showUpdateProgress = false;
+    public Boolean showCardsUpdated = false;
 
     public CustomProperties() {}
 
@@ -26,5 +27,13 @@ public class CustomProperties {
 
     public void setShowUpdateProgress(Boolean showUpdateProgress) {
         this.showUpdateProgress = showUpdateProgress;
+    }
+
+    public Boolean getShowCardsUpdated() {
+        return showCardsUpdated;
+    }
+
+    public void setShowCardsUpdated(Boolean showCardsUpdated) {
+        this.showCardsUpdated = showCardsUpdated;
     }
 }

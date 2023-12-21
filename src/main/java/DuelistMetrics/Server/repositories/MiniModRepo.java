@@ -13,6 +13,6 @@ public interface MiniModRepo extends JpaRepository<MiniMod, Long> {
     List<MiniMod> getByBundleId(Long id);
 
     @Query(value = "SELECT info_bundle_id FROM mod_info_bundle WHERE modid = :mod_id and version = :version", nativeQuery = true)
-    Long getBundleId(String mod_id, String version);
+    List<Long> getBundleId(String mod_id, String version);
 
 }

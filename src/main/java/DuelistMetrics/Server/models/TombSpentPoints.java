@@ -2,7 +2,7 @@ package DuelistMetrics.Server.models;
 
 import com.fasterxml.jackson.annotation.*;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
 public class TombSpentPoints {

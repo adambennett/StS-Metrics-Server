@@ -2,7 +2,7 @@ package DuelistMetrics.Server.models.infoModels;
 
 import com.fasterxml.jackson.annotation.*;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.*;
 
 @Entity
@@ -27,6 +27,9 @@ public class InfoPotion {
     private String descriptionPlain;
 
     private String playerClass;
+
+    @ElementCollection
+    private List<String> pools;
 
     public InfoPotion() {}
 
@@ -92,6 +95,14 @@ public class InfoPotion {
 
     public void setPlayerClass(String playerClass) {
         this.playerClass = playerClass;
+    }
+
+    public List<String> getPools() {
+        return pools;
+    }
+
+    public void setPools(List<String> pools) {
+        this.pools = pools;
     }
 
     @Override

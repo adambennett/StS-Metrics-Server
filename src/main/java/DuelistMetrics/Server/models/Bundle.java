@@ -1,17 +1,99 @@
 package DuelistMetrics.Server.models;
 
+import DuelistMetrics.Server.models.dto.LeaderboardScoreWinnerDTO;
+import DuelistMetrics.Server.models.dto.LeaderboardWinnerDTO;
+import DuelistMetrics.Server.models.dto.PlayerNameListDTO;
 import DuelistMetrics.Server.models.infoModels.*;
 import DuelistMetrics.Server.util.*;
 import com.fasterxml.jackson.annotation.*;
+import jakarta.persistence.NamedNativeQuery;
 import org.hibernate.annotations.*;
 
-import javax.persistence.*;
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
+import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
 import java.math.*;
 import java.util.*;
 
 @Entity
+@NamedNativeQuery(name = "getScoreLeaderboardWinnersLookup", query = """
+SELECT
+    MAX(bb.duelist_score) AS score,
+    bb.unique_player_id AS playerId,
+    (SELECT COUNT(b.top_id) FROM bundle b WHERE b.character_chosen = 'THE_DUELIST' AND b.unique_player_id = bb.unique_player_id) AS runs
+FROM bundle bb
+WHERE bb.unique_player_id IS NOT NULL
+GROUP BY bb.unique_player_id
+ORDER BY MAX(bb.duelist_score)
+LIMIT 50
+""", resultSetMapping = "leaderboardWinnerDtoScoreMapping")
+@SqlResultSetMapping(
+        name = "leaderboardWinnerDtoScoreMapping",
+        classes = @ConstructorResult(targetClass = LeaderboardScoreWinnerDTO.class,columns = {
+                @ColumnResult(name = "score", type = Integer.class),
+                @ColumnResult(name = "playerId", type = String.class),
+                @ColumnResult(name = "runs", type = Integer.class)
+        })
+)
+@NamedNativeQuery(name = "getWinsLeaderboardWinnersLookup", query = """
+SELECT
+    COUNT(top_id) AS wins,
+    unique_player_id AS playerId
+FROM bundle
+WHERE victory = 1 AND
+      unique_player_id IS NOT NULL AND
+      (:characterChosen IS NULL OR character_chosen = :characterChosen OR (:characterChosen = 'Non-Duelist' AND character_chosen != 'THE_DUELIST')) AND
+      (:startDeck IS NULL OR starting_deck = :startDeck) AND
+      (:ascension IS NULL OR ((:ascension = 20 AND ascension_level = 20) OR ascension_level >= :ascension))
+GROUP BY unique_player_id
+ORDER BY COUNT(top_id) DESC
+LIMIT 50
+""", resultSetMapping = "leaderboardWinnerDtoWinsWinnersMapping")
+@SqlResultSetMapping(
+        name = "leaderboardWinnerDtoWinsWinnersMapping",
+        classes = @ConstructorResult(targetClass = LeaderboardWinnerDTO.class,columns = {
+                @ColumnResult(name = "wins", type = Integer.class),
+                @ColumnResult(name = "playerId", type = String.class)
+        })
+)
+@NamedNativeQuery(name = "getWinsLeaderboardWinnerDataLookup", query = """
+SELECT
+    COUNT(top_id) AS wins,
+    unique_player_id AS playerId,
+    starting_deck AS startDeck
+FROM bundle
+WHERE victory = 1 AND
+      unique_player_id IN :playerIds AND
+      (:characterChosen IS NULL OR character_chosen = :characterChosen OR (:characterChosen = 'Non-Duelist' AND character_chosen != 'THE_DUELIST')) AND
+      (:startDeck IS NULL OR starting_deck = :startDeck) AND
+      (:ascension IS NULL OR ((:ascension = 20 AND ascension_level = 20) OR ascension_level >= :ascension))
+GROUP BY unique_player_id, starting_deck
+ORDER BY COUNT(top_id) DESC
+""", resultSetMapping = "leaderboardWinnerDtoWinsDataMapping")
+@SqlResultSetMapping(
+        name = "leaderboardWinnerDtoWinsDataMapping",
+        classes = @ConstructorResult(targetClass = LeaderboardWinnerDTO.class,columns = {
+                @ColumnResult(name = "wins", type = Integer.class),
+                @ColumnResult(name = "playerId", type = String.class),
+                @ColumnResult(name = "startDeck", type = String.class)
+        })
+)
+@NamedNativeQuery(name = "getPlayerNamesByIdsLookup", query = """
+SELECT
+    unique_player_id AS playerId,
+    GROUP_CONCAT(DISTINCT t.host SEPARATOR ', ') AS playerNames
+FROM bundle b
+JOIN top_bundle t ON t.event_top_id = b.top_id
+WHERE unique_player_id IN :playerIds
+GROUP BY unique_player_id
+""", resultSetMapping = "playerNameListDtoMapping")
+@SqlResultSetMapping(
+        name = "playerNameListDtoMapping",
+        classes = @ConstructorResult(targetClass = PlayerNameListDTO.class,columns = {
+                @ColumnResult(name = "playerId", type = String.class),
+                @ColumnResult(name = "playerNames", type = String.class)
+        })
+)
 public class Bundle {
 
   @Id
@@ -21,6 +103,10 @@ public class Bundle {
   @OneToOne(fetch = FetchType.EAGER, mappedBy = "event")
   @JsonIgnoreProperties("event")
   private TopBundle top;
+
+  @Temporal(TemporalType.TIMESTAMP)
+  @Generated(GenerationTime.INSERT)
+  private Date created_date;
 
   private String build_version;
   private String character_chosen;
@@ -36,6 +122,8 @@ public class Bundle {
   private String country;
   private String lang;
   private String unique_player_id;
+  private String run_uuid;
+  private String character_model;
 
   private Boolean add_base_game_cards;
   private Boolean allow_boosters;
@@ -72,6 +160,9 @@ public class Bundle {
   private Integer highest_max_summons;
   private Integer number_of_monsters;
   private Integer number_of_resummons;
+  private Integer number_of_tributes;
+  private Integer number_of_summons;
+  private Integer number_of_megatype_tributes;
   private Integer number_of_spells;
   private Integer number_of_traps;
   private Integer playtime;
@@ -79,6 +170,8 @@ public class Bundle {
   private Integer score;
   private Integer total_synergy_tributes;
   private Integer win_rate;
+  private Integer duelist_score;
+  private Integer duelist_score_current_version;
 
   private BigInteger player_experience;
   private BigInteger seed_source_timestamp;
@@ -167,6 +260,15 @@ public class Bundle {
   public Bundle(TopBundle top) {
     Bundle event = top.getEvent();
     this.top = top;
+    this.created_date = event.getCreated_date();
+    this.unique_player_id = event.getUnique_player_id();
+    this.run_uuid = event.getRun_uuid();
+    this.number_of_megatype_tributes = event.getNumber_of_megatype_tributes();
+    this.number_of_summons = event.getNumber_of_summons();
+    this.number_of_tributes = event.getNumber_of_tributes();
+    this.duelist_score = event.getDuelist_score();
+    this.duelist_score_current_version = event.getDuelist_score_current_version();
+    this.character_model = event.getCharacter_model();
     this.build_version= event.getBuild_version();
     this.character_chosen= event.getCharacter_chosen();
     this.duelistmod_version= event.getDuelistmod_version();
@@ -934,90 +1036,67 @@ public class Bundle {
     this.unique_player_id = unique_player_id;
   }
 
-  @Override
-  public String toString() {
-    return "Bundle{" +
-            "top_id=" + top_id +
-            ", top=" + top +
-            ", build_version='" + build_version + '\'' +
-            ", character_chosen='" + character_chosen + '\'' +
-            ", duelistmod_version='" + duelistmod_version + '\'' +
-            ", killed_by='" + killed_by + '\'' +
-            ", local_time='" + local_time + '\'' +
-            ", neow_bonus='" + neow_bonus + '\'' +
-            ", neow_cost='" + neow_cost + '\'' +
-            ", play_id='" + play_id + '\'' +
-            ", pool_fill='" + pool_fill + '\'' +
-            ", seed_played='" + seed_played + '\'' +
-            ", starting_deck='" + starting_deck + '\'' +
-            ", country='" + country + '\'' +
-            ", lang='" + lang + '\'' +
-            ", add_base_game_cards=" + add_base_game_cards +
-            ", allow_boosters=" + allow_boosters +
-            ", always_boosters=" + always_boosters +
-            ", bonus_puzzle_summons=" + bonus_puzzle_summons +
-            ", challenge_mode=" + challenge_mode +
-            ", chose_seed=" + chose_seed +
-            ", customized_card_pool=" + customized_card_pool +
-            ", duelist_curses=" + duelist_curses +
-            ", encounter_duelist_enemies=" + encounter_duelist_enemies +
-            ", is_ascension_mode=" + is_ascension_mode +
-            ", is_beta=" + is_beta +
-            ", is_daily=" + is_daily +
-            ", is_endless=" + is_endless +
-            ", is_prod=" + is_prod +
-            ", is_trial=" + is_trial +
-            ", playing_as_kaiba=" + playing_as_kaiba +
-            ", reduced_basic=" + reduced_basic +
-            ", remove_card_rewards=" + remove_card_rewards +
-            ", remove_creator=" + remove_creator +
-            ", remove_exodia=" + remove_exodia +
-            ", remove_ojama=" + remove_ojama +
-            ", remove_toons=" + remove_toons +
-            ", unlock_all_decks=" + unlock_all_decks +
-            ", victory=" + victory +
-            ", ascension_level=" + ascension_level +
-            ", campfire_rested=" + campfire_rested +
-            ", campfire_upgraded=" + campfire_upgraded +
-            ", challenge_level=" + challenge_level +
-            ", circlet_count=" + circlet_count +
-            ", floor_reached=" + floor_reached +
-            ", gold=" + gold +
-            ", highest_max_summons=" + highest_max_summons +
-            ", number_of_monsters=" + number_of_monsters +
-            ", number_of_resummons=" + number_of_resummons +
-            ", number_of_spells=" + number_of_spells +
-            ", number_of_traps=" + number_of_traps +
-            ", playtime=" + playtime +
-            ", purchased_purges=" + purchased_purges +
-            ", score=" + score +
-            ", total_synergy_tributes=" + total_synergy_tributes +
-            ", win_rate=" + win_rate +
-            ", player_experience=" + player_experience +
-            ", seed_source_timestamp=" + seed_source_timestamp +
-            ", timestamp=" + timestamp +
-            ", current_hp_per_floor=" + current_hp_per_floor +
-            ", gold_per_floor=" + gold_per_floor +
-            ", item_purchase_floors=" + item_purchase_floors +
-            ", items_purged_floors=" + items_purged_floors +
-            ", max_hp_per_floor=" + max_hp_per_floor +
-            ", potions_floor_spawned=" + potions_floor_spawned +
-            ", potions_floor_usage=" + potions_floor_usage +
-            ", items_purchased=" + items_purchased +
-            ", items_purged=" + items_purged +
-            ", master_deck=" + master_deck +
-            ", path_per_floor=" + path_per_floor +
-            ", path_taken=" + path_taken +
-            ", relics=" + relics +
-            ", modList=" + modList +
-            ", boss_relics=" + boss_relics +
-            ", event_choices=" + event_choices +
-            ", card_choices=" + card_choices +
-            ", potions_obtained=" + potions_obtained +
-            ", relics_obtained=" + relics_obtained +
-            ", campfire_choices=" + campfire_choices +
-            ", damage_taken=" + damage_taken +
-            ", unique_player_id=" + unique_player_id +
-            '}';
+  public Integer getNumber_of_tributes() {
+    return number_of_tributes;
+  }
+
+  public void setNumber_of_tributes(Integer number_of_tributes) {
+    this.number_of_tributes = number_of_tributes;
+  }
+
+  public Integer getNumber_of_summons() {
+    return number_of_summons;
+  }
+
+  public void setNumber_of_summons(Integer number_of_summons) {
+    this.number_of_summons = number_of_summons;
+  }
+
+  public Integer getNumber_of_megatype_tributes() {
+    return number_of_megatype_tributes;
+  }
+
+  public void setNumber_of_megatype_tributes(Integer number_of_megatype_tributes) {
+    this.number_of_megatype_tributes = number_of_megatype_tributes;
+  }
+
+  public String getRun_uuid() {
+    return run_uuid;
+  }
+
+  public void setRun_uuid(String run_uuid) {
+    this.run_uuid = run_uuid;
+  }
+
+  public Integer getDuelist_score() {
+    return duelist_score;
+  }
+
+  public void setDuelist_score(Integer duelist_score) {
+    this.duelist_score = duelist_score;
+  }
+
+  public Integer getDuelist_score_current_version() {
+    return duelist_score_current_version;
+  }
+
+  public void setDuelist_score_current_version(Integer duelist_score_current_version) {
+    this.duelist_score_current_version = duelist_score_current_version;
+  }
+
+  public String getCharacter_model() {
+    return character_model;
+  }
+
+  public void setCharacter_model(String character_model) {
+    this.character_model = character_model;
+  }
+
+  public Date getCreated_date() {
+    return created_date;
+  }
+
+  public void setCreated_date(Date createdDate) {
+    this.created_date = createdDate;
   }
 }

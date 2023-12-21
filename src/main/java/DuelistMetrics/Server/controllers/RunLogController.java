@@ -2,17 +2,22 @@ package DuelistMetrics.Server.controllers;
 
 import DuelistMetrics.Server.models.*;
 import DuelistMetrics.Server.models.builders.*;
+import DuelistMetrics.Server.models.dto.*;
 import DuelistMetrics.Server.models.infoModels.*;
 import DuelistMetrics.Server.models.runDetails.*;
 import DuelistMetrics.Server.services.*;
 import DuelistMetrics.Server.util.*;
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
 import java.lang.*;
 import java.lang.String;
+import java.math.*;
 import java.util.*;
 import java.util.logging.*;
 
@@ -22,11 +27,17 @@ public class RunLogController {
     private static final Logger logger = Logger.getLogger("DuelistMetrics.RunLogController");
 
     private static RunLogService bundles;
-    private static BundleService realBundles; // temp delete this
-    private static InfoService infos;         // this too
+    private static BundleService realBundles;
+    private static InfoService infos;
+    private static FailedRunService failedRunService;
 
     @Autowired
-    public RunLogController(RunLogService service, BundleService serv, InfoService inf) { bundles = service; realBundles = serv; infos = inf;}
+    public RunLogController(RunLogService service, BundleService serv, InfoService inf, FailedRunService failures) {
+        bundles = service;
+        realBundles = serv;
+        infos = inf;
+        failedRunService = failures;
+    }
 
     public static void updateModInfoBundles() {
         List<ModInfoBundle> mods = infos.getAllMods();
@@ -55,29 +66,177 @@ public class RunLogController {
     public static RunLogService getService() { return bundles; }
 
     @PostMapping("/runupload")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
-    public ResponseEntity<?> upload(@RequestBody TopBundle run)
-    {
-        if (run != null) {
-            BundleProcessor.parse(run, true, true);
-            return new ResponseEntity<>(null, HttpStatus.OK);
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
+    public ResponseEntity<?> upload(@RequestBody String body) {
+        if (body != null) {
+            try {
+                ObjectMapper objectMapper = new ObjectMapper();
+                RunUploadDTO runUploadDTO = objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).readValue(body, new TypeReference<>(){});
+                if (runUploadDTO == null) {
+                    logger.info("Could not parse run with new DTO format, runUploadDTO was null");
+                    throw new RuntimeException("Error parsing run bundle");
+                }
+                BundleProcessor.parse(runUploadDTO);
+                return new ResponseEntity<>(null, HttpStatus.OK);
+            } catch (Exception ex) {
+                try {
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    TopBundle bundle = objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).readValue(body, new TypeReference<>(){});
+                    if (bundle == null) {
+                        logger.info("Could not parse run with old DTO format, bundle was null");
+                        throw new RuntimeException("Error parsing run bundle");
+                    }
+                    BundleProcessor.parse(bundle, true, true);
+                    return new ResponseEntity<>(null, HttpStatus.OK);
+                } catch (Exception finalEx) {
+                    failedRunService.persist(body);
+                    logger.info("Exception while parsing run JSON\n" + ExceptionUtils.getStackTrace(ex) + "\n\nBody:\n" + body);
+                    return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+                }
+            }
         } else {
             return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
         }
     }
 
-    @GetMapping("/run/{id}")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
-    public static ResponseEntity<?> getRunDetails(@PathVariable Long id){
-        Optional<TopBundle> top = realBundles.findById(id);
-        if (top.isPresent()) {
-            List<FloorInfo> floors = new ArrayList<>();
-            // fill floors off top bundle
-                // look for any same name events on same floor
-                // collect all player choices into list of choices for those events
-                    // collect all events with name='Nameless Tomb'
-                    // starting points, magic score, rewards received + levels, spent points
-            RunDetails run = new RunDetails(new RunTop(top.get()), floors);
+    private record RunDetailsID(String host, BigDecimal localTime) {}
+    public record SimpleCardExtended(String name, String id, SimpleCardExtendedType type) {}
+    public enum SimpleCardExtendedType { Card, Relic, Potion, Unknown }
+
+    @PostMapping("/run/details")
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
+    public static ResponseEntity<?> getRunDetails(@RequestBody RunDetailsID runDetailsInfo) {
+        var host = runDetailsInfo.host;
+        var localTime = runDetailsInfo.localTime;
+        var canLookup = host != null && !host.equals("") && localTime != null;
+        if (canLookup) {
+            return runDetailsLogic(realBundles.findByHostAndLocalTime(host, localTime));
+        }
+        return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+    }
+
+    private static String roomKeyToRoom(String roomKey, int floor) {
+        var defaultOutput = "Unknown [ " + roomKey + " ]";
+        if (roomKey == null && floor == 0) return "Neow";
+        else if (roomKey == null && floor == 1) return "Combat";
+        else if (roomKey == null) return defaultOutput;
+        return switch (roomKey) {
+            case "R" -> "Campfire";
+            case "M" -> "Combat";
+            case "E" -> "Elite";
+            case "T" -> "Chest";
+            case "B" -> "Boss";
+            case "$" -> "Shop";
+            case "?" -> "Event";
+            default -> defaultOutput;
+        };
+    }
+
+    private static List<FloorInfo> getFloorInfo(RunDetails run, TopBundle top, Map<String, String> cardMap, Map<String, String> relicMap, Map<String, String> potionMap) {
+        var output = new ArrayList<FloorInfo>();
+        var damageMap = new HashMap<Integer, DamageInfo>();
+        var itemMap = new HashMap<Integer, List<SimpleCardExtended>>();
+        var cardsChosen = new HashMap<Integer, List<SimpleCardExtended>>();
+        var relicsChosen = new HashMap<Integer, List<SimpleCardExtended>>();
+        var potionsChosen = new HashMap<Integer, List<SimpleCardExtended>>();
+        var skipped = new HashMap<Integer, List<SimpleCardExtended>>();
+        var upgraded = new HashMap<Integer, List<SimpleCardExtended>>();
+        var events = new HashMap<Integer, List<Object>>();
+        var data = top.getEvent();
+        for (var campfire : run.getTop().getEvent().getCampfire_choices()) {
+            if (campfire.getKey().equals("SMITH")) {
+                var floor = campfire.getFloor();
+                var list = upgraded.getOrDefault(floor, new ArrayList<>());
+                var id = campfire.getId();
+                var card = SpireUtils.parseBaseIdToSimpleCard(id, cardMap, relicMap, potionMap);
+                list.add(new SimpleCardExtended(card.card().name, card.card().id, SimpleCardExtendedType.Card));
+                upgraded.put(floor, list);
+            }
+        }
+        for (var damage : data.getDamage_taken()) {
+            damageMap.put(damage.getFloor(), damage);
+        }
+        for (var i = 0; i < data.getItem_purchase_floors().size(); i++) {
+            var floor = data.getItem_purchase_floors().get(i);
+            var item = data.getItems_purchased().get(i);
+            var fullItem = SpireUtils.parseBaseIdToSimpleCard(item, cardMap, relicMap, potionMap);
+            var list = itemMap.getOrDefault(floor + 1, new ArrayList<>());
+            list.add(new SimpleCardExtended(fullItem.name(), fullItem.card().id, fullItem.type()));
+            itemMap.put(floor + 1, list);
+        }
+        for (var card : run.top.getEvent().getCard_choices()) {
+            var floor = card.getFloor();
+            var fullItem = SpireUtils.parseBaseIdToSimpleCard(card.getCardId(), cardMap, relicMap, potionMap);
+            for (var notPicked : card.getNot_picked()) {
+                var list = skipped.getOrDefault(floor, new ArrayList<>());
+                var fullSkipItem = SpireUtils.parseBaseIdToSimpleCard(notPicked.id, cardMap, relicMap, potionMap);
+                list.add(new SimpleCardExtended(fullSkipItem.name(), fullSkipItem.card().id, SimpleCardExtendedType.Card));
+                skipped.put(floor, list);
+            }
+            if (!fullItem.name().equals("SKIP")) {
+                var list = cardsChosen.getOrDefault(floor, new ArrayList<>());
+                list.add(new SimpleCardExtended(fullItem.name(), fullItem.card().id, SimpleCardExtendedType.Card));
+                cardsChosen.put(floor, list);
+            }
+        }
+        for (var card : run.top.getEvent().getRelics_obtained()) {
+            var floor = card.getFloor();
+            var fullItem = SpireUtils.parseBaseIdToSimpleCard(card.getId(), cardMap, relicMap, potionMap);
+            var list = relicsChosen.getOrDefault(floor, new ArrayList<>());
+            list.add(new SimpleCardExtended(fullItem.name(), fullItem.card().id, SimpleCardExtendedType.Relic));
+            relicsChosen.put(floor, list);
+        }
+        for (var card : run.top.getEvent().getPotions_obtained()) {
+            var floor = card.getFloor();
+            var fullItem = SpireUtils.parseBaseIdToSimpleCard(card.getId(), cardMap, relicMap, potionMap);
+            var list = potionsChosen.getOrDefault(floor, new ArrayList<>());
+            list.add(new SimpleCardExtended(fullItem.name(), fullItem.card().id, SimpleCardExtendedType.Potion));
+            potionsChosen.put(floor, list);
+        }
+        for (var event : run.top.getEvent().event_choices) {
+            var floor = event.getFloor();
+            var list = events.getOrDefault(floor, new ArrayList<>());
+            list.add(event);
+            events.put(floor, list);
+        }
+        var roomsSize = data.getPath_per_floor().size();
+        var lastGold = 0;
+        for (var i = 0; i < data.getGold_per_floor().size(); i++) {
+
+            var floorInfo = new FloorInfo();
+            var floor = i - 1;
+            var pathIndex = i - 2;
+            var damageRecord = damageMap.getOrDefault(floor, null);
+
+            floorInfo.floor = floor;
+            floorInfo.roomKey = pathIndex < roomsSize && pathIndex > -1 ? data.getPath_per_floor().get(pathIndex) : null;
+            floorInfo.roomKey = floorInfo.roomKey == null && i == 1 ? "M" : floorInfo.roomKey;
+            floorInfo.actualRoom = roomKeyToRoom(floorInfo.roomKey, i);
+            floorInfo.goldChange = data.getGold_per_floor().get(i) - lastGold;
+            floorInfo.currentGold = data.getGold_per_floor().get(i);
+            floorInfo.currentHP = data.getCurrent_hp_per_floor().get(i);
+            floorInfo.maxHP = data.getMax_hp_per_floor().get(i);
+            floorInfo.hp = floorInfo.currentHP + "/" + floorInfo.maxHP;
+            floorInfo.turns = damageRecord != null ? damageRecord.getTurns() : null;
+            floorInfo.damage = damageRecord != null ? damageRecord.getDamage() : null;
+            floorInfo.encounter = damageRecord != null ? damageRecord.getEnemies() : null;
+            floorInfo.purchased = new ArrayList<>(itemMap.getOrDefault(floor, new ArrayList<>()));
+            floorInfo.skipped = new ArrayList<>(skipped.getOrDefault(floor, new ArrayList<>()));
+            floorInfo.upgraded = new ArrayList<>(upgraded.getOrDefault(floor, new ArrayList<>()));
+            floorInfo.obtained = new ArrayList<>(cardsChosen.getOrDefault(floor, new ArrayList<>()));
+            floorInfo.obtained.addAll(potionsChosen.getOrDefault(floor, new ArrayList<>()));
+            floorInfo.obtained.addAll(relicsChosen.getOrDefault(floor, new ArrayList<>()));
+            floorInfo.events = new ArrayList<>(events.getOrDefault(floor, new ArrayList<>()));
+            lastGold = data.getGold_per_floor().get(i);
+            output.add(floorInfo);
+        }
+        return output;
+    }
+
+    private static ResponseEntity<?> runDetailsLogic(TopBundle top) {
+        if (top != null) {
+            RunDetails run = new RunDetails(new RunTop(top));
+            run.setConfigDifferenceDTOs(ConfigDifferenceController.getService().getDifferencesByRunId(top.getTop_id()));
             List<Long> modsToCheck = new ArrayList<>();
             for (DetailsMiniMod mod : run.top.getEvent().getModList()) {
                 modsToCheck.add(infos.getModInfoBundleFromMiniMod(mod.getModID(), mod.getModVersion()));
@@ -86,46 +245,46 @@ public class RunLogController {
             Map<String, String> relicMap = infos.relicIdMappingArchive(modsToCheck);
             Map<String, String> potionMap = infos.potionIdMappingArchive(modsToCheck);
 
+            // fill floors off top bundle
+            // look for any same name events on same floor
+            // collect all player choices into list of choices for those events
+            // collect all events with name='Nameless Tomb'
+            // starting points, magic score, rewards received + levels, spent points
+            try {
+                List<FloorInfo> floors = getFloorInfo(run, top, cardMap, relicMap, potionMap);
+                run.setFloors(floors);
+            } catch (Exception ex) {
+                logger.info("Exception preparing floor info!" + ex);
+            }
+
             for (int i = 0; i < run.top.getEvent().getMaster_deck().size(); i++) {
                 String localId = run.top.getEvent().getMaster_deck().get(i).getId();
-                String localName = SpireUtils.parseBaseId(localId, cardMap, relicMap, potionMap);
+                String localName = SpireUtils.parseBaseId(localId, cardMap, relicMap, potionMap).name();
                 run.top.getEvent().getMaster_deck().get(i).setName(localName);
             }
-            for (int i = 0; i < run.top.getEvent().getItems_purchased().size(); i++) {
-                run.top.getEvent().getItems_purchased().set(i, SpireUtils.parseBaseIdToSimpleCard(run.top.getEvent().getItems_purchased().get(i).getId(), cardMap, relicMap, potionMap));
-            }
-            for (int i = 0; i < run.top.getEvent().getItems_purged().size(); i++) {
-                run.top.getEvent().getItems_purged().set(i, SpireUtils.parseBaseIdToSimpleCard(run.top.getEvent().getItems_purged().get(i).getId(), cardMap, relicMap, potionMap));
-            }
-            for (int i = 0; i < run.top.getEvent().getRelics().size(); i++) {
-                run.top.getEvent().getRelics().set(i, SpireUtils.parseBaseIdToSimpleCard(run.top.getEvent().getRelics().get(i).getId(), cardMap, relicMap, potionMap));
-            }
+            run.top.getEvent().getItems_purchased().replaceAll(simpleCard -> SpireUtils.parseBaseIdToSimpleCard(simpleCard.getId(), cardMap, relicMap, potionMap).card());
+            run.top.getEvent().getItems_purged().replaceAll(simpleCard -> SpireUtils.parseBaseIdToSimpleCard(simpleCard.getId(), cardMap, relicMap, potionMap).card());
+            run.top.getEvent().getRelics().replaceAll(simpleCard -> SpireUtils.parseBaseIdToSimpleCard(simpleCard.getId(), cardMap, relicMap, potionMap).card());
             for (DetailsBossRelic relic : run.top.getEvent().getBoss_relics()) {
-                relic.setRelicName(SpireUtils.parseBaseId(relic.getRelicId(), cardMap, relicMap, potionMap));
-                for (int i = 0; i < relic.getNot_picked().size(); i++) {
-                    relic.getNot_picked().set(i, SpireUtils.parseBaseIdToSimpleCard(relic.getNot_picked().get(i).getId(), cardMap, relicMap, potionMap));
-                }
+                relic.setRelicName(SpireUtils.parseBaseId(relic.getRelicId(), cardMap, relicMap, potionMap).name());
+                relic.getNot_picked().replaceAll(simpleCard -> SpireUtils.parseBaseIdToSimpleCard(simpleCard.getId(), cardMap, relicMap, potionMap).card());
             }
             for (DetailsEvent event : run.top.getEvent().getEvent_choices()) {
-                for (int i = 0; i < event.getCards_obtained().size(); i++) {
-                    event.getCards_obtained().set(i, SpireUtils.parseBaseIdToSimpleCard(event.getCards_obtained().get(i).getId(), cardMap, relicMap, potionMap));
-                }
-                for (int i = 0; i < event.getRelics_obtained().size(); i++) {
-                    event.getRelics_obtained().set(i, SpireUtils.parseBaseIdToSimpleCard(event.getRelics_obtained().get(i).getId(), cardMap, relicMap, potionMap));
-                }
+                event.getCards_obtained().replaceAll(simpleCard -> SpireUtils.parseBaseIdToSimpleCard(simpleCard.getId(), cardMap, relicMap, potionMap).card());
+                event.getRelics_obtained().replaceAll(simpleCard -> SpireUtils.parseBaseIdToSimpleCard(simpleCard.getId(), cardMap, relicMap, potionMap).card());
             }
             for (DetailsCard card : run.top.getEvent().getCard_choices()) {
                 String cardId = card.getCardId();
-                card.setCardName(SpireUtils.parseBaseId(cardId, cardMap, relicMap, potionMap));
-                for (int i = 0; i < card.getNot_picked().size(); i++) {
-                    card.getNot_picked().set(i, SpireUtils.parseBaseIdToSimpleCard(card.getNot_picked().get(i).getId(), cardMap, relicMap, potionMap));
-                }
+                card.setCardName(SpireUtils.parseBaseId(cardId, cardMap, relicMap, potionMap).name());
+                card.getNot_picked().replaceAll(simpleCard -> SpireUtils.parseBaseIdToSimpleCard(simpleCard.getId(), cardMap, relicMap, potionMap).card());
             }
             for (DetailsPotion potion : run.top.getEvent().getPotions_obtained()) {
-                potion.setName(SpireUtils.parseBaseId(potion.getId(), cardMap, relicMap, potionMap));
+                potion.setName(SpireUtils.parseBaseId(potion.getId(), cardMap, relicMap, potionMap).name());
             }
             for (DetailsCampfireChoice choice : run.top.getEvent().getCampfire_choices()) {
-                choice.setName(SpireUtils.parseBaseId(choice.getId(), cardMap, relicMap, potionMap));
+                if (choice.getId() != null) {
+                    choice.setName(SpireUtils.parseBaseId(choice.getId(), cardMap, relicMap, potionMap).name());
+                }
             }
             return new ResponseEntity<>(run, HttpStatus.OK);
         } else {
@@ -133,37 +292,43 @@ public class RunLogController {
         }
     }
 
+    @GetMapping("/run/{id}")
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
+    public static ResponseEntity<?> getRunDetails(@PathVariable Long id){
+        return runDetailsLogic(realBundles.findById(id).orElse(null));
+    }
+
     @PostMapping("/count-runs")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public static ResponseEntity<?> getBundles(@RequestBody RunCountParams params) {
         try {
             Long runs = bundles.countRuns(params);
             return new ResponseEntity<>(runs, HttpStatus.OK);
         } catch (Exception ex) {
+            logger.info("Exception on /count-runs\n" + ExceptionUtils.getStackTrace(ex));
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PostMapping("/runs")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
-    public Collection<RunLog> getBundlesNew(@RequestBody RunLogCriteria options) {
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
+    public Collection<RunLogDTO> getBundlesNew(@RequestBody RunCountParams options) {
         try {
-            Integer pageNum = Integer.parseInt(options.pageNumber);
-            Integer pages = Integer.parseInt(options.pageSize);
-            return bundles.findAll(pageNum, pages, options);
+            return bundles.findAll(options.pageNumber, options.pageSize, options);
         } catch (Exception ex) {
+            logger.info("Error loading runs!\n" + ExceptionUtils.getStackTrace(ex));
             return new ArrayList<>();
         }
     }
 
     @GetMapping("/runs/{character}")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public static Collection<RunLog> getBundles(@PathVariable String character){
         return bundles.getAllByChar(character);
     }
 
     @GetMapping("/runs-id/{ids}")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public static Collection<RunLog> getRunsById(@PathVariable String ids){
         String[] splice = ids.split(",");
         List<Integer> idList = new ArrayList<>();
@@ -190,77 +355,132 @@ public class RunLogController {
     }
 
     @GetMapping("/runs-country/{country}")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public static Collection<RunLog> getRunsByCountry(@PathVariable String country){
         return bundles.getAllByCountry(country);
     }
 
     @GetMapping("/runs-host/{host}")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public static Collection<RunLog> getRunsByHost(@PathVariable String host){
         return bundles.getAllByHost(host);
     }
 
     @GetMapping("/runs-time/{time}/{time2}")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public static Collection<RunLog> getRunsByTime(@PathVariable String time, @PathVariable String time2){
         return bundles.getAllByTime(time, time2);
     }
 
     @GetMapping("/runs-nonduelist")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public static Collection<RunLog> getAllNonDuelistCharacterRuns(){
         return bundles.getAllByAnyOtherChar("THE_DUELIST");
     }
 
+    @GetMapping({"/runs-today", "/runs-today/{character}"})
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
+    public static Integer getRunsTodayByCharacter(@PathVariable(required = false) String character) {
+        return realBundles.countRunsByCharacterToday(character);
+    }
+
+
+    @GetMapping({"/wins-today", "/wins-today/{character}"})
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
+    public static Integer getWinsTodayByCharacter(@PathVariable(required = false) String character) {
+        return realBundles.countWinsByCharacterToday(character);
+    }
+
+    @GetMapping({"/players-today", "/players-today/{character}"})
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
+    public static Integer getUniquePlayersTodayByCharacter(@PathVariable(required = false) String character) {
+        return realBundles.countUniquePlayersByCharacterToday(character);
+    }
+
+    @GetMapping("/runs-this-year")
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
+    public static List<RunMonthDTO> getRunsThisYear() {
+        return realBundles.countRunsThisYear();
+    }
+
+    @GetMapping("/runs-this-year/{character}")
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
+    public static List<RunMonthDTO> getRunsThisYearByCharacter(@PathVariable String character) {
+        return realBundles.countRunsByCharacterThisYear(character);
+    }
+
     @GetMapping("/allCharacters")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public static Collection<String> getCharacters() {
         List<String> out = bundles.getAllCharacters();
         Collections.sort(out);
         return out;
     }
 
-    @GetMapping("/decks")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
-    public static Collection<DisplayDeck> getDeckCompare() {
-      List<DisplayDeck> output = new ArrayList<>();
+    @GetMapping("/ascensionBreakdownData")
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
+    public static Map<String, List<RunDifficultyBreakdownDTO>> getAscensionBreakdownData() {
+        return bundles.getAscensionBreakdownDataByCharacterName();
+    }
 
-      Optional<Long> allA20W = getService().getA20WinsAll();
-      Long allA20Wins = allA20W.orElse(0L);
-      Long allA20Runs = getService().getA20RunsAll();
-      Long allC20Wins = getService().getC20WinsAll();
-      Long allC20Runs = getService().getC20RunsAll();
-      Long allRuns = getService().getRunsAll();
-      Long allWins = getService().getWinsAll();
-      Long allKaiba = getService().getKaibaRunsAll();
-      if (allC20Wins == null) { allC20Wins = 0L; }
-      if (allC20Runs == null) { allC20Runs = 0L; }
-      List<String> allKilledList =  getService().getMostKilledByAll();
-      String allKilled ="";
+    @GetMapping("/challengeBreakdownData")
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
+    public static List<RunDifficultyBreakdownDTO> getChallengeBreakdownData() {
+        return bundles.getChallengeBreakdownData();
+    }
+
+    @GetMapping("/runsUploadedByPlayerID")
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
+    public static List<UploadedRunsDTO> getNumberOfRunsByPlayerIds() {
+        return bundles.getNumberOfRunsByPlayerIds();
+    }
+
+    @GetMapping("/duelistRunsUploadedByPlayerID")
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
+    public static List<UploadedRunsDTO> getNumberOfDuelistRunsByPlayerIds() {
+        return bundles.getNumberOfDuelistRunsByPlayerIds();
+    }
+
+    private record DeckCardsHolder(String deckName, List<Integer> basicCards, List<Integer> poolCards, List<Integer> deckCards, List<Integer> relics, List<Integer> potions){
+
+        @Override
+        public String toString() {
+            var basicCard = basicCards() != null ? basicCards().size() + "" : "0";
+            var poolCard = poolCards() != null ? poolCards().size() + "" : "0";
+            var deckCard = deckCards() != null ? deckCards().size() + "" : "0";
+            var potion = potions() != null ? potions.size() + "" : "0";
+            var relic = relics() != null ? relics.size() + "" : "0";
+            return "{ " + "deckName: '" + deckName + "', basicCards: " + basicCard + ", poolCards: " + poolCard + ", deckCard: " + deckCard + ", potions: " + potion + ", relics: " + relic + " }\n";
+        }
+    }
+
+    @GetMapping("/decks")
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
+    public static Collection<DisplayDeckV2> getDeckCompare() {
+      var allRuns = getService().getRunsAll();
+      var allWins = getService().getWinsAll();
+      var allKaiba = getService().getKaibaRunsAll();
+      var allKilledList =  getService().getMostKilledByAll();
+      var allKilled = "";
       if (allKilledList.size() > 0) {
           String[] splice = allKilledList.get(0).split(",");
           allKilled = splice[0] + " (" + splice[1] + ")";
       }
-      Long allFloor = getService().getHighestFloorAll();
-      Optional<Long> highestChallenge = getService().getHighestChallengeAll();
-      List<String> highestChalId = getService().getHighestChallengeAllWithId();
-      List<Integer> highestChalIdentifiers = new ArrayList<>();
-      for (String id : highestChalId) {
-          String[] splice = id.split(",");
+      var allFloor = getService().getHighestFloorAll();
+      var highestChallenge = getService().getHighestChallengeAll();
+      var highestChalId = getService().getHighestChallengeAllWithId();
+      var highestChalIdentifiers = new ArrayList<Integer>();
+      for (var id : highestChalId) {
+          var splice = id.split(",");
           try {
-              Integer parsed = Integer.parseInt(splice[0]);
+              var parsed = Integer.parseInt(splice[0]);
               highestChalIdentifiers.add(parsed);
           } catch (Exception ignored) {
-              System.out.println("Couldn't parse id: " + id);
+              logger.info("Couldn't parse id: " + id);
           }
       }
-      DisplayDeck allDeck = new DisplayDeckBuilder()
+      var allDeck = new DisplayDeckBuilder()
                 .setDeck("All")
-                .setA20runs(Math.toIntExact(allA20Runs))
-                .setA20wins(Math.toIntExact(allA20Wins))
-                .setC20runs(Math.toIntExact(allC20Runs))
-                .setC20wins(Math.toIntExact(allC20Wins))
                 .setFloor(Math.toIntExact(allFloor))
                 .setKaiba(Math.toIntExact(allKaiba))
                 .setRuns(Math.toIntExact(allRuns))
@@ -270,38 +490,57 @@ public class RunLogController {
                 .setHighestChallengeRunID(highestChalIdentifiers)
                 .createDisplayDeck();
 
-      Map<String, Integer> a20Wins = getService().getA20Wins();
-      Map<String, Integer> a20Runs = getService().getA20Runs();
-      Map<String, Integer> c20Wins = getService().getC20Wins();
-      Map<String, Integer> c20Runs = getService().getC20Runs();
-      Map<String, Integer> runs = getService().getRuns();
-      Map<String, Integer> wins = getService().getWins();
-      Map<String, Integer> kaiba = getService().getKaibaRuns();
-      List<DeckKilledBy> killed = getService().getMostKilledBy();
-      Map<String, Integer> floor = getService().getHighestFloor();
-      Map<String, Integer> highestChal = getService().getHighestChallenge();
-      Map<String, List<Integer>> highestChalIds = getService().getHighestChallengeWithId();
-      Map<String, String> deckToKilledBy = new HashMap<>();
-      for (DeckKilledBy dkb : killed) {
-        String creature = dkb.getKilled_by();
+      var runs = getService().getRuns();
+      var wins = getService().getWins();
+      var kaiba = getService().getKaibaRuns();
+      var killed = getService().getMostKilledBy();
+      var floor = getService().getHighestFloor();
+      var highestChal = getService().getHighestChallenge();
+      var highestChalIds = getService().getHighestChallengeWithId();
+      var deckToKilledBy = new HashMap<String, String>();
+      for (var dkb : killed) {
+        var creature = dkb.getKilled_by();
         deckToKilledBy.put(dkb.getDeck(), creature + " (" + dkb.getCount() + ")");
       }
-      ArrayList<String> decks = new ArrayList<>();
+      var decks = new ArrayList<String>();
       DisplayDeck nonDuelist = null;
       for (Map.Entry<String, Integer> entry : runs.entrySet()) {
         decks.add(entry.getKey());
       }
+      var deckSets = new HashMap<String, String>();
+      for (var deckName : decks) {
+          if (!deckName.equals("NotYugi") && !deckName.contains("Random") && !deckName.equals("Upgrade Deck")) {
+              var splice = deckName.split("Deck");
+              var out = new StringBuilder();
+              for (var split : splice) {
+                  if (split.equals("Deck")) {
+                      break;
+                  }
+                  out.append(!split.equals("") ? " " + split : split);
+              }
+              if (!out.toString().equals("")) {
+                  deckSets.put(deckName, out.toString());
+              }
+          }
+      }
+      var deckCardHolders = new HashMap<String, DeckCardsHolder>();
+      for (var entry : deckSets.entrySet()) {
+          var deckStr = entry.getValue().trim() + " Deck";
+          var basicCards = getService().getCardsBasedOnDeckSet(entry.getValue().trim() + " Pool [Basic/Colorless]");
+          var poolCards = getService().getCardsBasedOnDeckSet(entry.getValue().trim() + " Pool");
+          var startingDeckCards = getService().getCardsBasedOnDeckSet(deckStr);
+          var relics = getService().getRelicsBasedOnDeckSet(deckStr);
+          var potions = getService().getPotionsBasedOnDeckSet(deckStr);
+          deckCardHolders.put(entry.getKey(), new DeckCardsHolder(entry.getKey(), basicCards, poolCards, startingDeckCards, relics, potions));
+      }
+      var displayDeckV2s = new ArrayList<DisplayDeckV2>();
       for (String deckName : decks) {
         String dName = deckName;
         if (deckName.equals("NotYugi")) {
             dName = "Non-Duelist Character";
         }
-        DisplayDeck deck = new DisplayDeckBuilder()
+        var deck = new DisplayDeckBuilder()
           .setDeck(dName)
-          .setA20runs(a20Runs.getOrDefault(deckName, 0))
-          .setA20wins(a20Wins.getOrDefault(deckName, 0))
-          .setC20runs(c20Runs.getOrDefault(deckName, 0))
-          .setC20wins(c20Wins.getOrDefault(deckName, 0))
           .setFloor(floor.getOrDefault(deckName, 0))
           .setKaiba(kaiba.get(deckName))
           .setRuns(runs.getOrDefault(deckName, 0))
@@ -310,23 +549,35 @@ public class RunLogController {
           .setHighestChallenge(highestChal.getOrDefault(deckName, -1))
           .setHighestChallengeRunID(highestChalIds.getOrDefault(deckName, new ArrayList<>()))
           .createDisplayDeck();
-        if (deck.getC20runs() == null) { deck.setC20runs(0); }
-        if (deck.getC20wins() == null) { deck.setC20wins(0); }
         if (deck.getKaiba() == null) { deck.setKaiba(0); }
         if (dName.equals("Non-Duelist Character")) {
             nonDuelist = deck;
         } else {
-            output.add(deck);
+            var dch = deckCardHolders.get(deck.getDeck());
+            var poolCards = dch != null ? dch.poolCards : new ArrayList<Integer>();
+            var basicCards = dch != null ? dch.basicCards : new ArrayList<Integer>();
+            var deckCards = dch != null ? dch.deckCards : new ArrayList<Integer>();
+            var relics = dch != null ? dch.relics : new ArrayList<Integer>();
+            var potions = dch != null ? dch.potions : new ArrayList<Integer>();
+            displayDeckV2s.add(new DisplayDeckV2(deck.getDeck(), deck.getMostKilledBy(), deck.getRuns(),
+                    deck.getWins(), deck.getFloor(), deck.getKaiba(), deck.getHighestChallenge(), deck.getHighestChallengeRunID(),
+                    deck.getHighestFloorRunID(), poolCards, basicCards, deckCards, relics, potions));
         }
       }
-      Collections.sort(output);
-      output.add(0, allDeck);
-      if (nonDuelist != null) { output.add(nonDuelist); }
-      return output;
+      Collections.sort(displayDeckV2s);
+      displayDeckV2s.add(0, new DisplayDeckV2("All", allDeck.getMostKilledBy(), allDeck.getRuns(), allDeck.getWins(),
+              allDeck.getFloor(), allDeck.getKaiba(), allDeck.getHighestChallenge(), allDeck.getHighestChallengeRunID(),
+              allDeck.getHighestFloorRunID(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
+      if (nonDuelist != null) {
+          displayDeckV2s.add(new DisplayDeckV2("Non-Duelist", nonDuelist.getMostKilledBy(), nonDuelist.getRuns(), nonDuelist.getWins(),
+                  nonDuelist.getFloor(), nonDuelist.getKaiba(), nonDuelist.getHighestChallenge(), nonDuelist.getHighestChallengeRunID(),
+                  nonDuelist.getHighestFloorRunID(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
+      }
+      return displayDeckV2s;
     }
 
     @GetMapping("/deckPopularity")
-    @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public static ResponseEntity<?> getDeckPopularity(){
         List<String> data = bundles.getDataForPopularity();
         Map<String, Integer> amts = new HashMap<>();

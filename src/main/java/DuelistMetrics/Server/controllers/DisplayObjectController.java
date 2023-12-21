@@ -2,7 +2,8 @@ package DuelistMetrics.Server.controllers;
 
 import DuelistMetrics.Server.models.*;
 import DuelistMetrics.Server.models.builders.*;
-import DuelistMetrics.Server.models.infoModels.*;
+import DuelistMetrics.Server.models.dto.FormattedKeywordDTO;
+import DuelistMetrics.Server.models.dto.FullInfoDisplayObject;
 import DuelistMetrics.Server.repositories.*;
 import DuelistMetrics.Server.util.*;
 import org.springframework.beans.factory.annotation.*;
@@ -16,36 +17,30 @@ public class DisplayObjectController {
   private static RelicRepo relics;
   private static PotionRepo pots;
   private static NeowRepo neo;
+  private static InfoKeywordRepo keywords;
 
   @Autowired
-  public DisplayObjectController(RelicRepo card, PotionRepo pot, NeowRepo no) {
+  public DisplayObjectController(RelicRepo card, PotionRepo pot, NeowRepo no, InfoKeywordRepo kw) {
     relics = card;
     pots = pot;
     neo = no;
+    keywords = kw;
   }
 
   @GetMapping("/relics")
-  @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
-  public static Collection<DisplayObject> getRelics(){
-    Collection<DisplayObject> output = new ArrayList<>();
-    for (String s : relics.getAll()) {
-      createDisplayObj(output, s);
-    }
-    return sortDuelistObjs(output, "relics");
+  @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
+  public static Collection<FullInfoDisplayObject> getRelics(){
+    return relics.getAll();
   }
 
   @GetMapping("/potions")
-  @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
-  public static Collection<DisplayObject> getPotions(){
-    Collection<DisplayObject> output = new ArrayList<>();
-    for (String s : pots.getAll()) {
-      createDisplayObj(output, s);
-    }
-    return sortDuelistObjs(output, "potions");
+  @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
+  public static Collection<FullInfoDisplayObject> getPotions(){
+    return pots.getAll();
   }
 
   @GetMapping("/neow")
-  @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+  @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
   public static Collection<DisplayObject> getNeows(){
     Collection<DisplayObject> output = new ArrayList<>();
     for (String s : neo.getAll()) {
@@ -54,28 +49,31 @@ public class DisplayObjectController {
     return sortDuelistObjs(output, "neow");
   }
 
-  @GetMapping("/relics/{deck}")
-  @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
-  public static Collection<DisplayObject> getRelics(@PathVariable String deck){
-    Collection<DisplayObject> output = new ArrayList<>();
-    for (String s : relics.getAllFromDeck(DeckNameProcessor.getProperDeckName(deck))) {
-      createDisplayObj(output, s);
+  @GetMapping("/keywords/duelist")
+  @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
+  public static Collection<FormattedKeywordDTO> getKeywords(){
+    var kw = keywords.getDuelistKeywordListLookup();
+    var list = new ArrayList<FormattedKeywordDTO>();
+    for (var k : kw) {
+      list.add(k.format(", "));
     }
-    return sortDuelistObjs(output, "relics");
+    return list;
+  }
+
+  @GetMapping("/relics/{deck}")
+  @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
+  public static Collection<FullInfoDisplayObject> getRelics(@PathVariable String deck){
+    return relics.getAllFromDeck(DeckNameProcessor.getProperDeckName(deck));
   }
 
   @GetMapping("/potions/{deck}")
-  @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
-  public static Collection<DisplayObject> getPotions(@PathVariable String deck){
-    Collection<DisplayObject> output = new ArrayList<>();
-    for (String s : pots.getAllFromDeck(DeckNameProcessor.getProperDeckName(deck))) {
-      createDisplayObj(output, s);
-    }
-    return sortDuelistObjs(output, "potions");
+  @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
+  public static Collection<FullInfoDisplayObject> getPotions(@PathVariable String deck){
+    return pots.getAllFromDeck(DeckNameProcessor.getProperDeckName(deck));
   }
 
   @GetMapping("/neow/{deck}")
-  @CrossOrigin(origins = {"https://sts-metrics-site.herokuapp.com", "http://localhost:4200"})
+  @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
   public static Collection<DisplayObject> getCards(@PathVariable String deck){
     Collection<DisplayObject> output = new ArrayList<>();
     for (String s : neo.getAllFromDeck(DeckNameProcessor.getProperDeckName(deck))) {
