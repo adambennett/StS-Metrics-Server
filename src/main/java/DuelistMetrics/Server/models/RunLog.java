@@ -38,7 +38,7 @@ WHERE DATEDIFF(rl.filter_date, CURDATE()) < 14 AND
       (killed_by = :killedBy or :killedBy IS null) AND
       ((filter_date BETWEEN :timeStart AND :timeEnd) or (:timeStart IS null or :timeEnd IS null)) AND
       (country = :country or :country IS null)
-ORDER BY filter_date
+ORDER BY run_id
 DESC LIMIT :offset, :pageSize
 """, resultSetMapping = "runLogDtoMapping")
 @SqlResultSetMapping(
