@@ -324,9 +324,9 @@ public class InfoService {
     List<Long> duelistIds = bundleRepo.getModInfoBundleIdsForAllDuelistVersions();
     List<String> cards;
     if (filterPool) {
-      cards = cardRepo.getTrackedCardsForTierScores(poolName, duelistIds, poolName + " [Basic/Colorless]");
+      cards = cardRepo.getTrackedCardsForTierScoresAfterV4(poolName, duelistIds, poolName + " [Basic/Colorless]");
     } else {
-      cards = cardRepo.getTrackedCardsForTierScores(duelistIds);
+      cards = cardRepo.getTrackedCardsForTierScoresAfterV4(duelistIds);
     }
     Map<String, List<String>> out = new HashMap<>();
     for (String s : cards) {
@@ -355,9 +355,9 @@ public class InfoService {
     List<Long> duelistIds = bundleRepo.getModInfoBundleIdsForAllDuelistVersions();
     List<String> cards;
     if (filterPool) {
-      cards = cardRepo.getTrackedCardsForTierScores(poolName, duelistIds, poolName + " [Basic/Colorless]");
+      cards = cardRepo.getTrackedCardsForTierScoresAfterV4(poolName, duelistIds, poolName + " [Basic/Colorless]");
     } else {
-      cards = cardRepo.getTrackedCardsForTierScores(duelistIds);
+      cards = cardRepo.getTrackedCardsForTierScoresAfterV4(duelistIds);
     }
     Map<String, List<String>> out = new HashMap<>();
     for (String s : cards) {

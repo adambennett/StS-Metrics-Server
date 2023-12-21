@@ -45,6 +45,12 @@ public interface InfoCardRepo extends JpaRepository<InfoCard, Long> {
     @Query(value = "SELECT ic.card_id, icp.pools FROM info_card ic JOIN info_card_pools icp on ic.info_card_id = icp.info_card_info_card_id WHERE (ic.info_info_bundle_id IN (:duelist_version)) AND ic.card_id LIKE '%theDuelist:%' AND icp.pools IN (:pool_name, :pool_basic)", nativeQuery = true)
     List<String> getTrackedCardsForTierScores(String pool_name, List<Long> duelist_version, String pool_basic);
 
+    @Query(value = "SELECT ic.card_id, icp.pools FROM info_card ic JOIN info_card_pools icp on ic.info_card_id = icp.info_card_info_card_id WHERE ic.info_info_bundle_id >= (SELECT MAX(info_bundle_id) FROM mod_info_bundle WHERE is_duelist = true) AND (ic.info_info_bundle_id IN (:duelist_version)) AND icp.pools IN (SELECT DISTINCT value FROM configurations WHERE name = 'Scored Deck' and active = 1)", nativeQuery = true)
+    List<String> getTrackedCardsForTierScoresAfterV4(List<Long> duelist_version);
+
+    @Query(value = "SELECT ic.card_id, icp.pools FROM info_card ic JOIN info_card_pools icp on ic.info_card_id = icp.info_card_info_card_id WHERE ic.info_info_bundle_id >= (SELECT MAX(info_bundle_id) FROM mod_info_bundle WHERE is_duelist = true) AND (ic.info_info_bundle_id IN (:duelist_version)) AND icp.pools IN (:pool_name, :pool_basic)", nativeQuery = true)
+    List<String> getTrackedCardsForTierScoresAfterV4(String pool_name, List<Long> duelist_version, String pool_basic);
+
     @Query(value = "SELECT DISTINCT card_id, name FROM info_card WHERE info_info_bundle_id IN (:info_bundle_ids) GROUP BY card_id", nativeQuery = true)
     List<Object[]> cardIdMappingArchive(List<Long> info_bundle_ids);
 

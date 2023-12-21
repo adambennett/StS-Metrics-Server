@@ -40,7 +40,7 @@ public class ScheduledUpdater {
     }
 
     @GetMapping("/checkScheduler")
-    @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public ResponseEntity<?> isSchedulerRunning() {
         return new ResponseEntity<>(isUpdating, HttpStatus.OK);
     }

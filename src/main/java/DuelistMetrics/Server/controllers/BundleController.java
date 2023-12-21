@@ -29,7 +29,7 @@ public class BundleController {
     public static BundleService getService() { return bundles; }
 
     @GetMapping("/runCountByCountry")
-    @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public ResponseEntity<?> getBundles() {
         try {
             TreeMap<String, Integer> output = bundles.getCountryCounts();
@@ -45,7 +45,7 @@ public class BundleController {
     }
 
     @GetMapping("/countries")
-    @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public ResponseEntity<?> getCountries() {
         try {
             Map<String, String> query = bundles.getCountryNameAndID();
@@ -84,7 +84,7 @@ public class BundleController {
     }
 
     @GetMapping("/fullmods/{id}")
-    @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public ResponseEntity<?> getFullModsFromBundle(@PathVariable Long id) {
         Optional<Bundle> bnd = bundles.findByIdInner(id);
         if (bnd.isPresent()) {
@@ -102,7 +102,7 @@ public class BundleController {
     private record RunTimeFrameData(Integer runs, String date){}
 
     @PostMapping("/runs-in-time-frame/{weeks}")
-    @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public ResponseEntity<?> getRunsInTimeFrame(@PathVariable String weeks, @RequestBody RunCountParams params) {
         try {
             boolean isParams = params != null;
@@ -137,7 +137,7 @@ public class BundleController {
     }
 
     @PostMapping("/runs-in-week")
-    @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public ResponseEntity<?> getRunsInOneWeek(@RequestBody RunCountParams params) {
         try {
             boolean isParams = params != null;
@@ -176,7 +176,7 @@ public class BundleController {
     }
 
     @GetMapping("/score-leaderboard")
-    @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public ResponseEntity<List<LeaderboardScoreWinnerDTO>> getScoreLeaderboard() {
         try {
             return new ResponseEntity<>(bundles.getScoreLeaderboardWinners(), HttpStatus.OK);
@@ -187,7 +187,7 @@ public class BundleController {
     }
 
     @PostMapping("/wins-leaderboard")
-    @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public ResponseEntity<List<LeaderboardWinnersResultDTO>> getWinsLeaderboard(@RequestBody WinsLeaderboardLookupDTO input) {
         try {
             return new ResponseEntity<>(bundles.getWinsLeaderboardWinners(input.character(), input.startDeck(), input.ascension()), HttpStatus.OK);

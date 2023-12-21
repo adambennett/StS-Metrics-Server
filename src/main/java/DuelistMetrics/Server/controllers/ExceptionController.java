@@ -39,7 +39,7 @@ public class ExceptionController {
             "/searchLogsByMessage/{version}",
             "/searchLogsByMessage/{days}/{version}"
     })
-    @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public List<LoggedExceptionDTO> findLogsByMessage(@RequestBody ExceptionSearchMessage message, @PathVariable(required = false) String days, @PathVariable(required = false) String version) {
         if (message == null) {
             return new ArrayList<>();
@@ -65,7 +65,7 @@ public class ExceptionController {
     }
 
     @GetMapping({"/lastXDaysOfLogs/{days}", "/lastXDaysOfLogs/{days}/{version}"})
-    @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public Object findLogsByTrace(@PathVariable String days, @PathVariable(required = false) String version) {
         try {
             Integer daysParsed = Integer.parseInt(days);
@@ -78,7 +78,7 @@ public class ExceptionController {
     }
 
     @PostMapping("/logException")
-    @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public String handleException(@RequestBody LoggedExceptionDTO exception) {
         exceptionService.create(new LoggedException(
                 exception.message(),
@@ -94,7 +94,7 @@ public class ExceptionController {
     }
 
     @PostMapping("/logWebException")
-    @CrossOrigin(origins = {"https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public String handleWebException(@RequestBody LoggedExceptionDTO exception) {
         exceptionService.create(new LoggedException(
                 "Website",
