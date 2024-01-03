@@ -28,7 +28,7 @@ public class FailedRunService {
       return true;
     } catch (Exception ex) {
       logger.info("Exception while saving FailedRun record with body= " + failedRunJson + "\n" + ExceptionUtils.getStackTrace(ex));
-      DatabaseLogger.log("Exception while saving FailedRun record with body= " + failedRunJson, ex);
+      DatabaseLogger.log("Exception while saving FailedRun record", ex);
       return false;
     }
   }
