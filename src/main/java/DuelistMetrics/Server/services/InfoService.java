@@ -439,18 +439,25 @@ public class InfoService {
     return out;
   }
 
-  public PickInfoV2 findInfo(String deck, int asc, int chal) {
-    Long dbId = repo.findIdByDataHashValues(deck, asc, chal);
-    if (dbId != null) {
-      Optional<PickInfoV2> dbCheck = repo.findById(dbId);
-      if (dbCheck.isPresent()) {
-        return dbCheck.get();
+  public PickInfo findInfo(String deck, int asc, int chal) {
+    if (decks.contains(deck)) {
+      int deckIndex = -1;
+      for (int i = 0; i < decks.size(); i++) {
+        if (decks.get(i).equals(deck)) {
+          deckIndex = i;
+          break;
+        }
+      }
+      long generatedID = ((462 * deckIndex) + 1) + (asc * 22) + (chal + 1);
+      Optional<PickInfo> generatedInfo = repo.findById(generatedID);
+      if (generatedInfo.isPresent()) {
+        return generatedInfo.get();
       }
     }
     return null;
   }
 
-  public PickInfoV2 create(PickInfoV2 run) { return this.repo.save(run); }
+  public void create(PickInfo run) { this.repo.save(run); }
 
   public void createTierScore(ScoredCard scoredCard) { this.tierRepo.save(scoredCard); }
 

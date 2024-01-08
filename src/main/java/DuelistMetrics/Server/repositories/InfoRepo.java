@@ -1,14 +1,33 @@
 package DuelistMetrics.Server.repositories;
 
-import DuelistMetrics.Server.models.PickInfoV2;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Repository;
+import DuelistMetrics.Server.models.*;
+import org.springframework.data.domain.*;
+import org.springframework.data.jpa.repository.*;
+import org.springframework.data.repository.query.*;
+import org.springframework.stereotype.*;
 
 @Repository
-public interface InfoRepo extends JpaRepository<PickInfoV2, Long> {
+public interface InfoRepo extends JpaRepository<PickInfo, Long> {
 
-    @Query(value = "SELECT id FROM pick_info_v2 WHERE data_hash = md5(concat(:deck,'CHALLENGE',:challenge,'ASCENSION',:asc))", nativeQuery = true)
-    Long findIdByDataHashValues(String deck, int asc, int challenge);
+  @Query("SELECT p FROM PickInfo p WHERE p.deck = :deck AND p.ascension = :asc AND p.challenge_level = :chal")
+  PickInfo findInfo(@Param("deck") String deck, @Param("asc") int asc, @Param("chal") int chal);
+
+  @Query("SELECT p FROM PickInfo p WHERE p.deck = :deck")
+  Page<PickInfo> findAllByDeck(Pageable page, @Param("deck") String deck);
+
+  @Query("SELECT p FROM PickInfo p WHERE p.ascension = :asc")
+  Page<PickInfo> findAllByAsc(Pageable page, @Param("asc") int asc);
+
+  @Query("SELECT p FROM PickInfo p WHERE p.challenge_level = :chal")
+  Page<PickInfo> findAllByChallenge(Pageable page, @Param("chal") int chal);
+
+  @Query("SELECT p FROM PickInfo p WHERE p.ascension >= :asc")
+  Page<PickInfo> findAllByAtLeastAsc(Pageable page, @Param("asc") int asc);
+
+  @Query("SELECT p FROM PickInfo p WHERE p.challenge_level >= :chal")
+  Page<PickInfo> findAllByAtLeastChallenge(Pageable page, @Param("chal") int chal);
+
+  @Query("SELECT MAX(id) FROM PickInfo")
+  long getHighestID();
 
 }

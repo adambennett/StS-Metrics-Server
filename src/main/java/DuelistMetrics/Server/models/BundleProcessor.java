@@ -95,7 +95,7 @@ public class BundleProcessor {
       parseNeow(bnd, pickedN, pickedVicN, victory);
 
       // Find or create info model to represent the state of the run (ascension/challenge/starting deck)
-      PickInfoV2 info = getPickInfo(deck, ascensionLvl, challengeLvl);
+      PickInfo info = getPinfo(deck, ascensionLvl, challengeLvl);
 
       // Update info model with processed run info
       processCards(info, offered, picked, pickedVic);
@@ -128,11 +128,11 @@ public class BundleProcessor {
     }
   }
 
-  private static Long saveParsedInfo(PickInfoV2 info, TopBundle bnd, String deck, int asc, int chal, String runID, boolean saveTopBundles, boolean saveRunsAndInfos) {
+  private static Long saveParsedInfo(PickInfo info, TopBundle bnd, String deck, int asc, int chal, String runID, boolean saveTopBundles, boolean saveRunsAndInfos) {
     if (saveRunsAndInfos || saveTopBundles) {
       Logger.getGlobal().info("Parsed " + runID + ". Attempting to save to DB...");
       if (saveRunsAndInfos) {
-        if (info == null) {
+        if (info != null) {
           InfoController.getService().create(info);
           Logger.getGlobal().info("PickInfo saved");
         }
@@ -190,11 +190,9 @@ public class BundleProcessor {
     }
   }
 
-  private static PickInfoV2 getPickInfo(String deck, int asc, int challenge) {
-    PickInfoV2 info = InfoController.getService().findInfo(deck, asc, challenge);
-    if (info == null) {
-      info = InfoController.getService().create(new PickInfoV2(deck, asc, challenge));
-    }
+  private static PickInfo getPinfo(String deck, int asc, int chal) {
+    PickInfo info = InfoController.getService().findInfo(deck, asc, chal);
+    if (info == null) { info = new PickInfo(deck, asc, chal); }
     return info;
   }
 
@@ -247,7 +245,7 @@ public class BundleProcessor {
     if (vic) { pickedVicN.compute(neow, (k,v) -> (v==null) ? 1 : v+1); }
   }
 
-  private static void processCards(PickInfoV2 info, Map<String, Integer> offered, Map<String, Integer> picked, Map<String, Integer> pickedVic) {
+  private static void processCards(PickInfo info, Map<String, Integer> offered, Map<String, Integer> picked, Map<String, Integer> pickedVic) {
     for (Map.Entry<String, Integer> entry : offered.entrySet()) { info.addCard(new OfferCard(entry.getKey(), entry.getValue(), 0, 0, info)); }
     for (Map.Entry<String, Integer> entry : picked.entrySet()) {
       boolean found = false;
@@ -273,7 +271,7 @@ public class BundleProcessor {
     }
   }
 
-  private static void processRelics(PickInfoV2 info, Map<String, Integer> pickedR, Map<String, Integer> pickedVicR) {
+  private static void processRelics(PickInfo info, Map<String, Integer> pickedR, Map<String, Integer> pickedVicR) {
     for (Map.Entry<String, Integer> entry : pickedR.entrySet()) { info.addRelic(new OfferRelic(entry.getKey(), entry.getValue(), 0, info)); }
     for (Map.Entry<String, Integer> entry : pickedVicR.entrySet()) {
       boolean found = false;
@@ -288,7 +286,7 @@ public class BundleProcessor {
     }
   }
 
-  private static void processPotions(PickInfoV2 info, Map<String, Integer> pickedP, Map<String, Integer> pickedVicP) {
+  private static void processPotions(PickInfo info, Map<String, Integer> pickedP, Map<String, Integer> pickedVicP) {
     for (Map.Entry<String, Integer> entry : pickedP.entrySet()) { info.addPotion(new OfferPotion(entry.getKey(), entry.getValue(), 0, info)); }
     for (Map.Entry<String, Integer> entry : pickedVicP.entrySet()) {
       boolean found = false;
@@ -304,7 +302,7 @@ public class BundleProcessor {
   }
 
 
-  private static void processNeow(PickInfoV2 info, Map<String, Integer> pickedN, Map<String, Integer> pickedVicN) {
+  private static void processNeow(PickInfo info, Map<String, Integer> pickedN, Map<String, Integer> pickedVicN) {
     for (Map.Entry<String, Integer> entry : pickedN.entrySet()) { info.addNeow(new OfferNeow(entry.getKey(), entry.getValue(), 0, info)); }
     for (Map.Entry<String, Integer> entry : pickedVicN.entrySet()) {
       boolean found = false;
@@ -357,7 +355,6 @@ public class BundleProcessor {
     decks.add("Aqua Deck");
     decks.add("Fiend Deck");
     decks.add("Machine Deck");
-    decks.add("Beast Deck");
     decks.add("Warrior Deck");
     decks.add("Insect Deck");
     decks.add("Plant Deck");
@@ -378,14 +375,12 @@ public class BundleProcessor {
     decks.add("Random Deck (Big)");
     decks.add("Upgrade Deck");
     decks.add("Metronome Deck");
-    decks.add("NotYugi");
-    decks.add("Giant Deck");
-    decks.add("Predaplant Deck");
+    decks.add("Beast Deck");
     long startTime = System.nanoTime();
     for (String deck : decks) {
-      for (int ascension = -25; ascension < 26; ascension++) {
+      for (int ascension = 0; ascension < 21; ascension++) {
         for (int challenge = -1; challenge < 21; challenge++) {
-          PickInfoV2 info = new PickInfoV2(deck, ascension, challenge);
+          PickInfo info = new PickInfo(deck, ascension, challenge);
           InfoController.getService().create(info);
         }
       }
