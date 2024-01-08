@@ -144,7 +144,7 @@ public class RunLogController {
         var events = new HashMap<Integer, List<Object>>();
         var data = top.getEvent();
         for (var campfire : run.getTop().getEvent().getCampfire_choices()) {
-            if (campfire.getKey().equals("SMITH")) {
+            if (campfire.getKey().equals("SMITH") || campfire.getKey().equals("PURGE")) {
                 var floor = campfire.getFloor();
                 var list = upgraded.getOrDefault(floor, new ArrayList<>());
                 var id = campfire.getId();
