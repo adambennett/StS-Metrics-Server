@@ -16,10 +16,6 @@ public class OfferCard {
   @JsonIgnoreProperties("cards")
   private PickInfo info;
 
-  @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-  @JsonIgnoreProperties("cards")
-  private PickInfoV2 infoV2;
-
   private String name;
   private Integer offered;
   private Integer picked;
@@ -27,12 +23,12 @@ public class OfferCard {
 
   public OfferCard() {}
 
-  public OfferCard(String name, int offered, int picked, int pickVic, PickInfoV2 info) {
+  public OfferCard(String name, int offered, int picked, int pickVic, PickInfo info) {
     this.name = name;
     this.offered = offered;
     this.picked = picked;
     this.pickVic = pickVic;
-    this.infoV2 = info;
+    this.info = info;
   }
 
   public Long getCard_id() {
@@ -49,14 +45,6 @@ public class OfferCard {
 
   public void setInfo(PickInfo info) {
     this.info = info;
-  }
-
-  public PickInfoV2 getInfoV2() {
-    return infoV2;
-  }
-
-  public void setInfoV2(PickInfoV2 infoV2) {
-    this.infoV2 = infoV2;
   }
 
   public String getName() {
