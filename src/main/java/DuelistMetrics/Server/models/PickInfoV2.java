@@ -11,15 +11,17 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
-import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.GenerationTime;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+@Setter
+@Getter
 @Entity
 @Table(name = "pick_info_v2")
 public class PickInfoV2 {
@@ -28,35 +30,35 @@ public class PickInfoV2 {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "infoV2", targetEntity = OfferCard.class)
+  @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "infoV2", targetEntity = OfferCardV2.class)
   @JsonIgnoreProperties("info")
   @Fetch(value = FetchMode.SUBSELECT)
-  private List<OfferCard> cards;
+  private List<OfferCardV2> cards;
 
-  @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "infoV2", targetEntity = OfferRelic.class)
+  @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "infoV2", targetEntity = OfferRelicV2.class)
   @JsonIgnoreProperties("info")
   @Fetch(value = FetchMode.SUBSELECT)
-  private List<OfferRelic> relics;
+  private List<OfferRelicV2> relics;
 
-  @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "infoV2", targetEntity = OfferPotion.class)
+  @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "infoV2", targetEntity = OfferPotionV2.class)
   @JsonIgnoreProperties("info")
   @Fetch(value = FetchMode.SUBSELECT)
-  private List<OfferPotion> potions;
+  private List<OfferPotionV2> potions;
 
-  @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "infoV2", targetEntity = OfferNeow.class)
+  @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "infoV2", targetEntity = OfferNeowV2.class)
   @JsonIgnoreProperties("info")
   @Fetch(value = FetchMode.SUBSELECT)
-  private List<OfferNeow> neow;
+  private List<OfferNeowV2> neow;
 
   private String deck;
   private Integer ascension;
   private Integer challenge;
 
   @Temporal(TemporalType.TIMESTAMP)
-  @Generated(GenerationTime.INSERT)
+  @GeneratedValue(strategy = GenerationType.AUTO)
   private Date created_date;
 
-  @Generated(GenerationTime.INSERT)
+  @GeneratedValue(strategy = GenerationType.AUTO)
   private String data_hash;
 
   public PickInfoV2() {}
@@ -71,10 +73,10 @@ public class PickInfoV2 {
     this.neow = new ArrayList<>();
   }
 
-  public void addCard(OfferCard card) {
+  public void addCard(OfferCardV2 card) {
     if (!this.cards.contains(card)) { this.cards.add(card); }
     else {
-      for (OfferCard c : this.cards) {
+      for (OfferCardV2 c : this.cards) {
         if (c.equals(card)) {
           c.setPicked(c.getPicked() + card.getPicked());
           c.setPickVic(c.getPickVic() + card.getPickVic());
@@ -84,10 +86,10 @@ public class PickInfoV2 {
     }
   }
 
-  public void addRelic(OfferRelic relic) {
+  public void addRelic(OfferRelicV2 relic) {
     if (!this.relics.contains(relic)) { this.relics.add(relic); }
     else {
-      for (OfferRelic c : this.relics) {
+      for (OfferRelicV2 c : this.relics) {
         if (c.equals(relic)) {
           c.setPicked(c.getPicked() + relic.getPicked());
           c.setPickVic(c.getPickVic() + relic.getPickVic());
@@ -96,10 +98,10 @@ public class PickInfoV2 {
     }
   }
 
-  public void addPotion(OfferPotion potion) {
+  public void addPotion(OfferPotionV2 potion) {
     if (!this.potions.contains(potion)) { this.potions.add(potion); }
     else {
-      for (OfferPotion c : this.potions) {
+      for (OfferPotionV2 c : this.potions) {
         if (c.equals(potion)) {
           c.setPicked(c.getPicked() + potion.getPicked());
           c.setPickVic(c.getPickVic() + potion.getPickVic());
@@ -108,10 +110,10 @@ public class PickInfoV2 {
     }
   }
 
-  public void addNeow(OfferNeow offerNeow) {
+  public void addNeow(OfferNeowV2 offerNeow) {
     if (!this.neow.contains(offerNeow)) { this.neow.add(offerNeow); }
     else {
-      for (OfferNeow c : this.neow) {
+      for (OfferNeowV2 c : this.neow) {
         if (c.equals(offerNeow)) {
           c.setPicked(c.getPicked() + offerNeow.getPicked());
           c.setPickVic(c.getPickVic() + offerNeow.getPickVic());
@@ -120,83 +122,4 @@ public class PickInfoV2 {
     }
   }
 
-  public Long getId() {
-    return id;
-  }
-
-  public List<OfferCard> getCards() {
-    return cards;
-  }
-
-  public List<OfferRelic> getRelics() {
-    return relics;
-  }
-
-  public List<OfferPotion> getPotions() {
-    return potions;
-  }
-
-  public List<OfferNeow> getNeow() {
-    return neow;
-  }
-
-  public String getDeck() {
-    return deck;
-  }
-
-  public Integer getAscension() {
-    return ascension;
-  }
-
-  public Integer getChallenge() {
-    return challenge;
-  }
-
-  public Date getCreated_date() {
-    return created_date;
-  }
-
-  public String getData_hash() {
-    return data_hash;
-  }
-
-  public void setId(Long id) {
-    this.id = id;
-  }
-
-  public void setCards(List<OfferCard> cards) {
-    this.cards = cards;
-  }
-
-  public void setRelics(List<OfferRelic> relics) {
-    this.relics = relics;
-  }
-
-  public void setPotions(List<OfferPotion> potions) {
-    this.potions = potions;
-  }
-
-  public void setNeow(List<OfferNeow> neow) {
-    this.neow = neow;
-  }
-
-  public void setDeck(String deck) {
-    this.deck = deck;
-  }
-
-  public void setAscension(Integer ascension) {
-    this.ascension = ascension;
-  }
-
-  public void setChallenge(Integer challenge) {
-    this.challenge = challenge;
-  }
-
-  public void setCreated_date(Date created_date) {
-    this.created_date = created_date;
-  }
-
-  public void setData_hash(String data_hash) {
-    this.data_hash = data_hash;
-  }
 }

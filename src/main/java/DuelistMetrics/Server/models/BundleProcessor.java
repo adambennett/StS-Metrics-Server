@@ -132,9 +132,9 @@ public class BundleProcessor {
     if (saveRunsAndInfos || saveTopBundles) {
       Logger.getGlobal().info("Parsed " + runID + ". Attempting to save to DB...");
       if (saveRunsAndInfos) {
-        if (info == null) {
+        if (info != null) {
           InfoController.getService().create(info);
-          Logger.getGlobal().info("PickInfo saved");
+          Logger.getGlobal().info("PickInfo " + info.getId() + " updated");
         }
         Boolean kaiba = bnd.getEvent().getPlaying_as_kaiba();
         String killedBy = bnd.getEvent().getKilled_by();
@@ -194,6 +194,7 @@ public class BundleProcessor {
     PickInfoV2 info = InfoController.getService().findInfo(deck, asc, challenge);
     if (info == null) {
       info = InfoController.getService().create(new PickInfoV2(deck, asc, challenge));
+      Logger.getGlobal().info("PickInfo " + info.getId() + " saved");
     }
     return info;
   }
@@ -248,74 +249,132 @@ public class BundleProcessor {
   }
 
   private static void processCards(PickInfoV2 info, Map<String, Integer> offered, Map<String, Integer> picked, Map<String, Integer> pickedVic) {
-    for (Map.Entry<String, Integer> entry : offered.entrySet()) { info.addCard(new OfferCard(entry.getKey(), entry.getValue(), 0, 0, info)); }
+    for (Map.Entry<String, Integer> entry : offered.entrySet()) {
+      boolean found = false;
+      for (OfferCardV2 c : info.getCards()) {
+        if (c.getName().equals(entry.getKey())) {
+          c.setOffered(entry.getValue() + c.getOffered());
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        info.addCard(new OfferCardV2(entry.getKey(), entry.getValue(), 0, 0, info));
+      }
+    }
+
     for (Map.Entry<String, Integer> entry : picked.entrySet()) {
       boolean found = false;
-      for (OfferCard c : info.getCards()) {
+      for (OfferCardV2 c : info.getCards()) {
         if (c.getName().equals(entry.getKey())) {
-          c.setPicked(entry.getValue());
+          c.setPicked(entry.getValue() + c.getPicked());
           found = true;
           break;
         }
       }
-      if (!found) { info.addCard(new OfferCard(entry.getKey(), 0, entry.getValue(), 0, info)); }
+      if (!found) { info.addCard(new OfferCardV2(entry.getKey(), 0, entry.getValue(), 0, info)); }
     }
+
     for (Map.Entry<String, Integer> entry : pickedVic.entrySet()) {
       boolean found = false;
-      for (OfferCard c : info.getCards()) {
+      for (OfferCardV2 c : info.getCards()) {
         if (c.getName().equals(entry.getKey())) {
-          c.setPickVic(entry.getValue());
+          c.setPickVic(entry.getValue() + c.getPickVic());
           found = true;
           break;
         }
       }
-      if (!found) { info.addCard(new OfferCard(entry.getKey(), 0, entry.getValue(), entry.getValue(), info)); }
+      if (!found) { info.addCard(new OfferCardV2(entry.getKey(), 0, entry.getValue(), entry.getValue(), info)); }
     }
   }
 
   private static void processRelics(PickInfoV2 info, Map<String, Integer> pickedR, Map<String, Integer> pickedVicR) {
-    for (Map.Entry<String, Integer> entry : pickedR.entrySet()) { info.addRelic(new OfferRelic(entry.getKey(), entry.getValue(), 0, info)); }
-    for (Map.Entry<String, Integer> entry : pickedVicR.entrySet()) {
+    for (Map.Entry<String, Integer> entry : pickedR.entrySet()) {
       boolean found = false;
-      for (OfferRelic r : info.getRelics()) {
+      for (OfferRelicV2 r : info.getRelics()) {
         if (r.getName().equals(entry.getKey())) {
-          r.setPickVic(entry.getValue());
+          r.setPicked(entry.getValue() + r.getPicked());
           found = true;
           break;
         }
       }
-      if (!found) { info.addRelic(new OfferRelic(entry.getKey(), entry.getValue(), entry.getValue(), info)); }
+      if (!found) {
+        info.addRelic(new OfferRelicV2(entry.getKey(), entry.getValue(), 0, info));
+      }
+    }
+
+    for (Map.Entry<String, Integer> entry : pickedVicR.entrySet()) {
+      boolean found = false;
+      for (OfferRelicV2 r : info.getRelics()) {
+        if (r.getName().equals(entry.getKey())) {
+          r.setPickVic(entry.getValue() + r.getPickVic());
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        info.addRelic(new OfferRelicV2(entry.getKey(), entry.getValue(), entry.getValue(), info));
+      }
     }
   }
 
   private static void processPotions(PickInfoV2 info, Map<String, Integer> pickedP, Map<String, Integer> pickedVicP) {
-    for (Map.Entry<String, Integer> entry : pickedP.entrySet()) { info.addPotion(new OfferPotion(entry.getKey(), entry.getValue(), 0, info)); }
-    for (Map.Entry<String, Integer> entry : pickedVicP.entrySet()) {
+    for (Map.Entry<String, Integer> entry : pickedP.entrySet()) {
       boolean found = false;
-      for (OfferPotion p : info.getPotions()) {
+      for (OfferPotionV2 p : info.getPotions()) {
         if (p.getName().equals(entry.getKey())) {
-          p.setPickVic(entry.getValue());
+          p.setPicked(entry.getValue() + p.getPicked());
           found = true;
           break;
         }
       }
-      if (!found) { info.addPotion(new OfferPotion(entry.getKey(), entry.getValue(), entry.getValue(), info)); }
+      if (!found) {
+        info.addPotion(new OfferPotionV2(entry.getKey(), entry.getValue(), 0, info));
+      }
+    }
+
+    for (Map.Entry<String, Integer> entry : pickedVicP.entrySet()) {
+      boolean found = false;
+      for (OfferPotionV2 p : info.getPotions()) {
+        if (p.getName().equals(entry.getKey())) {
+          p.setPickVic(entry.getValue() + p.getPickVic());
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        info.addPotion(new OfferPotionV2(entry.getKey(), entry.getValue(), entry.getValue(), info));
+      }
     }
   }
 
 
   private static void processNeow(PickInfoV2 info, Map<String, Integer> pickedN, Map<String, Integer> pickedVicN) {
-    for (Map.Entry<String, Integer> entry : pickedN.entrySet()) { info.addNeow(new OfferNeow(entry.getKey(), entry.getValue(), 0, info)); }
-    for (Map.Entry<String, Integer> entry : pickedVicN.entrySet()) {
+    for (Map.Entry<String, Integer> entry : pickedN.entrySet()) {
       boolean found = false;
-      for (OfferNeow n : info.getNeow()) {
+      for (OfferNeowV2 n : info.getNeow()) {
         if (n.getName().equals(entry.getKey())) {
-          n.setPickVic(entry.getValue());
+          n.setPicked(entry.getValue() + n.getPicked());
           found = true;
           break;
         }
       }
-      if (!found) { info.addNeow(new OfferNeow(entry.getKey(), entry.getValue(), entry.getValue(), info)); }
+      if (!found) {
+        info.addNeow(new OfferNeowV2(entry.getKey(), entry.getValue(), 0, info));
+      }
+    }
+    for (Map.Entry<String, Integer> entry : pickedVicN.entrySet()) {
+      boolean found = false;
+      for (OfferNeowV2 n : info.getNeow()) {
+        if (n.getName().equals(entry.getKey())) {
+          n.setPickVic(entry.getValue() + n.getPickVic());
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        info.addNeow(new OfferNeowV2(entry.getKey(), entry.getValue(), entry.getValue(), info));
+      }
     }
   }
 
