@@ -19,9 +19,9 @@ SELECT
     FLOOR((SUM(oc.pick_vic)/SUM(oc.picked)) * 1000) AS power,
     IF(oc.name like 'theDuelist:%', 'Duelist', 'Base Game') AS type
 FROM offer_potion oc
-JOIN info_potion ir ON ir.potion_id = oc.name AND ir.info_info_bundle_id = (SELECT MAX(info_bundle_id) FROM mod_info_bundle WHERE is_duelist = 1)
-JOIN pick_info pi ON pi.id = oc.info_id AND pi.deck != 'NotYugi'
-WHERE oc.name like 'theDuelist:%' OR oc.name in (SELECT DISTINCT potion_id FROM info_potion WHERE info_info_bundle_id = (SELECT MAX(info_bundle_id) FROM mod_info_bundle WHERE is_base_game = 1) and potion_id not like '%:%' and potion_id not like '%m_%')
+JOIN info_potion ir ON ir.potion_id = oc.name
+JOIN pick_info_v2 pi ON pi.id = oc.infov2_id AND pi.deck != 'NotYugi'
+WHERE (oc.name like 'theDuelist:%' AND ir.info_info_bundle_id = (SELECT MAX(info_bundle_id) FROM mod_info_bundle WHERE is_duelist = 1)) OR oc.name in (SELECT DISTINCT potion_id FROM info_potion WHERE info_info_bundle_id = (SELECT MAX(info_bundle_id) FROM mod_info_bundle WHERE is_base_game = 1) and potion_id not like '%:%' and potion_id not like '%m_%')
 GROUP BY ir.name
 """, resultSetMapping = "fullInfoDisplayObjectPotionMapping")
 @SqlResultSetMapping(
@@ -49,9 +49,10 @@ SELECT
     FLOOR((SUM(oc.pick_vic)/SUM(oc.picked)) * 1000) AS power,
     IF(oc.name like 'theDuelist:%', 'Duelist', 'Base Game') AS type
 FROM offer_potion oc
-LEFT JOIN pick_info pi ON oc.info_id = pi.id
-JOIN info_potion ir ON ir.potion_id = oc.name AND ir.info_info_bundle_id = (SELECT MAX(info_bundle_id) FROM mod_info_bundle WHERE is_duelist = 1)
-WHERE pi.deck = :deck AND (oc.name like 'theDuelist:%' OR oc.name in (SELECT DISTINCT potion_id FROM info_potion WHERE info_info_bundle_id = (SELECT MAX(info_bundle_id) FROM mod_info_bundle WHERE is_base_game = 1) and potion_id not like '%:%' and potion_id not like '%m_%'))
+LEFT JOIN pick_info_v2 pi ON oc.infov2_id = pi.id
+JOIN info_potion ir ON ir.potion_id = oc.name
+WHERE pi.deck = :deck AND
+      ((oc.name like 'theDuelist:%' AND ir.info_info_bundle_id = (SELECT MAX(info_bundle_id) FROM mod_info_bundle WHERE is_duelist = 1)) OR oc.name in (SELECT DISTINCT potion_id FROM info_potion WHERE info_info_bundle_id = (SELECT MAX(info_bundle_id) FROM mod_info_bundle WHERE is_base_game = 1) and potion_id not like '%:%' and potion_id not like '%m_%'))
 GROUP BY ir.name
 """, resultSetMapping = "fullInfoDisplayObjectPotionDeckMapping")
 @SqlResultSetMapping(
@@ -77,17 +78,21 @@ public class OfferPotion {
   @JsonIgnoreProperties("potions")
   private PickInfo info;
 
+  @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+  @JsonIgnoreProperties("potions")
+  private PickInfoV2 infoV2;
+
   private String name;
   private Integer picked;
   private Integer pickVic;
 
   public OfferPotion() {}
 
-  public OfferPotion(String name, int picked, int pickVic, PickInfo info) {
+  public OfferPotion(String name, int picked, int pickVic, PickInfoV2 info) {
     this.name = name;
     this.picked = picked;
     this.pickVic = pickVic;
-    this.info = info;
+    this.infoV2 = info;
   }
 
   public Long getPotion_id() {
@@ -104,6 +109,14 @@ public class OfferPotion {
 
   public void setInfo(PickInfo info) {
     this.info = info;
+  }
+
+  public PickInfoV2 getInfoV2() {
+    return infoV2;
+  }
+
+  public void setInfoV2(PickInfoV2 infoV2) {
+    this.infoV2 = infoV2;
   }
 
   public String getName() {

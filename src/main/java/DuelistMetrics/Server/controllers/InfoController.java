@@ -65,19 +65,20 @@ public class InfoController {
         }
         boolean duelist = card.startsWith("theDuelist:");
         int magic = 17;
+        String parsedCard = card;
+        if (parsedCard.contains("+")) {
+            int indexOfPlus = parsedCard.indexOf("+");
+            parsedCard = parsedCard.substring(0, indexOfPlus);
+        }
         List<String> toParse = bundles.getCardDataFromId(card, duelist);
+        List<String> toParseFromParsed = bundles.getCardDataFromId(parsedCard, duelist);
+        if (toParse == null || (toParseFromParsed != null && toParseFromParsed.size() > toParse.size())) {
+            toParse = toParseFromParsed;
+            card = parsedCard;
+        }
 
         if (toParse == null || toParse.size() < 1) {
-            if (card.contains("+")) {
-                int indexOfPlus = card.indexOf("+");
-                card = card.substring(0, indexOfPlus);
-                toParse = bundles.getCardDataFromId(card, duelist);
-                if (toParse == null || toParse.size() < 1) {
-                    return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-                }
-            } else {
-                return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-            }
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
         List<String> modData = bundles.getModDataFromId(card, duelist);
         List<String> cardProps;
