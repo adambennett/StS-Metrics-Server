@@ -71,16 +71,18 @@ public interface InfoCardRepo extends JpaRepository<InfoCard, Long> {
             "WHERE ic.info_info_bundle_id = :version and (icp.pools = :poolName or icp.pools = CONCAT(:poolName, ' [Basic/Colorless]')) ORDER BY scorePool, cardId", nativeQuery = true)
     List<Object[]> getDuelistCardsByPool(String poolName, long version);
 
-    @Query(value = "SELECT " +
-            "sc.pool_name as scorePool, icp.pools as infoPool, ic.block as block, ic.card_id as cardId, ic.color as color, ic.cost as cost, ic.damage as damage, ic.duelist_type as duelistType, " +
-            "ic.entomb as entomb, ic.magic_number as magicNumber, ic.name as name, ic.rarity as rarity, ic.second_mag as secondMagic, ic.summons as summons, " +
-            "ic.text as text, ic.third_mag as thirdMagic, ic.tributes as tributes, ic.type as type, ic.new_line_text as formattedText, ic.max_upgrades as maxUpgrades, " +
-            "sc.act0_score as act0score, sc.act1_score as act1score, sc.act2_score as act2Score, sc.act3_score as act3Score, sc.overall_score as overallScore, sc.last_updated as scoreLastUpdated " +
-            "FROM info_card ic " +
-            "JOIN info_card_pools icp on ic.info_card_id = icp.info_card_info_card_id " +
-            "LEFT JOIN scored_card sc on ic.card_id = sc.card_id " +
-            "WHERE ic.info_info_bundle_id = :version and (sc.pool_name = icp.pools or (substring_index(sc.pool_name, ' ', 2) = substring_index(icp.pools, ' ', 2) and icp.pools not like '% Deck%')) " +
-            "ORDER BY scorePool, cardId", nativeQuery = true)
+    @Query(value = """
+    SELECT
+    sc.pool_name as scorePool, icp.pools as infoPool, ic.block as block, ic.card_id as cardId, ic.color as color, ic.cost as cost, ic.damage as damage, ic.duelist_type as duelistType,
+    ic.entomb as entomb, ic.magic_number as magicNumber, ic.name as name, ic.rarity as rarity, ic.second_mag as secondMagic, ic.summons as summons,
+    ic.text as text, ic.third_mag as thirdMagic, ic.tributes as tributes, ic.type as type, ic.new_line_text as formattedText, ic.max_upgrades as maxUpgrades,
+    sc.act0_score as act0score, sc.act1_score as act1score, sc.act2_score as act2Score, sc.act3_score as act3Score, sc.overall_score as overallScore, sc.last_updated as scoreLastUpdated
+    FROM info_card ic
+    JOIN info_card_pools icp on ic.info_card_id = icp.info_card_info_card_id
+    LEFT JOIN scored_card sc on ic.card_id = sc.card_id
+    WHERE ic.info_info_bundle_id = :version and (sc.pool_name = icp.pools or (substring_index(sc.pool_name, ' ', 2) = substring_index(icp.pools, ' ', 2) and icp.pools not like '% Deck%'))
+    ORDER BY scorePool, cardId
+    """, nativeQuery = true)
     List<Object[]> getAllDuelistCards(long version);
 
     @Query(value = "SELECT DISTINCT " +

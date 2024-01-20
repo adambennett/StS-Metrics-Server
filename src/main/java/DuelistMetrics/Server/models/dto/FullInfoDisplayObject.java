@@ -8,4 +8,19 @@ public record FullInfoDisplayObject(String uuid,
                                     Integer picked,
                                     Integer pickedVictory,
                                     Double power,
-                                    String type) {}
+                                    String type) {
+    public FullInfoDisplayObject(String uuid,
+                                 Integer picked,
+                                 Integer pickedVictory,
+                                 Double power,
+                                 String type) {
+        this(uuid, null, null, null, null, picked, pickedVictory, power, type);
+    }
+    public FullInfoDisplayObject(String uuid,
+                                 String name,
+                                 String rarity,
+                                 String description,
+                                 String flavor) {
+        this(uuid, name, rarity, description, flavor, null, null, null, null);
+    }
+}

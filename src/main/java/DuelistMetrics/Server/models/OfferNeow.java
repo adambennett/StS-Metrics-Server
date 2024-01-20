@@ -16,17 +16,21 @@ public class OfferNeow {
   @JsonIgnoreProperties("neow")
   private PickInfo info;
 
+  @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+  @JsonIgnoreProperties("neow")
+  private PickInfoV2 infoV2;
+
   private String name;
   private Integer picked;
   private Integer pickVic;
 
   public OfferNeow() {}
 
-  public OfferNeow(String name, int picked, int pickVic, PickInfo info) {
+  public OfferNeow(String name, int picked, int pickVic, PickInfoV2 info) {
     this.name = name;
     this.picked = picked;
     this.pickVic = pickVic;
-    this.info = info;
+    this.infoV2 = info;
   }
 
   public Long getNeow_id() {
@@ -43,6 +47,14 @@ public class OfferNeow {
 
   public void setInfo(PickInfo info) {
     this.info = info;
+  }
+
+  public PickInfoV2 getInfoV2() {
+    return infoV2;
+  }
+
+  public void setInfoV2(PickInfoV2 infoV2) {
+    this.infoV2 = infoV2;
   }
 
   public String getName() {
