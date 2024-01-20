@@ -37,7 +37,7 @@ SELECT
 FROM offer_relic_v2 oc
 JOIN info_relic ir ON ir.relic_id = oc.name
 JOIN pick_info_v2 pi ON pi.id = oc.infov2_id AND pi.deck != 'NotYugi'
-WHERE (oc.name like 'theDuelist:%' AND ir.info_info_bundle_id = (SELECT MAX(info_bundle_id) FROM mod_info_bundle WHERE is_duelist = 1)) OR oc.name in (SELECT DISTINCT relic_id FROM info_relic WHERE info_info_bundle_id = (SELECT MAX(info_bundle_id) FROM mod_info_bundle WHERE is_base_game = 1) and relic_id not like '%:%' and relic_id not like '%m_%')
+WHERE (oc.name like 'theDuelist:%' AND ir.info_info_bundle_id = (SELECT MAX(info_bundle_id) FROM mod_info_bundle WHERE is_duelist = 1)) OR oc.name in :relicIds
 GROUP BY ir.name
 """, resultSetMapping = "v2fullInfoDisplayObjectRelicMapping")
 @SqlResultSetMapping(
@@ -67,7 +67,7 @@ SELECT
 FROM offer_relic_v2 oc
 LEFT JOIN pick_info_v2 pi ON oc.infov2_id = pi.id
 JOIN info_relic ir ON ir.relic_id = oc.name
-WHERE pi.deck = :deck AND ((oc.name like 'theDuelist:%' AND ir.info_info_bundle_id = (SELECT MAX(info_bundle_id) FROM mod_info_bundle WHERE is_duelist = 1)) OR oc.name in (SELECT DISTINCT relic_id FROM info_relic WHERE info_info_bundle_id = (SELECT MAX(info_bundle_id) FROM mod_info_bundle WHERE is_base_game = 1) and relic_id not like '%:%' and relic_id not like '%m_%'))
+WHERE pi.deck = :deck AND ((oc.name like 'theDuelist:%' AND ir.info_info_bundle_id = (SELECT MAX(info_bundle_id) FROM mod_info_bundle WHERE is_duelist = 1)) OR oc.name in :relicIds)
 GROUP BY ir.name
 """, resultSetMapping = "v2fullInfoDisplayObjectRelicDeckMapping")
 @SqlResultSetMapping(

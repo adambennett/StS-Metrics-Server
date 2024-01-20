@@ -1,16 +1,24 @@
 package DuelistMetrics.Server.controllers;
 
-import DuelistMetrics.Server.models.*;
-import DuelistMetrics.Server.models.builders.*;
+import DuelistMetrics.Server.models.DisplayObject;
+import DuelistMetrics.Server.models.builders.DisplayObjectBuilder;
 import DuelistMetrics.Server.models.dto.FormattedKeywordDTO;
 import DuelistMetrics.Server.models.dto.FullInfoDisplayObject;
-import DuelistMetrics.Server.repositories.*;
-import DuelistMetrics.Server.util.*;
-import org.springframework.beans.factory.annotation.*;
-import org.springframework.web.bind.annotation.*;
+import DuelistMetrics.Server.repositories.InfoKeywordRepo;
+import DuelistMetrics.Server.repositories.NeowRepo;
+import DuelistMetrics.Server.repositories.PotionRepo;
+import DuelistMetrics.Server.repositories.RelicRepo;
+import DuelistMetrics.Server.util.DeckNameProcessor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
 
+@SuppressWarnings("unused")
 @RestController
 public class DisplayObjectController {
 
@@ -30,13 +38,13 @@ public class DisplayObjectController {
   @GetMapping("/relics")
   @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
   public static Collection<FullInfoDisplayObject> getRelics(){
-    return relics.getAll();
+    return relics.getAll(relics.getRelicIdsForInfoObjectLookups());
   }
 
   @GetMapping("/potions")
   @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
   public static Collection<FullInfoDisplayObject> getPotions(){
-    return pots.getAll();
+    return pots.getAll(pots.getPotionIdsForInfoObjectLookups());
   }
 
   @GetMapping("/neow")
@@ -63,13 +71,13 @@ public class DisplayObjectController {
   @GetMapping("/relics/{deck}")
   @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
   public static Collection<FullInfoDisplayObject> getRelics(@PathVariable String deck){
-    return relics.getAllFromDeck(DeckNameProcessor.getProperDeckName(deck));
+    return relics.getAllFromDeck(DeckNameProcessor.getProperDeckName(deck), relics.getRelicIdsForInfoObjectLookups());
   }
 
   @GetMapping("/potions/{deck}")
   @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
   public static Collection<FullInfoDisplayObject> getPotions(@PathVariable String deck){
-    return pots.getAllFromDeck(DeckNameProcessor.getProperDeckName(deck));
+    return pots.getAllFromDeck(DeckNameProcessor.getProperDeckName(deck), pots.getPotionIdsForInfoObjectLookups());
   }
 
   @GetMapping("/neow/{deck}")
