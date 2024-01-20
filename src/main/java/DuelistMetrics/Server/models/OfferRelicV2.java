@@ -26,28 +26,19 @@ import java.util.Objects;
 @NamedNativeQuery(name = "getRelicListV2Lookup", query = """
 SELECT
     oc.name AS uuid,
-    ir.name AS name,
-    ir.tier AS rarity,
-    ir.description_plain AS description,
-    ir.flavor_text AS flavor,
     SUM(oc.picked) AS picked,
     SUM(oc.pick_vic) AS pickedVictory,
     FLOOR((SUM(oc.pick_vic)/SUM(oc.picked)) * 1000) AS power,
     IF(oc.name like 'theDuelist:%', 'Duelist', 'Base Game') AS type
 FROM offer_relic_v2 oc
-JOIN info_relic ir ON ir.relic_id = oc.name
 JOIN pick_info_v2 pi ON pi.id = oc.infov2_id AND pi.deck != 'NotYugi'
-WHERE (oc.name like 'theDuelist:%' AND ir.info_info_bundle_id = (SELECT MAX(info_bundle_id) FROM mod_info_bundle WHERE is_duelist = 1)) OR oc.name in :relicIds
-GROUP BY ir.name
+WHERE oc.name like 'theDuelist:%' OR oc.name in :relicIds
+GROUP BY oc.name
 """, resultSetMapping = "v2fullInfoDisplayObjectRelicMapping")
 @SqlResultSetMapping(
         name = "v2fullInfoDisplayObjectRelicMapping",
         classes = @ConstructorResult(targetClass = FullInfoDisplayObject.class,columns = {
                 @ColumnResult(name = "uuid", type = String.class),
-                @ColumnResult(name = "name", type = String.class),
-                @ColumnResult(name = "rarity", type = String.class),
-                @ColumnResult(name = "description", type = String.class),
-                @ColumnResult(name = "flavor", type = String.class),
                 @ColumnResult(name = "picked", type = Integer.class),
                 @ColumnResult(name = "pickedVictory", type = Integer.class),
                 @ColumnResult(name = "power", type = Double.class),
@@ -56,32 +47,46 @@ GROUP BY ir.name
 @NamedNativeQuery(name = "getRelicListFromDeckV2Lookup", query = """
 SELECT
     oc.name AS uuid,
-    ir.name AS name,
-    ir.tier AS rarity,
-    ir.description_plain AS description,
-    ir.flavor_text AS flavor,
     SUM(oc.picked) AS picked,
     SUM(oc.pick_vic) AS pickedVictory,
     FLOOR((SUM(oc.pick_vic)/SUM(oc.picked)) * 1000) AS power,
     IF(oc.name like 'theDuelist:%', 'Duelist', 'Base Game') AS type
 FROM offer_relic_v2 oc
 LEFT JOIN pick_info_v2 pi ON oc.infov2_id = pi.id
-JOIN info_relic ir ON ir.relic_id = oc.name
-WHERE pi.deck = :deck AND ((oc.name like 'theDuelist:%' AND ir.info_info_bundle_id = (SELECT MAX(info_bundle_id) FROM mod_info_bundle WHERE is_duelist = 1)) OR oc.name in :relicIds)
-GROUP BY ir.name
+WHERE pi.deck = :deck AND (oc.name like 'theDuelist:%' OR oc.name in :relicIds)
+GROUP BY oc.name
 """, resultSetMapping = "v2fullInfoDisplayObjectRelicDeckMapping")
 @SqlResultSetMapping(
         name = "v2fullInfoDisplayObjectRelicDeckMapping",
         classes = @ConstructorResult(targetClass = FullInfoDisplayObject.class,columns = {
                 @ColumnResult(name = "uuid", type = String.class),
-                @ColumnResult(name = "name", type = String.class),
-                @ColumnResult(name = "rarity", type = String.class),
-                @ColumnResult(name = "description", type = String.class),
-                @ColumnResult(name = "flavor", type = String.class),
                 @ColumnResult(name = "picked", type = Integer.class),
                 @ColumnResult(name = "pickedVictory", type = Integer.class),
                 @ColumnResult(name = "power", type = Double.class),
-                @ColumnResult(name = "type", type = String.class)})
+                @ColumnResult(name = "type", type = String.class)
+        })
+)
+@NamedNativeQuery(name = "getInfoRelicRelicListFromDeckV2Lookup", query = """
+SELECT
+    ir.relic_id AS uuid,
+    ir.name AS name,
+    ir.tier AS rarity,
+    ir.description_plain AS description,
+    ir.flavor_text AS flavor
+FROM info_relic ir
+WHERE ir.relic_id in :relicIds AND
+      ir.info_info_bundle_id = (SELECT MAX(info_bundle_id) FROM mod_info_bundle WHERE is_duelist = 1)
+GROUP BY ir.relic_id
+""", resultSetMapping = "v2InfoRelicFullInfoDisplayObjectRelicDeckMapping")
+@SqlResultSetMapping(
+        name = "v2InfoRelicFullInfoDisplayObjectRelicDeckMapping",
+        classes = @ConstructorResult(targetClass = FullInfoDisplayObject.class,columns = {
+                @ColumnResult(name = "uuid", type = String.class),
+                @ColumnResult(name = "name", type = String.class),
+                @ColumnResult(name = "rarity", type = String.class),
+                @ColumnResult(name = "description", type = String.class),
+                @ColumnResult(name = "flavor", type = String.class)
+        })
 )
 public class OfferRelicV2 {
 

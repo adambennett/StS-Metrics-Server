@@ -1,5 +1,6 @@
 package DuelistMetrics.Server.controllers;
 
+import DuelistMetrics.Server.interfaces.InfoObjectLookupQuery;
 import DuelistMetrics.Server.models.DisplayObject;
 import DuelistMetrics.Server.models.builders.DisplayObjectBuilder;
 import DuelistMetrics.Server.models.dto.FormattedKeywordDTO;
@@ -17,6 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("unused")
 @RestController
@@ -38,13 +42,17 @@ public class DisplayObjectController {
   @GetMapping("/relics")
   @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
   public static Collection<FullInfoDisplayObject> getRelics(){
-    return relics.getAll(relics.getRelicIdsForInfoObjectLookups());
+    List<String> relicIds = relics.getRelicIdsForInfoObjectLookups();
+    List<FullInfoDisplayObject> offerData = relics.getAll(relicIds);
+    return mergeInfoWithOfferData(offerData, relics::getInfoRelicData);
   }
 
   @GetMapping("/potions")
   @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
   public static Collection<FullInfoDisplayObject> getPotions(){
-    return pots.getAll(pots.getPotionIdsForInfoObjectLookups());
+    List<String> potionIds = pots.getPotionIdsForInfoObjectLookups();
+    List<FullInfoDisplayObject> offerData = pots.getAll(potionIds);
+    return mergeInfoWithOfferData(offerData, pots::getInfoPotionData);
   }
 
   @GetMapping("/neow")
@@ -71,13 +79,19 @@ public class DisplayObjectController {
   @GetMapping("/relics/{deck}")
   @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
   public static Collection<FullInfoDisplayObject> getRelics(@PathVariable String deck){
-    return relics.getAllFromDeck(DeckNameProcessor.getProperDeckName(deck), relics.getRelicIdsForInfoObjectLookups());
+    List<String> relicIds = relics.getRelicIdsForInfoObjectLookups();
+    String properDeck = DeckNameProcessor.getProperDeckName(deck);
+    List<FullInfoDisplayObject> offerData = relics.getAllFromDeck(properDeck, relicIds);
+    return mergeInfoWithOfferData(offerData, relics::getInfoRelicData);
   }
 
   @GetMapping("/potions/{deck}")
   @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
   public static Collection<FullInfoDisplayObject> getPotions(@PathVariable String deck){
-    return pots.getAllFromDeck(DeckNameProcessor.getProperDeckName(deck), pots.getPotionIdsForInfoObjectLookups());
+    List<String> potionIds = pots.getPotionIdsForInfoObjectLookups();
+    String properDeck = DeckNameProcessor.getProperDeckName(deck);
+    List<FullInfoDisplayObject> offerData = pots.getAllFromDeck(properDeck, potionIds);
+    return mergeInfoWithOfferData(offerData, pots::getInfoPotionData);
   }
 
   @GetMapping("/neow/{deck}")
@@ -88,6 +102,21 @@ public class DisplayObjectController {
       createDisplayObj(output, s);
     }
     return sortDuelistObjs(output, "neow");
+  }
+
+  private static Collection<FullInfoDisplayObject> mergeInfoWithOfferData(List<FullInfoDisplayObject> initialOutput, InfoObjectLookupQuery query) {
+    Map<String, List<FullInfoDisplayObject>> infoOutput = query.getInfoData(initialOutput.stream().map(FullInfoDisplayObject::uuid).toList()).stream().collect(Collectors.groupingBy(FullInfoDisplayObject::uuid));
+    List<FullInfoDisplayObject> merged = new ArrayList<>();
+    for (FullInfoDisplayObject initial : initialOutput) {
+      if (infoOutput.containsKey(initial.uuid())) {
+        List<FullInfoDisplayObject> infos = infoOutput.get(initial.uuid());
+        if (!infos.isEmpty()) {
+          FullInfoDisplayObject info = infos.getFirst();
+          merged.add(new FullInfoDisplayObject(initial.uuid(), info.name(), info.rarity(), info.description(), info.flavor(), initial.picked(), initial.pickedVictory(), initial.power(), initial.type()));
+        }
+      }
+    }
+    return merged;
   }
 
   private static Collection<DisplayObject> sortDuelistObjs(Collection<DisplayObject> output, String objType) {

@@ -18,6 +18,9 @@ public interface RelicRepo extends JpaRepository<OfferRelicV2, Long> {
   @Query(name = "getRelicListFromDeckV2Lookup", nativeQuery = true)
   List<FullInfoDisplayObject> getAllFromDeck(String deck, List<String> relicIds);
 
+  @Query(name = "getInfoRelicRelicListFromDeckV2Lookup", nativeQuery = true)
+  List<FullInfoDisplayObject> getInfoRelicData(List<String> relicIds);
+
   @Query(value = """
   SELECT DISTINCT relic_id
   FROM info_relic

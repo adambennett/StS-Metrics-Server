@@ -17,6 +17,9 @@ public interface PotionRepo extends JpaRepository<OfferPotionV2, Long> {
   @Query(name = "getPotionListFromDeckV2Lookup", nativeQuery = true)
   List<FullInfoDisplayObject> getAllFromDeck(String deck, List<String> potionIds);
 
+  @Query(name = "getInfoPotionPotionListFromDeckV2Lookup", nativeQuery = true)
+  List<FullInfoDisplayObject> getInfoPotionData(List<String> potionIds);
+
   @Query(value = """
   SELECT DISTINCT potion_id
   FROM info_potion
