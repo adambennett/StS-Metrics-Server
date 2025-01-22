@@ -50,117 +50,172 @@ public class ScheduledUpdater {
         if (env.enableAutomaticUpdates) {
             isUpdating = true;
             logger.info("Updating tier scores. Calculating, please wait.");
+            int errors = 0;
             try {
                 logger.info("Calculating V4 scores, please wait...");
                 Map<String, String> cache = new HashMap<>();
                 long startTime = System.nanoTime();
-                Map<String, List<ScoredCardV4>> v4Scores = InfoController.calculateTierScores(-2, -1, "any", V4);
-                saveScores("v4", V4, v4Scores, cache, startTime);
+                /*Map<String, List<ScoredCardV4>> v4Scores = InfoController.calculateTierScores(-2, -1, "any", V4);
+                errors += saveScores("v4", V4, v4Scores, cache, startTime);*/
 
                 logger.info("Calculating A20 scores, please wait...");
                 startTime = System.nanoTime();
                 Map<String, List<ScoredCardA20>> a20Scores = InfoController.calculateTierScores(-2, -1, "any", A20);
-                saveScores("A20", A20, a20Scores, cache, startTime);
+                errors += saveScores("A20", A20, a20Scores, cache, startTime);
 
                 logger.info("Calculating Legacy scores, please wait...");
                 startTime = System.nanoTime();
                 Map<String, List<ScoredCard>> legacyScores = InfoController.calculateTierScores(-2, -1, "any", LEGACY);
-                saveScores("Legacy", LEGACY, legacyScores, cache, startTime);
+                errors += saveScores("Legacy", LEGACY, legacyScores, cache, startTime);
 
-                logger.info("Done saving all tier score updates. Scheduler will now exit.");
+                logger.info("Done saving all tier score updates. Scheduler will now exit. Errors: " + errors);
             } catch (Exception ex) {
                 logger.info("Error running scheduler! Ex:\n" + ex);
             }
         }
     }
 
-    private <T extends GeneralScoringCard> void saveScores(String name, ScoringRunLookupType type, Map<String, List<T>> scores, Map<String, String> cache, long startTime) {
+    private <T extends GeneralScoringCard> int saveScores(String name, ScoringRunLookupType type, Map<String, List<T>> scores, Map<String, String> cache, long startTime) {
+        int totalErrors = 0;
         try {
             logger.info("Done calculating " + name + " tier scores. Updating database with new entries.");
             int changedCards = 0;
             int newlyScored = 0;
             for (Map.Entry<String, List<T>> entry : scores.entrySet()) {
-                String pool = entry.getKey();
-                int size = entry.getValue().size();
-                logger.info("Updating " + name + " tier scores for pool: " + pool + " (" + size + ")");
-                Map<String, String> cardNames = null;
-                int counter = 1;
-                for (T card : entry.getValue()) {
-                    boolean set = false;
+                try {
+                    String pool = entry.getKey();
+                    int size = entry.getValue().size();
+                    logger.info("Updating " + name + " tier scores for pool: " + pool + " (" + size + ")");
+                    Map<String, String> cardNames = null;
+                    int counter = 1;
+                    for (T card : entry.getValue()) {
+                        try {
+                            HashMap<String, String> timings = new HashMap<>();
+                            long startCardTime = System.nanoTime();
+                            boolean set = false;
 
-                    // Check cache first always
-                    if (cache.containsKey(card.getCard_id())) {
-                        card.setCard_name(cache.get(card.getCard_id()));
-                        set = true;
-                    }
-                    // If cache miss, make sure card names is filled
-                    else if (cardNames == null) {
-                        cardNames = infoService.getCardNamesByPool(pool);
-                    }
+                            // Check cache first always
+                            if (cache.containsKey(card.getCard_id())) {
+                                card.setCard_name(cache.get(card.getCard_id()));
+                                set = true;
+                            }
+                            // If cache miss, make sure card names is filled
+                            else if (cardNames == null) {
+                                cardNames = infoService.getCardNamesByPool(pool);
+                            }
 
-                    // Cache miss
-                    if (!set) {
-                        // Check pool for card name
-                        if (cardNames.containsKey(card.getCard_id())) {
-                            card.setCard_name(cardNames.get(card.getCard_id()));
+                            // Cache miss
+                            if (!set) {
+                                // Check pool for card name
+                                if (cardNames.containsKey(card.getCard_id())) {
+                                    card.setCard_name(cardNames.get(card.getCard_id()));
+                                }
+                                // Ultimately, just look it up
+                                else {
+                                    String cardName = infoService.getCardName(card.getCard_id(), true);
+                                    card.setCard_name(cardName);
+                                    cache.put(card.getCard_id(), cardName);
+                                }
+                            }
+                            long stopCardTime = System.nanoTime();
+                            long elapsedCardTime = stopCardTime - startCardTime;
+                            double cardSeconds = (double)elapsedCardTime / 1_000_000_000.0;
+                            double cardMinutes = cardSeconds / 60.0;
+                            double cardDiff = cardMinutes - ((int) (cardSeconds / 60));
+                            double cardRemainderSeconds = Math.floor(cardDiff * 60);
+                            if (cardMinutes < 1) {
+                                cardMinutes = 0;
+                            }
+                            int cardMins = (int) cardMinutes;
+                            int cardSecs = (int)cardRemainderSeconds;
+                            timings.put("Name Lookup", cardMins + "m " + cardSecs + "s");
+
+                            startCardTime = System.nanoTime();
+
+                            card.setLastUpdated(new Date());
+                            if (this.logUpdatedCards) {
+                                TierScoreLookup oldScores = switch (type) {
+                                    case LEGACY -> infoService.getLegacyCardTierScores(card.getCard_id(), card.getPool_name());
+                                    case V4 -> infoService.getV4CardTierScores(card.getCard_id(), card.getPool_name());
+                                    case A20 -> infoService.getA20CardTierScores(card.getCard_id(), card.getPool_name());
+                                };
+                                if (oldScores == null) {
+                                    logger.info(name + " Scores: New card scored for " + card.getPool_name() + " -- " + card.getCard_name() + " (" + card.getCard_id() + ")");
+                                    newlyScored++;
+                                } else {
+                                    int act0Diff = 0;
+                                    int act1Diff = 0;
+                                    int act2Diff = 0;
+                                    int act3Diff = 0;
+                                    int overallDiff = 0;
+                                    if (oldScores.getAct0_score() != card.getAct0_score()) {
+                                        act0Diff = card.getAct0_score() - oldScores.getAct0_score();
+                                    }
+                                    if (oldScores.getAct1_score() != card.getAct1_score()) {
+                                        act1Diff = card.getAct1_score() - oldScores.getAct1_score();
+                                    }
+                                    if (oldScores.getAct2_score() != card.getAct2_score()) {
+                                        act2Diff = card.getAct2_score() - oldScores.getAct2_score();
+                                    }
+                                    if (oldScores.getAct3_score() != card.getAct3_score()) {
+                                        act3Diff = card.getAct3_score() - oldScores.getAct3_score();
+                                    }
+                                    if (oldScores.getOverall_score() != card.getOverall_score()) {
+                                        overallDiff = card.getOverall_score() - oldScores.getOverall_score();
+                                    }
+                                    if (act0Diff > 0 || act1Diff > 0 || act2Diff > 0 || act3Diff > 0 || overallDiff > 0) {
+                                        changedCards++;
+                                        logger.info(new TierScoreCompare<>(oldScores, card, act0Diff, act1Diff, act2Diff, act3Diff, overallDiff).print(card));
+                                    }
+                                }
+                            }
+
+                            stopCardTime = System.nanoTime();
+                            elapsedCardTime = stopCardTime - startCardTime;
+                            cardSeconds = (double)elapsedCardTime / 1_000_000_000.0;
+                            cardMinutes = cardSeconds / 60.0;
+                            cardDiff = cardMinutes - ((int) (cardSeconds / 60));
+                            cardRemainderSeconds = Math.floor(cardDiff * 60);
+                            if (cardMinutes < 1) {
+                                cardMinutes = 0;
+                            }
+                            cardMins = (int) cardMinutes;
+                            cardSecs = (int)cardRemainderSeconds;
+                            timings.put("LogUpdatedCards Block", cardMins + "m " + cardSecs + "s");
+
+                            startCardTime = System.nanoTime();
+                            if (card instanceof ScoredCard scoredCard) {
+                                InfoController.saveTierScores(scoredCard);
+                            } else if (card instanceof ScoredCardV4 scoredCardV4) {
+                                InfoController.saveTierScores(scoredCardV4);
+                            } else if (card instanceof ScoredCardA20 scoredCardA20) {
+                                InfoController.saveTierScores(scoredCardA20);
+                            }
+
+                            stopCardTime = System.nanoTime();
+                            elapsedCardTime = stopCardTime - startCardTime;
+                            cardSeconds = (double)elapsedCardTime / 1_000_000_000.0;
+                            cardMinutes = cardSeconds / 60.0;
+                            cardDiff = cardMinutes - ((int) (cardSeconds / 60));
+                            cardRemainderSeconds = Math.floor(cardDiff * 60);
+                            if (cardMinutes < 1) {
+                                cardMinutes = 0;
+                            }
+                            cardMins = (int) cardMinutes;
+                            cardSecs = (int)cardRemainderSeconds;
+                            timings.put("Save Scores", cardMins + "m " + cardSecs + "s");
+
+                            if (logProgress) {
+                                logger.info(name + " Scores - " + pool + " Progress: [" + counter + " / " + size + "] :: " + timings);
+                            }
+                        } catch (Exception ex) {
+                            logger.info("Error updating  " + name + " tier scores for pool: " + pool + "\n" + ExceptionUtils.getStackTrace(ex));
                         }
-                        // Ultimately, just look it up
-                        else {
-                            String cardName = infoService.getCardName(card.getCard_id(), true);
-                            card.setCard_name(cardName);
-                            cache.put(card.getCard_id(), cardName);
-                        }
+                        counter++;
                     }
-                    card.setLastUpdated(new Date());
-                    if (this.logUpdatedCards) {
-                        TierScoreLookup oldScores = switch (type) {
-                            case LEGACY -> infoService.getLegacyCardTierScores(card.getCard_id(), card.getPool_name());
-                            case V4 -> infoService.getV4CardTierScores(card.getCard_id(), card.getPool_name());
-                            case A20 -> infoService.getA20CardTierScores(card.getCard_id(), card.getPool_name());
-                        };
-                        if (oldScores == null) {
-                            logger.info(name + " Scores: New card scored for " + card.getPool_name() + " -- " + card.getCard_name() + " (" + card.getCard_id() + ")");
-                            newlyScored++;
-                        } else {
-                            int act0Diff = 0;
-                            int act1Diff = 0;
-                            int act2Diff = 0;
-                            int act3Diff = 0;
-                            int overallDiff = 0;
-                            if (oldScores.getAct0_score() != card.getAct0_score()) {
-                                act0Diff = card.getAct0_score() - oldScores.getAct0_score();
-                            }
-                            if (oldScores.getAct1_score() != card.getAct1_score()) {
-                                act1Diff = card.getAct1_score() - oldScores.getAct1_score();
-                            }
-                            if (oldScores.getAct2_score() != card.getAct2_score()) {
-                                act2Diff = card.getAct2_score() - oldScores.getAct2_score();
-                            }
-                            if (oldScores.getAct3_score() != card.getAct3_score()) {
-                                act3Diff = card.getAct3_score() - oldScores.getAct3_score();
-                            }
-                            if (oldScores.getOverall_score() != card.getOverall_score()) {
-                                overallDiff = card.getOverall_score() - oldScores.getOverall_score();
-                            }
-                            if (act0Diff > 0 || act1Diff > 0 || act2Diff > 0 || act3Diff > 0 || overallDiff > 0) {
-                                changedCards++;
-                                logger.info(new TierScoreCompare<>(oldScores, card, act0Diff, act1Diff, act2Diff, act3Diff, overallDiff).print(card));
-                            }
-                        }
-                    }
-
-                    if (card instanceof ScoredCard scoredCard) {
-                        InfoController.saveTierScores(scoredCard);
-                    } else if (card instanceof ScoredCardV4 scoredCardV4) {
-                        InfoController.saveTierScores(scoredCardV4);
-                    } else if (card instanceof ScoredCardA20 scoredCardA20) {
-                        InfoController.saveTierScores(scoredCardA20);
-                    }
-
-                    if (logProgress) {
-                        logger.info(name + " Scores - " + pool + " Progress: [" + counter + " / " + size + "]");
-                    }
-                    counter++;
+                } catch (Exception ex) {
+                    logger.info("Error updating " + entry.getKey() + " tier scores.\n" + ExceptionUtils.getStackTrace(ex));
+                    totalErrors++;
                 }
             }
             isUpdating = false;
@@ -182,5 +237,6 @@ public class ScheduledUpdater {
         } catch (Exception ex) {
             logger.info("Error saving updated " + name + " scores during scheduler!\n" + ExceptionUtils.getStackTrace(ex));
         }
+        return totalErrors;
     }
 }

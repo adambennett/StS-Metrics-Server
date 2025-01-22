@@ -105,7 +105,7 @@ public class Bundle {
   private TopBundle top;
 
   @Temporal(TemporalType.TIMESTAMP)
-  @Generated(GenerationTime.INSERT)
+  @CreationTimestamp
   private Date created_date;
 
   private String build_version;

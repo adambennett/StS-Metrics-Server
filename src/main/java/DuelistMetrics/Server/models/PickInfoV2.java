@@ -1,18 +1,10 @@
 package DuelistMetrics.Server.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -55,10 +47,10 @@ public class PickInfoV2 {
   private Integer challenge;
 
   @Temporal(TemporalType.TIMESTAMP)
-  @GeneratedValue(strategy = GenerationType.AUTO)
+  @CreationTimestamp
   private Date created_date;
 
-  @GeneratedValue(strategy = GenerationType.AUTO)
+  @Column(name = "data_hash", insertable = false, updatable = false)
   private String data_hash;
 
   public PickInfoV2() {}

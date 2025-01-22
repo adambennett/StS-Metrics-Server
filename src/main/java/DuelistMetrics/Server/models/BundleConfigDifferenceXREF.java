@@ -6,8 +6,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
-import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.GenerationTime;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.util.Date;
 
@@ -22,7 +21,7 @@ public class BundleConfigDifferenceXREF {
   private Long difference_id;
 
   @Temporal(TemporalType.TIMESTAMP)
-  @Generated(GenerationTime.INSERT)
+  @CreationTimestamp
   private Date created_date;
 
   public BundleConfigDifferenceXREF() {}
