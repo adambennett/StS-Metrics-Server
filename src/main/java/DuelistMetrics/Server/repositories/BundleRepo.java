@@ -4,6 +4,7 @@ import DuelistMetrics.Server.models.*;
 import DuelistMetrics.Server.models.dto.LeaderboardScoreWinnerDTO;
 import DuelistMetrics.Server.models.dto.LeaderboardWinnerDTO;
 import DuelistMetrics.Server.models.dto.PlayerNameListDTO;
+import DuelistMetrics.Server.models.dto.RunCountByDeckDTO;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.stereotype.*;
 
@@ -158,5 +159,8 @@ public interface BundleRepo extends JpaRepository<Bundle, Long> {
 
     @Query(name = "getPlayerNamesByIdsLookup", nativeQuery = true)
     List<PlayerNameListDTO> getPlayerNamesByIds(List<String> playerIds);
+
+    @Query(name = "getNumberOfPostV4RunsForDeckLookup", nativeQuery = true)
+    List<RunCountByDeckDTO> getNumberOfPostV4RunsForDeck();
 
 }

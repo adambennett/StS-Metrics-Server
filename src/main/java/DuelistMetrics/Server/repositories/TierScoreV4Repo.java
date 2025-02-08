@@ -14,11 +14,11 @@ import java.util.Map;
 @Repository
 public interface TierScoreV4Repo extends JpaRepository<ScoredCardV4, ScoredCardKey> {
 
-    @Query(value = "SELECT pool_name, card_id, card_name, overall_score, act0_score, act1_score, act2_score, act3_score FROM scored_card_v4", nativeQuery = true)
-    List<Map<String, Object>> getScores();
+    @Query(value = "SELECT pool_name, card_id, card_name, overall_score, act0_score, act1_score, act2_score, act3_score FROM scored_card_v4 WHERE pool_name = :pool", nativeQuery = true)
+    List<Map<String, Object>> getScores(String pool);
 
     @Query(value = "SELECT card_id, card_name, overall_score, act0_score, act1_score, act2_score, act3_score FROM scored_card_v4 WHERE pool_name = :pool", nativeQuery = true)
-    List<Map<String, Object>> getScores(String pool);
+    List<Map<String, Object>> getScoresForPool(String pool);
 
     @Query(value = "SELECT card_name, overall_score, act0_score, act1_score, act2_score, act3_score FROM scored_card_v4 WHERE card_id = :card_id AND pool_name = :pool", nativeQuery = true)
     List<Map<String, Object>> getScores(String card_id, String pool);

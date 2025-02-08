@@ -3,6 +3,7 @@ package DuelistMetrics.Server.models;
 import DuelistMetrics.Server.models.dto.LeaderboardScoreWinnerDTO;
 import DuelistMetrics.Server.models.dto.LeaderboardWinnerDTO;
 import DuelistMetrics.Server.models.dto.PlayerNameListDTO;
+import DuelistMetrics.Server.models.dto.RunCountByDeckDTO;
 import DuelistMetrics.Server.models.infoModels.*;
 import DuelistMetrics.Server.util.*;
 import com.fasterxml.jackson.annotation.*;
@@ -92,6 +93,23 @@ GROUP BY unique_player_id
         classes = @ConstructorResult(targetClass = PlayerNameListDTO.class,columns = {
                 @ColumnResult(name = "playerId", type = String.class),
                 @ColumnResult(name = "playerNames", type = String.class)
+        })
+)
+//
+@NamedNativeQuery(name = "getNumberOfPostV4RunsForDeckLookup", query = """
+SELECT
+    starting_deck AS startingDeck,
+    COUNT(*) AS runs
+FROM bundle
+WHERE duelistmod_version IN ('v4.0.0', 'v4.0.1', 'v4.1.0') AND
+      starting_deck IS NOT NULL
+GROUP BY starting_deck
+""", resultSetMapping = "runCountByDeckDtoMapping")
+@SqlResultSetMapping(
+        name = "runCountByDeckDtoMapping",
+        classes = @ConstructorResult(targetClass = RunCountByDeckDTO.class,columns = {
+                @ColumnResult(name = "startingDeck", type = String.class),
+                @ColumnResult(name = "runs", type = Integer.class)
         })
 )
 public class Bundle {
