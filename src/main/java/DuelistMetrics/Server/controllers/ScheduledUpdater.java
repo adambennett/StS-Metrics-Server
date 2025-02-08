@@ -7,12 +7,14 @@ import DuelistMetrics.Server.models.tierScore.*;
 import DuelistMetrics.Server.services.*;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.*;
+import org.springframework.boot.SpringApplication;
 import org.springframework.http.*;
 import org.springframework.scheduling.annotation.*;
 import org.springframework.web.bind.annotation.*;
 import java.util.*;
 import java.util.logging.*;
 
+import static DuelistMetrics.Server.DuelistMetricsServer.ctx;
 import static DuelistMetrics.Server.models.enums.ScoringRunLookupType.*;
 
 @RestController
@@ -29,6 +31,7 @@ public class ScheduledUpdater {
     private boolean isUpdating = false;
     private final boolean logProgress;
     private final boolean logUpdatedCards;
+    private final boolean allowShutdownEndpoint;
     private static final Logger logger = Logger.getLogger("DuelistMetrics.Server.AutoUpdateScores");
 
     @Autowired
@@ -37,12 +40,32 @@ public class ScheduledUpdater {
         this.env = env;
         this.logProgress = env.showUpdateProgress;
         this.logUpdatedCards = env.showCardsUpdated;
+        this.allowShutdownEndpoint = env.allowShutdownEndpoint;
     }
 
     @GetMapping("/checkScheduler")
     @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public ResponseEntity<?> isSchedulerRunning() {
         return new ResponseEntity<>(isUpdating, HttpStatus.OK);
+    }
+
+    @PostMapping("/exit")
+    @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
+    public String exit() {
+        if (this.allowShutdownEndpoint) {
+            Thread shutdownThread = new Thread(() -> {
+                try {
+                    // Wait a short time to let the HTTP response finish
+                    Thread.sleep(1000);
+                } catch (InterruptedException ignored) {}
+                int exitCode = SpringApplication.exit(ctx, () -> 0);
+                System.exit(exitCode);
+            });
+
+            shutdownThread.start();
+            return "Application is shutting down...";
+        }
+        return "Remote shutdown is disabled!";
     }
 
     @Scheduled(fixedDelay = ONE_DAY, initialDelay = 100)
@@ -55,8 +78,8 @@ public class ScheduledUpdater {
                 logger.info("Calculating V4 scores, please wait...");
                 Map<String, String> cache = new HashMap<>();
                 long startTime = System.nanoTime();
-                /*Map<String, List<ScoredCardV4>> v4Scores = InfoController.calculateTierScores(-2, -1, "any", V4);
-                errors += saveScores("v4", V4, v4Scores, cache, startTime);*/
+                Map<String, List<ScoredCardV4>> v4Scores = InfoController.calculateTierScores(-2, -1, "any", V4);
+                errors += saveScores("v4", V4, v4Scores, cache, startTime);
 
                 logger.info("Calculating A20 scores, please wait...");
                 startTime = System.nanoTime();
