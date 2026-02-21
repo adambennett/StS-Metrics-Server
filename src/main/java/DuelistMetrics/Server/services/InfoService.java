@@ -458,7 +458,9 @@ public class InfoService {
 
   public void createTierScore(ScoredCardA20 scoredCard) { this.tierScoreA20Repo.save(scoredCard); }
 
-  public List<Map<String, Object>> getTierScores(String pool) { return this.tierRepo.getScores(pool); }
+  public List<Map<String, Object>> getTierScores(String pool) {
+    return this.tierRepo.getScores(pool);
+  }
 
   public Map<String, Map<String, Map<Integer, Integer>>> getAllTierScores() {
     List<Map<String, Object>> data = this.tierRepo.getScores();
@@ -522,7 +524,9 @@ public class InfoService {
     return output;
   }
 
-  public List<Map<String, Object>> getTierScores(String cardId, String pool) { return this.tierRepo.getScores(cardId, pool); }
+  public List<Map<String, Object>> getTierScores(String cardId, String pool) {
+    return this.tierRepo.getScores(cardId, pool);
+  }
 
   public TierScoreLookup getLegacyCardTierScores(String cardId, String pool) {
     List<TierScoreLookup> scores = this.tierRepo.getScoresJPA(cardId, pool);

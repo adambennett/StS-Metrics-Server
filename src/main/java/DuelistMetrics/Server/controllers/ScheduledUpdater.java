@@ -20,8 +20,6 @@ import static DuelistMetrics.Server.models.enums.ScoringRunLookupType.*;
 @RestController
 public class ScheduledUpdater {
 
-    private static final long TEN_MINUTES  =       360_000L;
-    private static final long ONE_HOUR     =     3_600_000L;
     private static final long ONE_DAY      =    86_400_000L;
     private static final long ONE_MONTH    = 2_592_000_000L;
     private static final long THREE_MONTHS = 7_776_000_000L;
@@ -31,6 +29,7 @@ public class ScheduledUpdater {
     private boolean isUpdating = false;
     private final boolean logProgress;
     private final boolean logUpdatedCards;
+    private final boolean simpleLogUpdatedCards;
     private final boolean allowShutdownEndpoint;
     private static final Logger logger = Logger.getLogger("DuelistMetrics.Server.AutoUpdateScores");
 
@@ -39,8 +38,9 @@ public class ScheduledUpdater {
         this.infoService = infoService;
         this.env = env;
         this.logProgress = env.showUpdateProgress;
-        this.logUpdatedCards = env.showCardsUpdated;
         this.allowShutdownEndpoint = env.allowShutdownEndpoint;
+        this.simpleLogUpdatedCards = env.printSimpleScoreOutput;
+        this.logUpdatedCards = !env.printSimpleScoreOutput && env.showCardsUpdated;
     }
 
     @GetMapping("/checkScheduler")
@@ -101,9 +101,13 @@ public class ScheduledUpdater {
     private <T extends GeneralScoringCard> int saveScores(String name, ScoringRunLookupType type, Map<String, List<T>> scores, Map<String, String> cache, long startTime) {
         int totalErrors = 0;
         try {
-            logger.info("Done calculating " + name + " tier scores. Updating database with new entries.");
+            String suffix = this.simpleLogUpdatedCards
+                    ? "Preparing summary..."
+                    : "Updating database with new entries...";
+            logger.info("Done calculating " + name + " tier scores. " + suffix);
             int changedCards = 0;
             int newlyScored = 0;
+            TreeMap<String, List<T>> simpleOutputPreparedCards = new TreeMap<>();
             for (Map.Entry<String, List<T>> entry : scores.entrySet()) {
                 try {
                     String pool = entry.getKey();
@@ -156,6 +160,11 @@ public class ScheduledUpdater {
                             startCardTime = System.nanoTime();
 
                             card.setLastUpdated(new Date());
+                            if (this.simpleLogUpdatedCards) {
+                                simpleOutputPreparedCards
+                                        .computeIfAbsent(pool, __ -> new ArrayList<>())
+                                        .add(card);
+                            }
                             if (this.logUpdatedCards) {
                                 TierScoreLookup oldScores = switch (type) {
                                     case LEGACY -> infoService.getLegacyCardTierScores(card.getCard_id(), card.getPool_name());
@@ -207,12 +216,13 @@ public class ScheduledUpdater {
                             timings.put("LogUpdatedCards Block", cardMins + "m " + cardSecs + "s");
 
                             startCardTime = System.nanoTime();
-                            if (card instanceof ScoredCard scoredCard) {
-                                InfoController.saveTierScores(scoredCard);
-                            } else if (card instanceof ScoredCardV4 scoredCardV4) {
-                                InfoController.saveTierScores(scoredCardV4);
-                            } else if (card instanceof ScoredCardA20 scoredCardA20) {
-                                InfoController.saveTierScores(scoredCardA20);
+                            if (!this.simpleLogUpdatedCards) {
+                                switch (card) {
+                                    case ScoredCard scoredCard -> InfoController.saveTierScores(scoredCard);
+                                    case ScoredCardV4 scoredCardV4 -> InfoController.saveTierScores(scoredCardV4);
+                                    case ScoredCardA20 scoredCardA20 -> InfoController.saveTierScores(scoredCardA20);
+                                    default -> {}
+                                }
                             }
 
                             stopCardTime = System.nanoTime();
@@ -257,6 +267,34 @@ public class ScheduledUpdater {
                     ? name + " Tier scores updated. " + changedCards + " card scores modified. " + newlyScored + " new cards scored. Execution time: " + mins + "m " + secs + "s"
                     : name + " Tier scores updated. Execution time: " + mins + "m " + secs + "s";
             logger.info(message);
+
+            if (this.simpleLogUpdatedCards) {
+                System.out.println();
+                System.out.println();
+
+                boolean firstPool = true;
+                for (Map.Entry<String, List<T>> poolEntry : simpleOutputPreparedCards.entrySet()) {
+                    String poolName = poolEntry.getKey();
+                    List<T> cards = poolEntry.getValue();
+
+                    // sort cards by overall score descending (highest first)
+                    cards.sort(Comparator.comparingInt(GeneralScoringCard::getOverall_score).reversed());
+
+                    // new line in between each new pool
+                    if (!firstPool) {
+                        System.out.println();
+                    }
+                    firstPool = false;
+
+                    // first line - print pool name
+                    System.out.println(poolName);
+
+                    // following lines - print each card in the list using card.printCondensed()
+                    for (T card : cards) {
+                        System.out.println(card.printCondensed());
+                    }
+                }
+            }
         } catch (Exception ex) {
             logger.info("Error saving updated " + name + " scores during scheduler!\n" + ExceptionUtils.getStackTrace(ex));
         }

@@ -17,5 +17,6 @@ public class CustomProperties {
     public Boolean showUpdateProgress = false;
     public Boolean showCardsUpdated = false;
     public Boolean allowShutdownEndpoint = false;
+    public Boolean printSimpleScoreOutput = false;
 
 }
