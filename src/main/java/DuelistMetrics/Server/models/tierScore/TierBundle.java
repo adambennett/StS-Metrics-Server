@@ -6,11 +6,13 @@ public class TierBundle {
 
     public int id;
     public boolean victory;
+    public Long duelistModVersionId;
     public Map<Integer, List<String>> card_choices;
 
-    public TierBundle(int id, boolean victory) {
+    public TierBundle(int id, boolean victory, Long duelistModVersionId) {
         this.id = id;
         this.victory = victory;
+        this.duelistModVersionId = duelistModVersionId;
         this.card_choices = new HashMap<>();
     }
 

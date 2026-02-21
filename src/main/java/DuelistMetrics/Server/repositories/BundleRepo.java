@@ -4,6 +4,7 @@ import DuelistMetrics.Server.models.*;
 import DuelistMetrics.Server.models.dto.LeaderboardScoreWinnerDTO;
 import DuelistMetrics.Server.models.dto.LeaderboardWinnerDTO;
 import DuelistMetrics.Server.models.dto.PlayerNameListDTO;
+import DuelistMetrics.Server.models.dto.TierBundleDTO;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.stereotype.*;
 
@@ -18,123 +19,41 @@ public interface BundleRepo extends JpaRepository<Bundle, Long> {
     @Query(value = "SELECT country FROM bundle WHERE country IS NOT NULL GROUP BY country", nativeQuery = true)
     List<String> getCountries();
 
-    @Query(value = "SELECT top_id, victory, sc.picked, sc.floor, starting_deck FROM bundle JOIN spire_card sc on bundle.top_id = sc.bundle_top_id WHERE starting_deck = :deck AND sc.floor < 51 AND (customized_card_pool = false OR customized_card_pool IS NULL) AND (add_base_game_cards = false OR add_base_game_cards IS NULL)", nativeQuery = true)
-    List<String> getBundlesForTierScores(String deck);
+    @Query(name = "getTierBundlesLookup", nativeQuery = true)
+    List<TierBundleDTO> getBundlesForTierScores(String deck);
 
-    @Query(value = "SELECT top_id, victory, sc.picked, sc.floor, starting_deck FROM bundle JOIN spire_card sc on bundle.top_id = sc.bundle_top_id WHERE starting_deck = :deck AND sc.floor < 51 AND (customized_card_pool = false OR customized_card_pool IS NULL) AND (add_base_game_cards = false OR add_base_game_cards IS NULL) AND ascension_level >= :ascensionHigherThan", nativeQuery = true)
-    List<String> getBundlesForTierScores(String deck, int ascensionHigherThan);
+    @Query(name = "getTierBundlesWithAscensionLookup", nativeQuery = true)
+    List<TierBundleDTO> getBundlesForTierScores(String deck, int ascensionHigherThan);
 
-    @Query(value = "SELECT top_id, victory, sc.picked, sc.floor, starting_deck FROM bundle JOIN spire_card sc on bundle.top_id = sc.bundle_top_id WHERE starting_deck = :deck AND sc.floor < 51 AND (customized_card_pool = false OR customized_card_pool IS NULL) AND (add_base_game_cards = false OR add_base_game_cards IS NULL) AND challenge_level >= :challengeHigherThan", nativeQuery = true)
-    List<String> getBundlesForTierScores(int challengeHigherThan, String deck);
+    @Query(name = "getTierBundlesWithChallengeLookup", nativeQuery = true)
+    List<TierBundleDTO> getBundlesForTierScores(int challengeHigherThan, String deck);
 
-    @Query(value = "SELECT top_id, victory, sc.picked, sc.floor, starting_deck FROM bundle JOIN spire_card sc on bundle.top_id = sc.bundle_top_id WHERE starting_deck = :deck AND sc.floor < 51 AND (customized_card_pool = false OR customized_card_pool IS NULL) AND (add_base_game_cards = false OR add_base_game_cards IS NULL) AND ascension_level >= :ascensionHigherThan AND challenge_level >= :challengeHigherThan", nativeQuery = true)
-    List<String> getBundlesForTierScores(String deck, int ascensionHigherThan, int challengeHigherThan);
+    @Query(name = "getTierBundlesWithBothLookup", nativeQuery = true)
+    List<TierBundleDTO> getBundlesForTierScores(String deck, int ascensionHigherThan, int challengeHigherThan);
 
-    @Query(value = """
-    SELECT top_id, victory, sc.picked, sc.floor, starting_deck
-    FROM bundle
-    JOIN spire_card sc ON bundle.top_id = sc.bundle_top_id
-    WHERE starting_deck = :deck AND
-          sc.floor < 51 AND
-          (customized_card_pool = false OR customized_card_pool IS NULL) AND
-          (add_base_game_cards = false OR add_base_game_cards IS NULL) AND
-          (duelistmod_version NOT LIKE 'v1%' AND duelistmod_version NOT LIKE 'v2%' AND duelistmod_version NOT LIKE 'v3%')
-    """, nativeQuery = true)
-    List<String> getV4BundlesForTierScores(String deck);
+    @Query(name = "getV4TierBundlesLookup", nativeQuery = true)
+    List<TierBundleDTO> getV4BundlesForTierScores(String deck);
 
-    @Query(value = """
-    SELECT top_id, victory, sc.picked, sc.floor, starting_deck
-    FROM bundle
-    JOIN spire_card sc ON bundle.top_id = sc.bundle_top_id
-    WHERE starting_deck = :deck AND
-          sc.floor < 51 AND
-          (customized_card_pool = false OR customized_card_pool IS NULL) AND
-          (add_base_game_cards = false OR add_base_game_cards IS NULL) AND
-          ascension_level >= :ascensionHigherThan AND
-          (duelistmod_version NOT LIKE 'v1%' AND duelistmod_version NOT LIKE 'v2%' AND duelistmod_version NOT LIKE 'v3%')
-    """, nativeQuery = true)
-    List<String> getV4BundlesForTierScores(String deck, int ascensionHigherThan);
+    @Query(name = "getV4TierBundlesWithAscensionLookup", nativeQuery = true)
+    List<TierBundleDTO> getV4BundlesForTierScores(String deck, int ascensionHigherThan);
 
-    @Query(value = """
-    SELECT top_id, victory, sc.picked, sc.floor, starting_deck
-    FROM bundle
-    JOIN spire_card sc ON bundle.top_id = sc.bundle_top_id
-    WHERE starting_deck = :deck AND
-          sc.floor < 51 AND
-          (customized_card_pool = false OR customized_card_pool IS NULL) AND
-          (add_base_game_cards = false OR add_base_game_cards IS NULL) AND
-          challenge_level >= :challengeHigherThan AND
-          (duelistmod_version NOT LIKE 'v1%' AND duelistmod_version NOT LIKE 'v2%' AND duelistmod_version NOT LIKE 'v3%')
-    """, nativeQuery = true)
-    List<String> getV4BundlesForTierScores(int challengeHigherThan, String deck);
+    @Query(name = "getV4TierBundlesWithChallengeLookup", nativeQuery = true)
+    List<TierBundleDTO> getV4BundlesForTierScores(int challengeHigherThan, String deck);
 
-    @Query(value = """
-    SELECT top_id, victory, sc.picked, sc.floor, starting_deck
-    FROM bundle
-    JOIN spire_card sc ON bundle.top_id = sc.bundle_top_id
-    WHERE starting_deck = :deck AND
-          sc.floor < 51 AND
-          (customized_card_pool = false OR customized_card_pool IS NULL) AND
-          (add_base_game_cards = false OR add_base_game_cards IS NULL) AND
-          ascension_level >= :ascensionHigherThan AND
-          challenge_level >= :challengeHigherThan AND
-          (duelistmod_version NOT LIKE 'v1%' AND duelistmod_version NOT LIKE 'v2%' AND duelistmod_version NOT LIKE 'v3%')
-    """, nativeQuery = true)
-    List<String> getV4BundlesForTierScores(String deck, int ascensionHigherThan, int challengeHigherThan);
+    @Query(name = "getV4TierBundlesWithBothLookup", nativeQuery = true)
+    List<TierBundleDTO> getV4BundlesForTierScores(String deck, int ascensionHigherThan, int challengeHigherThan);
 
-    @Query(value = """
-    SELECT top_id, victory, sc.picked, sc.floor, starting_deck
-    FROM bundle
-    JOIN spire_card sc ON bundle.top_id = sc.bundle_top_id
-    WHERE starting_deck = :deck AND
-          sc.floor < 51 AND
-          (customized_card_pool = false OR customized_card_pool IS NULL) AND
-          (add_base_game_cards = false OR add_base_game_cards IS NULL) AND
-          ascension_level >= 20 AND
-          (duelistmod_version NOT LIKE 'v1%' AND duelistmod_version NOT LIKE 'v2%' AND duelistmod_version NOT LIKE 'v3%')
-    """, nativeQuery = true)
-    List<String> getA20BundlesForTierScores(String deck);
+    @Query(name = "getA20TierBundlesLookup", nativeQuery = true)
+    List<TierBundleDTO> getA20BundlesForTierScores(String deck);
 
-    @Query(value = """
-    SELECT top_id, victory, sc.picked, sc.floor, starting_deck
-    FROM bundle
-    JOIN spire_card sc ON bundle.top_id = sc.bundle_top_id
-    WHERE starting_deck = :deck AND
-          sc.floor < 51 AND
-          (customized_card_pool = false OR customized_card_pool IS NULL) AND
-          (add_base_game_cards = false OR add_base_game_cards IS NULL) AND
-           ascension_level >= 20 AND ascension_level >= :ascensionHigherThan AND
-          (duelistmod_version NOT LIKE 'v1%' AND duelistmod_version NOT LIKE 'v2%' AND duelistmod_version NOT LIKE 'v3%')
-    """, nativeQuery = true)
-    List<String> getA20BundlesForTierScores(String deck, int ascensionHigherThan);
+    @Query(name = "getA20TierBundlesWithAscensionLookup", nativeQuery = true)
+    List<TierBundleDTO> getA20BundlesForTierScores(String deck, int ascensionHigherThan);
 
-    @Query(value = """
-    SELECT top_id, victory, sc.picked, sc.floor, starting_deck
-    FROM bundle
-    JOIN spire_card sc ON bundle.top_id = sc.bundle_top_id
-    WHERE starting_deck = :deck AND
-          sc.floor < 51 AND
-          (customized_card_pool = false OR customized_card_pool IS NULL) AND
-          (add_base_game_cards = false OR add_base_game_cards IS NULL) AND
-          ascension_level >= 20 AND
-          challenge_level >= :challengeHigherThan AND
-          (duelistmod_version NOT LIKE 'v1%' AND duelistmod_version NOT LIKE 'v2%' AND duelistmod_version NOT LIKE 'v3%')
-    """, nativeQuery = true)
-    List<String> getA20BundlesForTierScores(int challengeHigherThan, String deck);
+    @Query(name = "getA20TierBundlesWithChallengeLookup", nativeQuery = true)
+    List<TierBundleDTO> getA20BundlesForTierScores(int challengeHigherThan, String deck);
 
-    @Query(value = """
-    SELECT top_id, victory, sc.picked, sc.floor, starting_deck
-    FROM bundle
-    JOIN spire_card sc ON bundle.top_id = sc.bundle_top_id
-    WHERE starting_deck = :deck AND
-          sc.floor < 51 AND
-          (customized_card_pool = false OR customized_card_pool IS NULL) AND
-          (add_base_game_cards = false OR add_base_game_cards IS NULL) AND
-          ascension_level >= 20 AND ascension_level >= :ascensionHigherThan AND
-          challenge_level >= :challengeHigherThan AND
-          (duelistmod_version NOT LIKE 'v1%' AND duelistmod_version NOT LIKE 'v2%' AND duelistmod_version NOT LIKE 'v3%')
-    """, nativeQuery = true)
-    List<String> getA20BundlesForTierScores(String deck, int ascensionHigherThan, int challengeHigherThan);
+    @Query(name = "getA20TierBundlesWithBothLookup", nativeQuery = true)
+    List<TierBundleDTO> getA20BundlesForTierScores(String deck, int ascensionHigherThan, int challengeHigherThan);
 
     @Query(value = """
     SELECT COUNT(*)
