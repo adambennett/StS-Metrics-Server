@@ -631,6 +631,29 @@ public class InfoController {
             case A20 -> bundleService.getA20BundlesForTierScores(startingDecks, ascensionFilter, challengeFilter);
         };
 
+        /* Check configuration thresholds and filter out decks that don't meet requirements                           */
+        Map<String, Configuration> configMap = bundles.getConfigurationThresholds();
+        List<String> decksToRemove = new ArrayList<>();
+        for (Map.Entry<String, List<TierBundle>> entry : bundlesMap.entrySet()) {
+            String deck = entry.getKey();
+            String pool = deckToPoolConvert.get(deck);
+            Configuration config = configMap.get(pool);
+            if (config != null && config.getThreshold() != null) {
+                long count = entry.getValue().stream()
+                    .filter(bundle -> config.getThresholdVersion() == null || bundle.duelistModVersionId >= config.getThresholdVersion())
+                    .map(bundle -> bundle.id)
+                    .distinct()
+                    .count();
+                if (count < config.getThreshold()) {
+                    decksToRemove.add(deck);
+                    cardsMap.remove(pool);
+                }
+            }
+        }
+        for (String deck : decksToRemove) {
+            bundlesMap.remove(deck);
+        }
+
         /* Begin processing and scoring                                                                               */
         // Use data to construct win rates for all tracked cards (by deck)
         for (Map.Entry<String, List<TierBundle>> entry : bundlesMap.entrySet()) {

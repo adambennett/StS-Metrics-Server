@@ -6,11 +6,14 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
-import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.GenerationTime;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.util.Date;
 
+@Setter
+@Getter
 @Entity(name = "failed_run")
 public class FailedRun {
 
@@ -21,7 +24,7 @@ public class FailedRun {
   private String upload_json;
 
   @Temporal(TemporalType.TIMESTAMP)
-  @Generated(GenerationTime.INSERT)
+  @CreationTimestamp
   private Date created_date;
 
   public FailedRun() {}
@@ -36,27 +39,4 @@ public class FailedRun {
     this.created_date = created_date;
   }
 
-  public Long getId() {
-    return id;
-  }
-
-  public void setId(Long id) {
-    this.id = id;
-  }
-
-  public String getUpload_json() {
-    return upload_json;
-  }
-
-  public void setUpload_json(String upload_json) {
-    this.upload_json = upload_json;
-  }
-
-  public Date getCreated_date() {
-    return created_date;
-  }
-
-  public void setCreated_date(Date created_date) {
-    this.created_date = created_date;
-  }
 }

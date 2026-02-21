@@ -31,10 +31,11 @@ public class InfoService {
   private final TierScoreV4Repo tierScoreV4Repo;
   private final TierScoreA20Repo tierScoreA20Repo;
   private final DuelistOrbInfoRepo orbRepo;
+  private final ConfigurationRepo configurationRepo;
   private static final ArrayList<String> decks;
 
   @Autowired
-  public InfoService(InfoRepo repo, TopInfoBundleRepo bundleRepo, InfoCardRepo cardRepo, InfoRelicRepo relicRepo, InfoPotionRepo potionRepo, InfoCreatureRepo creatureRepo, MiniModRepo miniModRepo, EventRepo eventRepo, TierScoreRepo scoreRepo, TierScoreV4Repo tierScoreV4Repo, TierScoreA20Repo tierScoreA20Repo, DuelistOrbInfoRepo orbRepo) {
+  public InfoService(InfoRepo repo, TopInfoBundleRepo bundleRepo, InfoCardRepo cardRepo, InfoRelicRepo relicRepo, InfoPotionRepo potionRepo, InfoCreatureRepo creatureRepo, MiniModRepo miniModRepo, EventRepo eventRepo, TierScoreRepo scoreRepo, TierScoreV4Repo tierScoreV4Repo, TierScoreA20Repo tierScoreA20Repo, DuelistOrbInfoRepo orbRepo, ConfigurationRepo configurationRepo) {
     this.repo = repo;
     this.bundleRepo = bundleRepo;
     this.cardRepo = cardRepo;
@@ -47,6 +48,7 @@ public class InfoService {
     this.tierScoreV4Repo = tierScoreV4Repo;
     this.tierScoreA20Repo = tierScoreA20Repo;
     this.orbRepo = orbRepo;
+    this.configurationRepo = configurationRepo;
   }
 
   public List<String> getAllTrackedDuelistVersions() {
@@ -458,7 +460,9 @@ public class InfoService {
 
   public void createTierScore(ScoredCardA20 scoredCard) { this.tierScoreA20Repo.save(scoredCard); }
 
-  public List<Map<String, Object>> getTierScores(String pool) { return this.tierRepo.getScores(pool); }
+  public List<Map<String, Object>> getTierScores(String pool) {
+    return this.tierRepo.getScores(pool);
+  }
 
   public Map<String, Map<String, Map<Integer, Integer>>> getAllTierScores() {
     List<Map<String, Object>> data = this.tierRepo.getScores();
@@ -522,7 +526,9 @@ public class InfoService {
     return output;
   }
 
-  public List<Map<String, Object>> getTierScores(String cardId, String pool) { return this.tierRepo.getScores(cardId, pool); }
+  public List<Map<String, Object>> getTierScores(String cardId, String pool) {
+    return this.tierRepo.getScores(cardId, pool);
+  }
 
   public TierScoreLookup getLegacyCardTierScores(String cardId, String pool) {
     List<TierScoreLookup> scores = this.tierRepo.getScoresJPA(cardId, pool);
@@ -733,6 +739,15 @@ public class InfoService {
       return card[index] != null ? card[index].equals(true) : null;
     }
     return null;
+  }
+
+  public Map<String, Configuration> getConfigurationThresholds() {
+    List<Configuration> configs = configurationRepo.getActiveScoredDeckConfigurations();
+    Map<String, Configuration> map = new HashMap<>();
+    for (Configuration config : configs) {
+      map.put(config.getValue(), config);
+    }
+    return map;
   }
 
   static {

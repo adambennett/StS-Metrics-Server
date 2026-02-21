@@ -1,18 +1,8 @@
 package DuelistMetrics.Server.models;
 
 import DuelistMetrics.Server.models.dto.ConfigDifferenceDTO;
-import jakarta.persistence.ColumnResult;
-import jakarta.persistence.ConstructorResult;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.NamedNativeQuery;
-import jakarta.persistence.SqlResultSetMapping;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
-import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.GenerationTime;
+import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.util.Date;
 
@@ -47,10 +37,10 @@ public class ConfigDifference {
   private String player_value;
 
   @Temporal(TemporalType.TIMESTAMP)
-  @Generated(GenerationTime.INSERT)
+  @CreationTimestamp
   private Date created_date;
 
-  @Generated(GenerationTime.INSERT)
+  @Column(name = "data_hash", insertable = false, updatable = false)
   private String data_hash;
 
   public ConfigDifference() {}

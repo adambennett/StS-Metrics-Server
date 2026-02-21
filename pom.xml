@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.2.0</version>
+		<version>3.2.8</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>DuelistMetrics</groupId>
@@ -106,7 +106,35 @@
 					<executable>true</executable>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.8</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<configuration>
+							<tasks>
+								<move file="target/Duelist-Metrics-Server-2.0.0.jar"
+									  tofile="windows-service/Duelist-Metrics-Server.jar"/>
+							</tasks>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<excludes>
+					<exclude>scripts/aws-dump-2.sql</exclude>
+					<exclude>scripts/AWS__Snapshot_-2025_01_11_10_04_47-dump.sql</exclude>
+				</excludes>
+			</resource>
+		</resources>
 	</build>
 	<repositories>
 		<repository>

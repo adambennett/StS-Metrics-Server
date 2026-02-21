@@ -2,12 +2,7 @@ package DuelistMetrics.Server.services;
 
 import DuelistMetrics.Server.controllers.*;
 import DuelistMetrics.Server.models.*;
-import DuelistMetrics.Server.models.dto.LeaderboardScoreWinnerDTO;
-import DuelistMetrics.Server.models.dto.LeaderboardWinnerDTO;
-import DuelistMetrics.Server.models.dto.LeaderboardWinnerDeckListDTO;
-import DuelistMetrics.Server.models.dto.LeaderboardWinnersResultDTO;
-import DuelistMetrics.Server.models.dto.PlayerNameListDTO;
-import DuelistMetrics.Server.models.dto.RunMonthDTO;
+import DuelistMetrics.Server.models.dto.*;
 import DuelistMetrics.Server.models.tierScore.*;
 import DuelistMetrics.Server.repositories.*;
 import org.springframework.beans.factory.annotation.*;
@@ -20,11 +15,13 @@ import java.util.*;
 @Service
 public class BundleService {
 
-  private TopBundleRepo repo;
-  private BundleRepo innerRepo;
+  private final TopBundleRepo repo;
+  private final BundleRepo innerRepo;
 
-  @Autowired
-  public BundleService(TopBundleRepo repo, BundleRepo inner) { this.repo = repo; this.innerRepo = inner; }
+  public BundleService(TopBundleRepo repo, BundleRepo inner) {
+    this.repo = repo;
+    this.innerRepo = inner;
+  }
 
   public TopBundle create(TopBundle run) { return this.repo.save(run); }
 
@@ -84,22 +81,16 @@ public class BundleService {
 
   public List<TopBundle> getMostRecentRuns(int amt) { return repo.getMostRecentRuns(amt); }
 
-  private void processTierBundles(List<String> data, Map<String, List<TierBundle>> out) {
-    for (String s : data) {
-      String[] splice = s.split(",");
-      int id = -1;
-      int floor = -1;
-      try { id = Integer.parseInt(splice[0]); floor = Integer.parseInt(splice[3]); } catch (NumberFormatException ignored) {}
-      if (id > -1 && floor > -1) {
-        boolean victory = splice[1].equals("true");
-        String choiceId = splice[2];
-        String startDeck = splice[4];
-        TierBundle bundle = new TierBundle(id, victory);
+  private void processTierBundles(List<TierBundleDTO> data, Map<String, List<TierBundle>> out) {
+    for (TierBundleDTO dto : data) {
+      if (dto.topId() != null && dto.floor() != null) {
+        TierBundle bundle = new TierBundle(dto.topId(), dto.victory(), dto.infoBundleId());
+        String startDeck = dto.startingDeck();
         if (!out.containsKey(startDeck)) {
           out.put(startDeck, new ArrayList<>());
           List<String> newChoices = new ArrayList<>();
-          newChoices.add(choiceId);
-          bundle.card_choices.put(floor, newChoices);
+          newChoices.add(dto.picked());
+          bundle.card_choices.put(dto.floor(), newChoices);
           out.get(startDeck).add(bundle);
         } else {
           List<TierBundle> bndles = out.get(startDeck);
@@ -107,16 +98,16 @@ public class BundleService {
           for (TierBundle bnd : bndles) {
             if (bnd.equals(bundle)) {
               updated = true;
-              if (!bnd.card_choices.containsKey(floor)) {
-                bnd.card_choices.put(floor, new ArrayList<>());
+              if (!bnd.card_choices.containsKey(dto.floor())) {
+                bnd.card_choices.put(dto.floor(), new ArrayList<>());
               }
-              bnd.card_choices.get(floor).add(choiceId);
+              bnd.card_choices.get(dto.floor()).add(dto.picked());
             }
           }
           if (!updated) {
             List<String> newChoices = new ArrayList<>();
-            newChoices.add(choiceId);
-            bundle.card_choices.put(floor, newChoices);
+            newChoices.add(dto.picked());
+            bundle.card_choices.put(dto.floor(), newChoices);
             bndles.add(bundle);
           }
         }
@@ -127,7 +118,7 @@ public class BundleService {
   public Map<String, List<TierBundle>> getLegacyBundlesForTierScores(List<String> decks, Integer ascensionFilter, Integer challengeFilter) {
     Map<String, List<TierBundle>> out = new HashMap<>();
     for (String deck : decks) {
-      List<String> data;
+      List<TierBundleDTO> data;
       if (challengeFilter != null && ascensionFilter != null) {
         data = innerRepo.getBundlesForTierScores(deck, ascensionFilter, challengeFilter);
       } else if (ascensionFilter != null) {
@@ -145,7 +136,7 @@ public class BundleService {
   public Map<String, List<TierBundle>> getV4BundlesForTierScores(List<String> decks, Integer ascensionFilter, Integer challengeFilter) {
     Map<String, List<TierBundle>> out = new HashMap<>();
     for (String deck : decks) {
-      List<String> data;
+      List<TierBundleDTO> data;
       if (challengeFilter != null && ascensionFilter != null) {
         data = innerRepo.getV4BundlesForTierScores(deck, ascensionFilter, challengeFilter);
       } else if (ascensionFilter != null) {
@@ -163,7 +154,7 @@ public class BundleService {
   public Map<String, List<TierBundle>> getA20BundlesForTierScores(List<String> decks, Integer ascensionFilter, Integer challengeFilter) {
     Map<String, List<TierBundle>> out = new HashMap<>();
     for (String deck : decks) {
-      List<String> data;
+      List<TierBundleDTO> data;
       if (challengeFilter != null && ascensionFilter != null) {
         data = innerRepo.getA20BundlesForTierScores(deck, ascensionFilter, challengeFilter);
       } else if (ascensionFilter != null) {

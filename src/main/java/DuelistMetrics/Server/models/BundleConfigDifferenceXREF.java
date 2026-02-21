@@ -6,11 +6,14 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
-import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.GenerationTime;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.util.Date;
 
+@Setter
+@Getter
 @Entity(name = "bundle_config_difference_xref")
 public class BundleConfigDifferenceXREF {
 
@@ -22,7 +25,7 @@ public class BundleConfigDifferenceXREF {
   private Long difference_id;
 
   @Temporal(TemporalType.TIMESTAMP)
-  @Generated(GenerationTime.INSERT)
+  @CreationTimestamp
   private Date created_date;
 
   public BundleConfigDifferenceXREF() {}
@@ -34,35 +37,4 @@ public class BundleConfigDifferenceXREF {
     this.created_date = created_date;
   }
 
-  public Long getId() {
-    return id;
-  }
-
-  public void setId(Long id) {
-    this.id = id;
-  }
-
-  public Long getBundle_id() {
-    return bundle_id;
-  }
-
-  public void setBundle_id(Long bundleId) {
-    this.bundle_id = bundleId;
-  }
-
-  public Long getDifference_id() {
-    return difference_id;
-  }
-
-  public void setDifference_id(Long differenceId) {
-    this.difference_id = differenceId;
-  }
-
-  public Date getCreated_date() {
-    return created_date;
-  }
-
-  public void setCreated_date(Date createdDate) {
-    this.created_date = createdDate;
-  }
 }
