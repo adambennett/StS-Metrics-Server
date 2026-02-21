@@ -660,6 +660,16 @@ public class InfoController {
             bundlesMap.remove(deck);
         }
 
+        // Filter out runs below threshold version
+        for (Map.Entry<String, List<TierBundle>> entry : bundlesMap.entrySet()) {
+            String deck = entry.getKey();
+            String pool = deckToPoolConvert.get(deck);
+            Configuration config = configMap.get(pool);
+            if (config != null && config.getThresholdVersion() != null) {
+                entry.getValue().removeIf(bundle -> bundle.duelistModVersionId < config.getThresholdVersion());
+            }
+        }
+
         /* Begin processing and scoring                                                                               */
         // Use data to construct win rates for all tracked cards (by deck)
         for (Map.Entry<String, List<TierBundle>> entry : bundlesMap.entrySet()) {
