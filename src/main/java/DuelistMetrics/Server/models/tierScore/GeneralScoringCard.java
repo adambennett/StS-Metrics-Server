@@ -4,6 +4,10 @@ import java.util.Date;
 
 public interface GeneralScoringCard {
 
+    default String printCondensed() {
+        return getCard_name() + ": " + getOverall_score();
+    }
+
     String getCard_id();
 
     String getPool_name();
