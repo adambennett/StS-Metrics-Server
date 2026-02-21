@@ -638,7 +638,13 @@ public class InfoController {
             String deck = entry.getKey();
             String pool = deckToPoolConvert.get(deck);
             Configuration config = configMap.get(pool);
-            if (config != null && config.getThreshold() != null) {
+            if (config == null) {
+                decksToRemove.add(deck);
+                cardsMap.remove(pool);
+                logger.info("Removing " + deck + " from tier scoring. No configuration found.");
+                continue;
+            }
+            if (config.getThreshold() != null) {
                 long count = entry.getValue().stream()
                     .filter(bundle -> config.getThresholdVersion() == null || bundle.duelistModVersionId >= config.getThresholdVersion())
                     .map(bundle -> bundle.id)
