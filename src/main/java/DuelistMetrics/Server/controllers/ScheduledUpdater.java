@@ -21,8 +21,6 @@ import static DuelistMetrics.Server.models.enums.ScoringRunLookupType.*;
 public class ScheduledUpdater {
 
     private static final long ONE_DAY      =    86_400_000L;
-    private static final long ONE_MONTH    = 2_592_000_000L;
-    private static final long THREE_MONTHS = 7_776_000_000L;
 
     private final InfoService infoService;
     private final CustomProperties env;

@@ -3,8 +3,6 @@ package DuelistMetrics.Server.models;
 import DuelistMetrics.Server.models.dto.ConfigDifferenceDTO;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.GenerationTime;
 
 import java.util.Date;
 
