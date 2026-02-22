@@ -215,6 +215,7 @@ public class InfoController {
                 Map<String, List<String>> output = recheckModules();
                 List<ModInfoBundle> saved = new ArrayList<>(list.getInfo().size());
                 for (ModInfoBundle mod : list.getInfo()) {
+                    logger.info("Tracking " + mod.getModID() + " version " + mod.getVersion() + " for the first time...");
                     if (output.containsKey(mod.getModID())) {
                         if (!output.get(mod.getModID()).contains(mod.getVersion())) {
                             saved.add(bundles.createBundle(mod));
@@ -222,8 +223,12 @@ public class InfoController {
                     } else {
                         saved.add(bundles.createBundle(mod));
                     }
+                    logger.info("New version of " + mod.getModID() + " parsed and saved! Version " + mod.getVersion() + " is now tracked!");
                 }
                 return new ResponseEntity<>(saved, HttpStatus.OK);
+            } else {
+                logger.info("Null info upload received!");
+                return new ResponseEntity<>("Invalid data payload", HttpStatus.BAD_REQUEST);
             }
         } catch (Exception ex) {
             logger.info("Exception saving uploaded module info\n" + ExceptionUtils.getStackTrace(ex));
@@ -253,8 +258,13 @@ public class InfoController {
     @GetMapping("/allModuleVersions")
     @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public ResponseEntity<?> getTrackedVersions() {
-        List<String> versions = bundles.getAllModuleVersions();
-        return new ResponseEntity<>(versions, HttpStatus.OK);
+        try {
+            List<String> versions = bundles.getAllModuleVersions();
+            return new ResponseEntity<>(versions, HttpStatus.OK);
+        } catch (Exception ex) {
+            logger.info("Exception in /allModuleVersions\n" + ExceptionUtils.getStackTrace(ex));
+            return new ResponseEntity<>(null, HttpStatus.SERVICE_UNAVAILABLE);
+        }
     }
 
     @GetMapping("/anubisScoreAverage")
