@@ -80,9 +80,13 @@ public class ExceptionController {
     @PostMapping("/logException")
     @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public String handleException(@RequestBody LoggedExceptionDTO exception) {
+        String stackTrace = exception.stackTrace();
+        if (stackTrace != null && stackTrace.length() > 50000) {
+            stackTrace = stackTrace.substring(0, 50000) + "\n... [truncated]";
+        }
         exceptionService.create(new LoggedException(
                 exception.message(),
-                exception.stackTrace(),
+                stackTrace,
                 exception.uuid(),
                 new Date(),
                 exception.duelistModVersion(),
@@ -96,11 +100,15 @@ public class ExceptionController {
     @PostMapping("/logWebException")
     @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public String handleWebException(@RequestBody LoggedExceptionDTO exception) {
+        String stackTrace = exception.stackTrace();
+        if (stackTrace != null && stackTrace.length() > 50000) {
+            stackTrace = stackTrace.substring(0, 50000) + "\n... [truncated]";
+        }
         exceptionService.create(new LoggedException(
                 "Website",
                 exception.devMessage(),
                 exception.message(),
-                exception.stackTrace(),
+                stackTrace,
                 exception.uuid(),
                 exception.duelistModVersion(),
                 exception.runUUID(),

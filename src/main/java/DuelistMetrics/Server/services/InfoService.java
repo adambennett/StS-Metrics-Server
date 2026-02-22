@@ -545,7 +545,9 @@ public class InfoService {
     return scores == null || scores.size() < 1 ? null : scores.get(0);
   }
 
-  public List<String> getAllModuleVersions() { return this.bundleRepo.getAllModuleVersions(); }
+  public List<String> getAllModuleVersions() {
+    return this.bundleRepo.getDuelistModVersions();
+  }
 
   public List<String> getModList() { return this.bundleRepo.getMods(); }
 
