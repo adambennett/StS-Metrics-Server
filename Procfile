@@ -1,1 +1,1 @@
-web java -Dserver.port=$PORT -XX:+UseContainerSupport $JAVA_OPTS -jar target/Duelist-Metrics-Server-2.0.0.jar
+web java -Dserver.port=$PORT -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+UseG1GC -XX:MaxGCPauseMillis=100 -XX:+UseStringDeduplication $JAVA_OPTS -jar target/Duelist-Metrics-Server-2.0.0.jar

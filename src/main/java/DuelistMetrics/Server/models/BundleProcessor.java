@@ -62,15 +62,15 @@ public class BundleProcessor {
     TopBundle bnd = runUploadDTO.runBundle();
     if (saveTopBundles || saveRunsAndInfos) {
       Mapper<String> com = new Mapper<>();
-      Map<String, Integer> offered = new HashMap<>();
-      Map<String, Integer> picked = new HashMap<>();
-      Map<String, Integer> pickedVic = new HashMap<>();
-      Map<String, Integer> pickedR = new HashMap<>();
-      Map<String, Integer> pickedP = new HashMap<>();
-      Map<String, Integer> pickedN = new HashMap<>();
-      Map<String, Integer> pickedVicR = new HashMap<>();
-      Map<String, Integer> pickedVicP = new HashMap<>();
-      Map<String, Integer> pickedVicN = new HashMap<>();
+      Map<String, Integer> offered = new HashMap<>(64);
+      Map<String, Integer> picked = new HashMap<>(32);
+      Map<String, Integer> pickedVic = new HashMap<>(32);
+      Map<String, Integer> pickedR = new HashMap<>(16);
+      Map<String, Integer> pickedP = new HashMap<>(8);
+      Map<String, Integer> pickedN = new HashMap<>(4);
+      Map<String, Integer> pickedVicR = new HashMap<>(16);
+      Map<String, Integer> pickedVicP = new HashMap<>(8);
+      Map<String, Integer> pickedVicN = new HashMap<>(4);
 
       boolean victory = bnd.getEvent().getVictory();
       Integer ascensionLvl = bnd.getEvent().getAscension_level();
@@ -105,6 +105,18 @@ public class BundleProcessor {
 
       // Save all to DB
       Long newRun = saveParsedInfo(info, bnd, deck, ascensionLvl, challengeLvl, runID, saveTopBundles, saveRunsAndInfos);
+      
+      // Clear maps to free memory
+      offered.clear();
+      picked.clear();
+      pickedVic.clear();
+      pickedR.clear();
+      pickedP.clear();
+      pickedN.clear();
+      pickedVicR.clear();
+      pickedVicP.clear();
+      pickedVicN.clear();
+      
       if (newRun != null && newRun > -1 && runUploadDTO.configDifferences() != null && !runUploadDTO.configDifferences().isEmpty()) {
         List<Long> differenceIds = new ArrayList<>();
         for (var difference : runUploadDTO.configDifferences()) {
