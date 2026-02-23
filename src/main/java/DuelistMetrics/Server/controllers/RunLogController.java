@@ -26,6 +26,8 @@ import java.util.logging.*;
 public class RunLogController {
 
     private static final Logger logger = Logger.getLogger("DuelistMetrics.RunLogController");
+    private static final ObjectMapper objectMapper = new ObjectMapper()
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     private static RunLogService bundles;
     private static BundleService realBundles;
@@ -71,36 +73,31 @@ public class RunLogController {
     @PostMapping("/runupload")
     @CrossOrigin(origins = {"https://www.duelistmetrics.com", "https://www.dev.duelistmetrics.com", "https://duelistmetrics.com", "https://dev.duelistmetrics.com", "http://localhost:4200"})
     public ResponseEntity<?> upload(@RequestBody String body) {
-        if (body != null) {
+        if (body == null) {
+            return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+        }
+        try {
+            RunUploadDTO runUploadDTO = objectMapper.readValue(body, new TypeReference<>() {});
+            if (runUploadDTO == null) {
+                logger.info("Could not parse run with new DTO format, runUploadDTO was null");
+                throw new RuntimeException("Error parsing run bundle");
+            }
+            BundleProcessor.parse(runUploadDTO);
+            return new ResponseEntity<>(null, HttpStatus.OK);
+        } catch (Exception ex) {
             try {
-                ObjectMapper objectMapper = new ObjectMapper();
-                RunUploadDTO runUploadDTO = objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).readValue(body, new TypeReference<>() {
-                });
-                if (runUploadDTO == null) {
-                    logger.info("Could not parse run with new DTO format, runUploadDTO was null");
+                TopBundle bundle = objectMapper.readValue(body, new TypeReference<>() {});
+                if (bundle == null) {
+                    logger.info("Could not parse run with old DTO format, bundle was null");
                     throw new RuntimeException("Error parsing run bundle");
                 }
-                BundleProcessor.parse(runUploadDTO);
+                BundleProcessor.parse(bundle, true, true);
                 return new ResponseEntity<>(null, HttpStatus.OK);
-            } catch (Exception ex) {
-                try {
-                    ObjectMapper objectMapper = new ObjectMapper();
-                    TopBundle bundle = objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).readValue(body, new TypeReference<>() {
-                    });
-                    if (bundle == null) {
-                        logger.info("Could not parse run with old DTO format, bundle was null");
-                        throw new RuntimeException("Error parsing run bundle");
-                    }
-                    BundleProcessor.parse(bundle, true, true);
-                    return new ResponseEntity<>(null, HttpStatus.OK);
-                } catch (Exception finalEx) {
-                    failedRunService.persist(body);
-                    logger.info("Exception while parsing run JSON\n" + ExceptionUtils.getStackTrace(ex) + "\n\nBody:\n" + body);
-                    return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-                }
+            } catch (Exception finalEx) {
+                failedRunService.persist(body);
+                logger.info("Exception while parsing run JSON\n" + ExceptionUtils.getStackTrace(ex));
+                return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
             }
-        } else {
-            return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
         }
     }
 
